@@ -1259,7 +1259,7 @@ window.SCRIPT=[
 {
 "s": [
 "Experiment two is my favourite, because you can actually see the effect.",
-"They use the simplest possible network: a linear classifier on MNIST. The 784 pixels go straight to 10 outputs, with no hidden layer and no bias. So the weight matrix is 784 by 10, one column per digit. And since 784 is 28 times 28, we can fold each column back into an image. How do you read it? The score for digit k is »the inner product of w k and x,« so each pixel with ink adds its weight. A green pixel votes for that digit, a red pixel votes against it. The figure shows the digits zero and five.",
+"They use the simplest possible network: a linear classifier on MNIST. The 784 pixels go straight to 10 outputs, with no hidden layer and no bias. So the weight matrix is 784 by 10, one column per digit. And since 784 is 28 times 28, we can fold each column back into an image. How do you read it? The score for digit k is »the inner product of w k and x,« so each pixel with ink adds its weight. Each picture is a scoring template for one digit: green pixels add to the score when they have ink, red pixels subtract. For zero, the ring is green and the hole in the middle is red: ink in the middle means it's probably not a zero. The figure shows the digits zero and five.",
 "The first column is SGD, unconstrained. You get kind of a noisy template of the digit.",
 "With the L1 ball, whose LMO only ever switches on one coordinate, you get just a few scattered pixels.",
 "With the hypercube, where the LMO pushes every coordinate to plus or minus tau, you get these saturated, smooth shapes.",

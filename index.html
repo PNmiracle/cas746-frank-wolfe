@@ -215,7 +215,7 @@ aside.notes{display:none}
 .hl.on{opacity:1}
 .shps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:8px 0}
 .shp{border:1px solid var(--rule);border-radius:10px;background:var(--card);padding:6px 8px 10px;text-align:center}
-.shp svg{width:100%;height:auto}.shp b{display:block;font-size:19px}.shp span{font-size:15px;color:var(--mut)}
+.shp>svg{width:100%;height:auto}.shp b{display:block;font-size:19px}.shp span{font-size:15px;color:var(--mut)}
 .lrow{display:flex;gap:24px;align-items:center}.lgrad{font-size:16px}
 .lmo3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:6px}
 .lp{border:1px solid var(--rule);border-radius:10px;padding:6px 12px 8px;background:var(--card);font-size:16px}
@@ -234,7 +234,15 @@ aside.notes{display:none}
 .refs p{font-size:17px;margin:7px 0;padding-left:22px;text-indent:-22px}
 .side .say,.side .note{font-size:17px;margin:2px 0}
 .body:has(>.side){grid-template-columns:minmax(0,1fr) var(--sw,318px)}
-.side svg{max-width:100%;height:auto}
+.side>svg,.side .railfig>svg{max-width:100%;height:auto}
+.side>svg{max-height:270px}
+.side{overflow-y:auto;scrollbar-width:thin}
+.side .rh{font-size:14px;color:var(--mut);margin:2px 0 -2px}
+.side .card{margin-bottom:0}
+.lpps{display:flex;flex-direction:column;gap:6px}
+.lpp{border:1px solid var(--rule);border-radius:8px;background:var(--card);padding:3px 6px}
+.lph{font-size:14px;display:flex;justify-content:space-between;gap:6px;align-items:baseline}.lph span{color:var(--mut);font-size:13px}
+.lpp>svg{width:100%;height:auto;max-height:none}
 .lp .m{display:block}
 .tk>span:last-child b{font-weight:600}
 </style></head><body>
@@ -341,7 +349,7 @@ aside.notes{display:none}
         
         </svg>
       <p class="note" data-s="3" style="padding:0">Gray: the SGD step lands outside C. <span class="k">Red: projection back to the closest point.</span></p>
-      <p class="note" data-s="4" style="padding:0">Dashed: the smallest circle around that point that touches C.</p>
+      <p class="note" data-s="4" style="padding:0">Dashed: the smallest circle around that point that touches C.</p><div class="rh">Equations used</div><div class="card" data-k="1"><span class="src">§1</span><span class="no">(1)</span> SGD step<div class="ct">\(\theta_{t+1}=\theta_t-\alpha g_t\)</div></div><div class="card" data-k="2"><span class="src">§1</span><span class="no">(2)</span> Weight decay<div class="ct">\(\theta_{t+1}=(1-\lambda)\theta_t-\alpha g_t\)</div></div>
     </div>
   </div>
 </section>
@@ -373,13 +381,13 @@ aside.notes{display:none}
         <circle cx="150" cy="226" r="7" fill="var(--ink)"/>
         <text x="112" y="248" class="lbl">θ<tspan baseline-shift="sub" font-size="11">t</tspan></text>
         <text data-s="4" x="150" y="324" class="lbl k">(1−α)·θ<tspan baseline-shift="sub" font-size="11">t</tspan> + α·v<tspan baseline-shift="sub" font-size="11">t</tspan></text>
-      </svg>
+      </svg><div class="rh">Equations used</div><div class="card" data-k="2"><span class="src">§1</span><span class="no">(2)</span> Weight decay<div class="ct">\(\theta_{t+1}=(1-\lambda)\theta_t-\alpha g_t\)</div></div><div class="card" data-k="3"><span class="src">§1</span><span class="no">(3)</span> Projected SGD<div class="ct">\(\theta_{t+1}=\Pi_C(\theta_t-\alpha g_t)\)</div></div><div class="card" data-k="4"><span class="src">§2</span><span class="no">(4)</span> LMO<div class="ct">\(v_t=\arg\min_{v\in C}\langle g_t,v\rangle\)</div></div><div class="card" data-k="5"><span class="src">§2</span><span class="no">(5)</span> Frank–Wolfe step<div class="ct">\(\theta_{t+1}=\theta_t+\alpha(v_t-\theta_t)\)</div></div>
     </div>
   </div>
   <aside class="notes">If asked why the LMO picks a vertex: a linear function on a polytope is minimized at a vertex; if a whole face is optimal, any vertex of it works.</aside>
 </section>
 
-<section class="slide" data-plan="90" style="--sw:310px">
+<section class="slide" data-plan="90" style="--sw:340px">
   <div class="hd"><span class="sec">2 · Stochastic Frank–Wolfe</span><h2>Why projection-free? LMO vs. projection</h2></div>
   <div class="body">
     <div class="deriv">
@@ -396,16 +404,43 @@ aside.notes{display:none}
       <div class="say" data-s="4"><b>Takeaway:</b> the LMO is usually a cheap, coordinate-wise rule, about as costly as an SGD step.</div>
     </div>
     <div class="side">
-      <svg class="fig2" viewBox="0 0 300 300" width="300" height="300">
-        <polygon points="150,40 260,150 150,260 40,150" fill="var(--prt)" stroke="var(--pr)" stroke-width="2.5"/>
-        <line x1="20" y1="150" x2="280" y2="150" stroke="var(--rule)"/><line x1="150" y1="20" x2="150" y2="280" stroke="var(--rule)"/>
-        <text x="58" y="210" class="lbl p">L1 ball</text>
-        <path class="draw" data-on="2" pathLength="1000" d="M150 150 L 214 112" stroke="#d9822b" stroke-width="3" fill="none"/>
-        <text data-s="2" x="196" y="100" style="fill:#d9822b">−g</text>
-        <g class="dot sh" data-on="2"><circle cx="260" cy="150" r="9"/></g>
-        <text data-s="2" x="14" y="40" class="k">LMO: one corner</text>
-        <text data-s="2" x="14" y="56" class="k">(1 non-zero entry)</text>
-      </svg>
+      <div class="lpps"><div class="lpp" data-s="1"><div class="lph"><b>L2 ball</b> <span>LMO \(-\tau g/\|g\|_2\)</span></div>
+<svg class="fig2" viewBox="0 0 300 140" width="300" height="140">
+<text x="40" y="14" font-size="12">LMO (Frank–Wolfe)</text><text x="186" y="14" font-size="12">projection</text>
+<circle cx="75" cy="78" r="48" fill="var(--prt)" stroke="var(--pr)" stroke-width="2"/><circle cx="225" cy="78" r="48" fill="var(--prt)" stroke="var(--pr)" stroke-width="2"/>
+<line x1="75" y1="78" x2="300" y2="78" stroke="none"/>
+<path class="draw" data-on="1" pathLength="1000" d="M75 78 L 101 63" stroke="#d9822b" stroke-width="2.5" fill="none"/>
+<text x="92" y="98" font-size="11" style="fill:#d9822b">−g</text>
+<g class="dot sh" data-on="1"><circle cx="116.6" cy="54" r="6"/></g>
+<circle cx="285" cy="22" r="4" fill="var(--mut)"/><text x="268" y="16" font-size="11">x</text>
+<path class="draw" data-on="1" pathLength="1000" d="M285 22 L 261.8 47" stroke="var(--pr)" stroke-width="2" stroke-dasharray="4 3" fill="none"/>
+<circle cx="261.8" cy="47" r="4.5" fill="var(--pr)"/>
+<text x="168" y="134" font-size="11.5">rescale: easy</text>
+</svg></div><div class="lpp" data-s="1"><div class="lph"><b>Hypercube (L∞)</b> <span>LMO \(-\tau\,\mathrm{sign}(g)\)</span></div>
+<svg class="fig2" viewBox="0 0 300 140" width="300" height="140">
+<text x="40" y="14" font-size="12">LMO (Frank–Wolfe)</text><text x="186" y="14" font-size="12">projection</text>
+<rect x="30" y="33" width="90" height="90" fill="var(--prt)" stroke="var(--pr)" stroke-width="2"/><rect x="180" y="33" width="90" height="90" fill="var(--prt)" stroke="var(--pr)" stroke-width="2"/>
+<line x1="75" y1="78" x2="300" y2="78" stroke="none"/>
+<path class="draw" data-on="1" pathLength="1000" d="M75 78 L 101 63" stroke="#d9822b" stroke-width="2.5" fill="none"/>
+<text x="92" y="98" font-size="11" style="fill:#d9822b">−g</text>
+<g class="dot sh" data-on="1"><circle cx="120" cy="33" r="6"/></g>
+<circle cx="285" cy="22" r="4" fill="var(--mut)"/><text x="268" y="16" font-size="11">x</text>
+<path class="draw" data-on="1" pathLength="1000" d="M285 22 L 270 33" stroke="var(--pr)" stroke-width="2" stroke-dasharray="4 3" fill="none"/>
+<circle cx="270" cy="33" r="4.5" fill="var(--pr)"/>
+<text x="168" y="134" font-size="11.5">clip each entry: easy</text>
+</svg></div><div class="lpp" data-s="2"><div class="lph"><b>L1 ball</b> <span>LMO \(\pm\tau\ \text{at}\ \arg\max_i|g_i|\)</span></div>
+<svg class="fig2" viewBox="0 0 300 140" width="300" height="140">
+<text x="40" y="14" font-size="12">LMO (Frank–Wolfe)</text><text x="186" y="14" font-size="12">projection</text>
+<polygon points="75,30 123,78 75,126 27,78" fill="var(--prt)" stroke="var(--pr)" stroke-width="2"/><polygon points="225,30 273,78 225,126 177,78" fill="var(--prt)" stroke="var(--pr)" stroke-width="2"/>
+<line x1="75" y1="78" x2="300" y2="78" stroke="none"/>
+<path class="draw" data-on="2" pathLength="1000" d="M75 78 L 101 63" stroke="#d9822b" stroke-width="2.5" fill="none"/>
+<text x="92" y="98" font-size="11" style="fill:#d9822b">−g</text>
+<g class="dot sh" data-on="2"><circle cx="123" cy="78" r="6"/></g>
+<circle cx="285" cy="22" r="4" fill="var(--mut)"/><text x="268" y="16" font-size="11">x</text>
+<path class="draw" data-on="2" pathLength="1000" d="M285 22 L 254 59" stroke="var(--pr)" stroke-width="2" stroke-dasharray="4 3" fill="none"/>
+<circle cx="254" cy="59" r="4.5" fill="var(--pr)"/>
+<text x="168" y="134" font-size="11.5">needs an O(n) algorithm</text>
+</svg></div></div>
     </div>
   </div>
 </section>
@@ -437,7 +472,7 @@ aside.notes{display:none}
         <div class="cmp"><span class="mut">SGD:</span> \(\theta_{t+1}=\theta_t-\alpha\, m_t\)</div>
         <div class="cmp k"><span>SFW:</span> \(v_t=\mathrm{LMO}(m_t)\), then step toward \(v_t\)</div>
         <div class="cap">Only lines 6–7 change.</div>
-      </div>
+      </div><div class="rh">Equations used</div><div class="card" data-k="1"><span class="src">§1</span><span class="no">(1)</span> SGD step<div class="ct">\(\theta_{t+1}=\theta_t-\alpha g_t\)</div></div><div class="card" data-k="4"><span class="src">§2</span><span class="no">(4)</span> LMO<div class="ct">\(v_t=\arg\min_{v\in C}\langle g_t,v\rangle\)</div></div><div class="card" data-k="5"><span class="src">§2</span><span class="no">(5)</span> Frank–Wolfe step<div class="ct">\(\theta_{t+1}=\theta_t+\alpha(v_t-\theta_t)\)</div></div>
     </div>
   </div>
 </section>
@@ -470,7 +505,7 @@ aside.notes{display:none}
           <text x="36" y="30">E[G]</text><text x="246" y="166">T</text>
           <text data-s="3" x="150" y="96" class="k">∝ 1/√T</text>
         </svg>
-      </div>
+      </div><div class="rh">Equations used</div><div class="card" data-k="4"><span class="src">§2</span><span class="no">(4)</span> LMO<div class="ct">\(v_t=\arg\min_{v\in C}\langle g_t,v\rangle\)</div></div><div class="card" data-k="5"><span class="src">§2</span><span class="no">(5)</span> Frank–Wolfe step<div class="ct">\(\theta_{t+1}=\theta_t+\alpha(v_t-\theta_t)\)</div></div>
     </div>
   </div>
   <aside class="notes">Smooth = the gradient is Lipschitz. Gap ≥ 0: take v = θ.</aside>
@@ -898,8 +933,8 @@ window.SCRIPT=[
 {
 "s": [
 "So why is this better? This table compares what Frank–Wolfe needs, the LMO, with what projected SGD needs, the projection, for each kind of set.",
-"For the L2 ball and the hypercube, both are easy. The LMO is »minus tau g over the norm of g,« or »minus tau times the sign of g.« And the projection is a rescale or a clip. So far, it's a tie.",
-"Now look at the L1 ball. The LMO just finds the biggest gradient entry and puts everything there: one non-zero entry, one corner of the diamond, as in the picture. The projection, on the other hand, needs a dedicated algorithm.",
+"For the L2 ball and the hypercube, both are easy. The LMO is »minus tau g over the norm of g,« or »minus tau times the sign of g.« And the projection is a rescale or a clip. In the pictures on the right, the left half of each panel is the LMO: the orange arrow is minus the gradient, and the red dot is the point the LMO picks. The right half is the projection: a point x outside the set, and the blue dashed line to its closest point. For the circle and the square, both are easy. So far, it's a tie.",
+"Now look at the L1 ball. The LMO just finds the biggest gradient entry and puts everything there: one non-zero entry, one corner of the diamond, as in the third picture. But projecting onto the diamond is not a simple rescale or clip: the closest point lands in the middle of an edge, and finding it needs a dedicated algorithm.",
 "And for a general Lp ball, the K-sparse polytope or the permutahedron, the LMO is still a simple rule, while the projection either has no closed form or needs a specialized algorithm.",
 "So the takeaway: for many interesting sets, the LMO is about as cheap as an SGD step."
 ],

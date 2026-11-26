@@ -567,6 +567,26 @@ mark.hi.on{background-size:100% 100%}
   </div></div>
 </section>
 
+<section class="slide" id="exp-setup" data-plan="120">
+  <div class="hd"><span class="sec">4 · Experiments</span><h2>What all four experiments share</h2></div>
+  <div class="body">
+    <div class="deriv">
+      <div class="terms" style="grid-template-columns:repeat(2,minmax(0,1fr))">
+        <div class="term" data-s="1"><span class="chip">1</span><b>Constraints: one region per layer</b>Every layer gets its own region of one type (L2, L∞, L1, K-sparse…). Its size follows the layer's initialization: \(D(C)=2w\,\mathbb E\|\theta^{\text{init}}\|_2\) (16). The <strong>width \(w\)</strong> is tuned: 100 on small nets, 13 (L2) or 30 (L∞) on DenseNet.</div>
+        <div class="term" data-s="2"><span class="chip">2</span><b>Step size: made to look like SGD</b>Rule (14) rescales each step so its length is \(\alpha\|m_t\|\), exactly an SGD step. So SFW reuses SGD's learning rate and schedule. Momentum 0.9 (\(\rho=0.1\)).</div>
+        <div class="term" data-s="3"><span class="chip">3</span><b>Baselines</b>SGD with momentum 0.9 (Nesterov on deep nets), <strong>with and without weight decay</strong> (\(10^{-4}\)), on unconstrained weights. Each method is tuned separately: learning rate, weight decay, width \(w\).</div>
+        <div class="term" data-s="4"><span class="chip">4</span><b>What is measured</b>Training loss and test accuracy; for Exp. 1 also <strong>gradients computed</strong> (the real cost); for Exp. 3 <strong>active weights</strong>; for Exp. 4 <strong>top-1 accuracy</strong> (the highest-scoring class is the true one). Mean of 3–10 runs; ± is the standard deviation.</div>
+      </div>
+      <div class="say" data-s="5">So any difference we see comes from <b>the region and the LMO</b>, not from a different learning rate or a different amount of work.</div>
+    </div>
+    <div class="side">
+      <div class="railfig"><svg class="fig2" viewBox="0 0 300 200" width="300" height="200"><rect x="14" y="40" width="52" height="110" rx="8" fill="var(--card)" stroke="var(--rule)"/><text x="40" y="32" text-anchor="middle" font-size="12">layer 1</text><circle class="grow" data-s="1" style="transform-origin:40px 95px;transform-box:view-box" cx="40" cy="95" r="18" fill="var(--prt)" stroke="var(--pr)" stroke-width="2"/><circle cx="40" cy="95" r="4.0" fill="var(--mut)"/><text x="40" y="166" text-anchor="middle" font-size="12">C<tspan baseline-shift="sub" font-size="9">1</tspan></text><path d="M68 95 L82 95" stroke="var(--mut)" stroke-width="1.5"/><rect x="84" y="40" width="52" height="110" rx="8" fill="var(--card)" stroke="var(--rule)"/><text x="110" y="32" text-anchor="middle" font-size="12">layer 2</text><circle class="grow" data-s="1" style="transform-origin:110px 95px;transform-box:view-box" cx="110" cy="95" r="30" fill="var(--prt)" stroke="var(--pr)" stroke-width="2"/><circle cx="110" cy="95" r="6.7" fill="var(--mut)"/><text x="110" y="166" text-anchor="middle" font-size="12">C<tspan baseline-shift="sub" font-size="9">2</tspan></text><path d="M138 95 L152 95" stroke="var(--mut)" stroke-width="1.5"/><rect x="154" y="40" width="52" height="110" rx="8" fill="var(--card)" stroke="var(--rule)"/><text x="180" y="32" text-anchor="middle" font-size="12">layer 3</text><circle class="grow" data-s="1" style="transform-origin:180px 95px;transform-box:view-box" cx="180" cy="95" r="24" fill="var(--prt)" stroke="var(--pr)" stroke-width="2"/><circle cx="180" cy="95" r="5.3" fill="var(--mut)"/><text x="180" y="166" text-anchor="middle" font-size="12">C<tspan baseline-shift="sub" font-size="9">3</tspan></text><path d="M208 95 L222 95" stroke="var(--mut)" stroke-width="1.5"/><rect x="224" y="40" width="52" height="110" rx="8" fill="var(--card)" stroke="var(--rule)"/><text x="250" y="32" text-anchor="middle" font-size="12">layer 4</text><circle class="grow" data-s="1" style="transform-origin:250px 95px;transform-box:view-box" cx="250" cy="95" r="12" fill="var(--prt)" stroke="var(--pr)" stroke-width="2"/><circle cx="250" cy="95" r="2.7" fill="var(--mut)"/><text x="250" y="166" text-anchor="middle" font-size="12">C<tspan baseline-shift="sub" font-size="9">4</tspan></text><text x="6" y="190" font-size="11.5">gray: initial size · circle: region, w× larger</text></svg>
+        <div class="cap">Each layer is constrained separately, with a region sized to its own initialization.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="slide" id="variants" data-plan="150" style="--sw:330px">
   <div class="hd"><span class="sec">4 · Experiments</span><h2>Before Experiment 1: four ways to estimate the gradient</h2></div>
   <div class="body">
@@ -648,7 +668,7 @@ mark.hi.on{background-size:100% 100%}
           <g class="grow" data-s="1" style="transform-origin:50% 50%"><rect x="100" y="40" width="91" height="91" fill="var(--prt)" stroke="var(--pr)"/><line x1="100" y1="40" x2="100" y2="131" stroke="var(--rule)"/><line x1="100" y1="40" x2="191" y2="40" stroke="var(--rule)"/><line x1="113" y1="40" x2="113" y2="131" stroke="var(--rule)"/><line x1="100" y1="53" x2="191" y2="53" stroke="var(--rule)"/><line x1="126" y1="40" x2="126" y2="131" stroke="var(--rule)"/><line x1="100" y1="66" x2="191" y2="66" stroke="var(--rule)"/><line x1="139" y1="40" x2="139" y2="131" stroke="var(--rule)"/><line x1="100" y1="79" x2="191" y2="79" stroke="var(--rule)"/><line x1="152" y1="40" x2="152" y2="131" stroke="var(--rule)"/><line x1="100" y1="92" x2="191" y2="92" stroke="var(--rule)"/><line x1="165" y1="40" x2="165" y2="131" stroke="var(--rule)"/><line x1="100" y1="105" x2="191" y2="105" stroke="var(--rule)"/><line x1="178" y1="40" x2="178" y2="131" stroke="var(--rule)"/><line x1="100" y1="118" x2="191" y2="118" stroke="var(--rule)"/><line x1="191" y1="40" x2="191" y2="131" stroke="var(--rule)"/><line x1="100" y1="131" x2="191" y2="131" stroke="var(--rule)"/></g>
           <text data-s="1" x="98" y="152">28 × 28 image</text>
         </svg>
-        <div class="cap">Linear classifier 784 → 10, no hidden layer, no bias. One column per digit.</div>
+        <div class="cap">Linear classifier 784 → 10, no hidden layer, no bias. Score of digit \(k\): \(s_k(x)=\langle w_k,x\rangle\). <span style="color:#2e8b57">Green</span> pixels with ink vote <b>for</b> \(k\), <span class="k">red</span> ones against.</div>
       </div>
       <div class="bars nob">
         <div class="bar sm" data-s="2"><span>SGD</span><span class="m">noisy template</span></div>
@@ -660,8 +680,48 @@ mark.hi.on{background-size:100% 100%}
   </div>
 </section>
 
+<section class="slide" id="exp2-why" data-plan="150" style="--sw:330px">
+  <div class="hd"><span class="sec">4 · Experiments</span><h2>Why the pictures differ: the weights are a mix of LMO outputs</h2></div>
+  <div class="body">
+    <div class="deriv">
+      <div class="ln" data-s="1" data-eq="5b" data-srcs="D:-;;A:-;;E:-" data-moves="D:shrink the current weights;;A:current weights;;E:add a little of the LMO output" data-via="Start from the shrink form of the step (5′)" data-read="theta t plus one equals one minus alpha, times theta t, plus alpha v t"
+        data-why="Every step is a shrink plus a small piece of an LMO output."
+        data-steps="Recall the Frank–Wolfe step (5): \(\theta_{t+1}=\theta_t+\alpha(v_t-\theta_t)\).;; Expand and group: \((1-\alpha)\theta_t+\alpha v_t\).;; Read it as: shrink the weights, then add a fraction \(\alpha\) of the LMO output."
+        >\[ \theta_{t+1}=\class{tD}{(1-\alpha)}\,\class{tA}{\theta_t}+\class{tE}{\alpha\,v_t} \]</div>
+      <div class="ln" data-s="2" data-srcs="D:^1;;A:^1;;E:^1" data-moves="D:shrunk twice;;A:apply the step to θₜ₊₁ again;;E:old LMO output, shrunk once, plus the new one" data-via="Apply it twice" data-read="theta t plus two equals one minus alpha squared theta t, plus alpha one minus alpha v t, plus alpha v t plus one"
+        data-why="Each LMO output stays in the weights, and older ones are shrunk more."
+        data-steps="Write the step for \(t+1\): \(\theta_{t+2}=(1-\alpha)\theta_{t+1}+\alpha v_{t+1}\).;; Insert the previous line for \(\theta_{t+1}\).;; Multiply out: \((1-\alpha)^2\theta_t+\alpha(1-\alpha)v_t+\alpha v_{t+1}\).;; Pattern: every LMO output is still there, multiplied by \(1-\alpha\) once per later step."
+        >\[ \theta_{t+2}=\class{tD}{(1-\alpha)^2}\class{tA}{\theta_t}+\class{tE}{\alpha(1-\alpha)\,v_t+\alpha\,v_{t+1}} \]</div>
+      <div class="ln box" data-s="3" data-eq="U" data-nick="Mix of LMO outputs" data-srcs="D:^1;;A:^1;;E:^1;;F:-" data-moves="D:the initialization fades geometrically;;A:start from θ₀;;E:all LMO outputs, recent ones weigh most;;F:weights of the mix" data-via="Repeat T times (constant \(\alpha\) for simplicity)" data-read="theta T equals one minus alpha to the T, theta zero, plus alpha times the sum over t of one minus alpha to the T minus one minus t, v t"
+        data-why="The trained weights are (almost) a weighted average of the LMO outputs. So whatever the LMO outputs look like, the weights will look like that too."
+        data-steps="Keep unrolling the step back to \(\theta_0\).;; The initialization is multiplied by \(1-\alpha\) at every step: \((1-\alpha)^T\theta_0\), which goes to 0.;; Each \(v_t\) enters once with weight \(\alpha\) and is then shrunk \(T-1-t\) times.;; The weights \(\alpha(1-\alpha)^{T-1-t}\) are positive and sum to \(1-(1-\alpha)^T\approx1\): an average that favours recent outputs.;; So \(\theta_T\) is (almost) a weighted average of LMO outputs. In practice \(\alpha\) varies per step (rule 14), but the picture is the same."
+        data-sym="\theta_0::initial weights;; v_t::LMO output at step t">\[ \theta_T=\class{tD}{(1-\alpha)^T}\class{tA}{\theta_0}+\class{tE}{\sum_{t=0}^{T-1}\class{tF}{\alpha(1-\alpha)^{T-1-t}}\,v_t} \]</div>
+      <table class="tbl" style="margin-top:6px">
+        <tr data-s="4"><th style="width:18%">Region</th><th style="width:38%">Each LMO output \(v_t\)</th><th>So the weights \(\theta_T\)</th></tr>
+        <tr data-s="4"><td>L1 ball</td><td>one pixel \(\pm\tau\), all others 0</td><td>a few scattered pixels: the ones picked most</td></tr>
+        <tr data-s="4"><td>Hypercube</td><td>every pixel \(\pm\tau\)</td><td>saturated: pushed toward \(\pm\tau\) everywhere</td></tr>
+        <tr data-s="4"><td>L2 ball</td><td>\(-\tau\,m_t/\|m_t\|\), the gradient direction</td><td>a decayed sum of gradients: like SGD</td></tr>
+      </table>
+    </div>
+    <div class="side">
+      <div class="railfig" data-s="5"><b>Do the pictures change accuracy?</b>
+        <table class="tbl num" style="font-size:15px;margin-top:4px">
+          <tr><th>10 epochs, all digits</th><th>test acc.</th></tr>
+          <tr><td>SGD</td><td>92.15</td></tr>
+          <tr><td>SFW, L2 ball</td><td>92.17</td></tr>
+          <tr><td>SFW, K-sparse</td><td>91.92</td></tr>
+          <tr><td>SFW, hypercube</td><td>90.07</td></tr>
+          <tr><td>SFW, L1 ball</td><td>86.96</td></tr>
+        </table>
+        <div class="cap">Appendix C (single runs). Very different features, similar accuracy, except the very sparse L1 ball.</div>
+      </div>
+      <div class="say" data-s="6">The constraint is an <b>inductive bias</b>: it picks <i>which</i> solution you get, often at little cost in accuracy.</div>
+    </div>
+  </div>
+</section>
+
 <section class="slide" data-plan="120">
-  <div class="hd"><span class="sec">4 · Experiments · optional</span><h2>Experiment 3: how many weights are used?</h2></div>
+  <div class="hd"><span class="sec">4 · Experiments</span><h2>Experiment 3: how many weights are used?</h2></div>
   <div class="body">
     <div class="deriv" style="overflow:hidden">
       <div class="imgw" style="width:760px">
@@ -672,17 +732,50 @@ mark.hi.on{background-size:100% 100%}
         <div class="hl" data-only="4" style="left:17%;top:9%;width:36%;height:10%"></div>
         <div class="hl" data-only="4" style="left:56.5%;top:9%;width:41%;height:8%"></div>
       </div>
-      <p class="note">Figure 4 (Pokutta et al., 2020). Constrained: MSFW. Unconstrained: SGD. Mean of 5 runs.</p>
+      <p class="note">Figure 4 (Pokutta et al., 2020). MNIST, 10 epochs, mean of 5 runs. MLP: 2 hidden layers of 32 (26,506 weights). CNN: 3 conv layers + 1 dense (93,322). Constrained: MSFW, \(w=100\); K-sparse with K = 10% (MLP) / 3% (CNN) of the weights. Unconstrained: SGD.</p>
     </div>
     <div class="side">
       <div class="railfig" data-s="1">
         <svg class="fig2" viewBox="0 0 290 130" width="290" height="130"><line x1="10" y1="110" x2="285" y2="110" stroke="var(--rule)"/><rect x="20" y="38" width="14" height="72" fill="var(--rule)"/><rect x="36" y="2" width="14" height="108" fill="var(--acc)"/><rect x="64" y="62" width="14" height="48" fill="var(--rule)"/><rect x="80" y="98" width="14" height="12" fill="var(--mut)"/><rect x="108" y="26" width="14" height="84" fill="var(--rule)"/><rect x="124" y="14" width="14" height="96" fill="var(--acc)"/><rect x="152" y="74" width="14" height="36" fill="var(--rule)"/><rect x="168" y="104" width="14" height="6" fill="var(--mut)"/><rect x="196" y="50" width="14" height="60" fill="var(--rule)"/><rect x="212" y="86" width="14" height="24" fill="var(--mut)"/><rect x="240" y="56" width="14" height="54" fill="var(--rule)"/><rect x="256" y="38" width="14" height="72" fill="var(--acc)"/><text x="10" y="126">gray: |w| at init · bar: after training</text></svg>
         <div class="cap"><b class="k">Active</b>: \(|w|\ge\) its initial \(|w|\). Otherwise <b>inactive</b>.</div>
       </div>
-      <div class="note" data-s="2">x: test error · y: weights used (log). Lower = fewer weights.</div>
+      <div class="note" data-s="2">Each curve is <b>one training run over time</b>: the error drops, so it moves <b>right → left</b>. y: active weights (log). Lower = fewer weights used.</div>
       <div class="say" data-s="3"><b>K-sparse</b> (blue): far fewer active weights at similar error.</div>
       <div class="say" data-s="4"><b>Hypercube</b> (red): the most, as its dense LMO predicts.</div>
       <div class="say" data-s="5">Geometry shows up in the numbers: a route to <b>sparse networks</b>.</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" id="exp4-setup" data-plan="150" style="--sw:360px">
+  <div class="hd"><span class="sec">4 · Experiments</span><h2>Experiment 4 setup: why L2 and L∞?</h2></div>
+  <div class="body">
+    <div class="deriv">
+      <div class="ln" data-s="1" data-eq="5b" data-srcs="D:-;;A:-;;E:-" data-moves="D:shrink;;A:current weights;;E:LMO output" data-via="The SFW step, shrink form (5′)" data-read="theta t plus one equals one minus alpha, times theta t, plus alpha v t"
+        data-steps="This is the momentum version: the LMO is called on \(m_t\).;; Every step shrinks the weights by \(1-\alpha\) and adds \(\alpha v_t\).;; Now insert the two LMOs used in Experiment 4."
+        >\[ \theta_{t+1}=\class{tD}{(1-\alpha)}\class{tA}{\theta_t}+\class{tE}{\alpha\,v_t} \]</div>
+      <div class="ln box" data-s="2" data-eq="L2" data-nick="≈ weight decay" data-srcs="D:^1;;A:^1;;E:^1" data-moves="D:the shrink = weight decay with λ = α;;A:same;;E:L2 LMO: v = −τ m/‖m‖" data-via="Insert the L2 LMO \(v_t=-\tau\,m_t/\|m_t\|\)" data-read="theta t plus one equals one minus alpha theta t, minus alpha tau m t over the norm of m t"
+        data-why="L2-SFW is SGD with weight decay in disguise, with a normalized gradient step. That is why it is the natural candidate to match weight decay."
+        data-steps="The L2 LMO points straight downhill: \(v_t=-\tau\,m_t/\|m_t\|\).;; Insert into (5′): \((1-\alpha)\theta_t-\alpha\tau\,m_t/\|m_t\|\).;; Compare with weight decay (2): \((1-\lambda)\theta_t-\alpha g_t\).;; Same shrink with \(\lambda=\alpha\); the step uses the gradient direction with a fixed length \(\alpha\tau\).;; So L2-SFW ≈ SGD + momentum + weight decay, with normalized steps."
+        >\[ \theta_{t+1}=\class{tD}{(1-\alpha)}\class{tA}{\theta_t}\class{tE}{-\,\alpha\tau\,\frac{m_t}{\|m_t\|}} \]</div>
+      <div class="ln" data-s="3" data-eq="L∞" data-nick="Sign step" data-srcs="D:^2;;A:^2;;E:-" data-moves="D:same shrink;;A:same;;E:L∞ LMO: v = −τ sign(m): every weight moves by the same amount" data-via="Insert the L∞ (hypercube) LMO \(v_t=-\tau\,\mathrm{sign}(m_t)\)" data-read="theta t plus one equals one minus alpha theta t, minus alpha tau sign of m t"
+        data-why="Every weight takes a full-size step, however small its gradient: a dense, sign-only update. More aggressive, and it ignores how large each gradient entry is."
+        data-steps="The cube LMO keeps only the sign of each entry: \(v_t=-\tau\,\mathrm{sign}(m_t)\).;; Insert into (5′): \((1-\alpha)\theta_t-\alpha\tau\,\mathrm{sign}(m_t)\).;; Every weight moves by exactly \(\alpha\tau\), whether its gradient is large or tiny.;; This is like signSGD with weight decay: the magnitude information is thrown away. A plausible reason it does worse."
+        >\[ \theta_{t+1}=\class{tD}{(1-\alpha)}\class{tA}{\theta_t}\class{tE}{-\,\alpha\tau\,\mathrm{sign}(m_t)} \]</div>
+      <div class="say" data-s="4">Prediction: <b>L2 ≈ weight decay</b>; L∞ is the bolder test.</div>
+    </div>
+    <div class="side">
+      <div class="railfig" data-s="5"><b>Datasets</b>
+        <div class="cmp"><b>CIFAR-10 / 100</b>: 60k colour images, 32×32, 10 or 100 classes.</div>
+        <div class="cmp"><b>ImageNet</b>: 1.28M images, 1000 classes. Top-1 accuracy.</div>
+      </div>
+      <div class="railfig" data-s="6"><b>Networks (all standard CNNs)</b>
+        <div class="cmp"><b>DenseNet121</b>: 121 layers; each layer sees all earlier feature maps.</div>
+        <div class="cmp"><b>WideResNet-28-10</b>: a ResNet with 28 layers, 10× wider.</div>
+        <div class="cmp"><b>GoogLeNet</b>: Inception blocks, parallel 1×1 / 3×3 / 5×5 filters.</div>
+        <div class="cmp"><b>ResNeXt50</b>: a ResNet-50 with grouped convolutions.</div>
+        <div class="cap">200 epochs on CIFAR (lr 0.1, ×0.1 every 90 epochs), 90 on ImageNet. Width \(w\) and weight decay tuned per model.</div>
+      </div>
     </div>
   </div>
 </section>
@@ -694,12 +787,12 @@ mark.hi.on{background-size:100% 100%}
       <table class="tbl num">
         <tr data-s="1" class="grp"><th></th><th colspan="2">CIFAR-10</th><th>CIFAR-100</th><th colspan="2">ImageNet</th></tr>
         <tr data-s="1"><th style="width:25%">Method</th><th>DenseNet121</th><th>WideResNet</th><th>GoogLeNet</th><th>DenseNet121</th><th>ResNeXt50</th></tr>
-        <tr data-s="2"><td>SGD, no weight decay</td><td>93.14</td><td>94.44</td><td>76.82</td><td>71.06</td><td>70.15</td></tr>
-        <tr data-s="2"><td>SGD, weight decay</td><td>94.01</td><td class="cl" data-on="4">95.13</td><td>77.50</td><td class="cl" data-on="4">74.89</td><td class="cl" data-on="4">76.09</td></tr>
-        <tr data-s="2" class="rowhi" data-on="3"><td><b>SFW, L2</b></td><td class="cl" data-on="3">94.46</td><td>94.58</td><td class="cl" data-on="3">78.88</td><td>73.46</td><td>75.77</td></tr>
-        <tr data-s="2"><td>SFW, L∞</td><td class="cl2" data-on="5">94.20</td><td>94.03</td><td>76.54</td><td>72.22</td><td>73.95</td></tr>
+        <tr data-s="2"><td>SGD, no weight decay</td><td>93.14<small> ±0.11</small></td><td>94.44<small> ±0.12</small></td><td>76.82<small> ±0.25</small></td><td>71.06</td><td>70.15</td></tr>
+        <tr data-s="2"><td>SGD, weight decay</td><td>94.01<small> ±0.09</small></td><td class="cl" data-on="4">95.13<small> ±0.11</small></td><td>77.50<small> ±0.13</small></td><td class="cl" data-on="4">74.89</td><td class="cl" data-on="4">76.09</td></tr>
+        <tr data-s="2" class="rowhi" data-on="3"><td><b>SFW, L2</b></td><td class="cl" data-on="3">94.46<small> ±0.13</small></td><td>94.58<small> ±0.18</small></td><td class="cl" data-on="3">78.88<small> ±0.10</small></td><td>73.46</td><td>75.77</td></tr>
+        <tr data-s="2"><td>SFW, L∞</td><td class="cl2" data-on="5">94.20<small> ±0.19</small></td><td>94.03<small> ±0.35</small></td><td>76.54<small> ±0.50</small></td><td>72.22</td><td>73.95</td></tr>
       </table>
-      <p class="note" data-s="2">Highlighted cells = best in the column.</p>
+      <p class="note" data-s="2">Highlighted cells = best in the column. ± = standard deviation over ≥3 runs (CIFAR); ImageNet: no spread reported.</p>
       <div class="say" data-s="5">L∞ is weaker: above weight decay only on DenseNet/CIFAR-10; above plain SGD on 3 of 5.</div>
       <p class="note" data-s="6"><strong>Setup:</strong> SGD with Nesterov momentum 0.9, weight decay \(10^{-4}\). SFW: momentum 0.9, rescaled step (14). 200 epochs on CIFAR (mean of 3–5 runs), 90 on ImageNet (no spread reported). Runtime comparable to SGD.</p>
     </div>
@@ -973,8 +1066,8 @@ window.EQS={"1": ["SGD step", "paper §1", "\\theta_{t+1}=\\class{tA}{\\theta_t}
 window.EQ_NEW=['13','14','16'];
 window.EQLABEL={'5b':'(5′)','P':'(3′)','T':'Thm 2.1','L1':'(7a)'};
 window.TRAIL=[['1','SGD'],['2','weight decay'],['6','constrain'],['3','project?'],['4','LMO'],['5','FW step'],['5b','= shrink']];
-window.HILITE={"0": ["state-of-the-art accuracy", "the shape of C changes what the network learns"], "2": ["unconstrained", "generalize worse", "comes back in Frank–Wolfe"], "3": ["require", "Frank–Wolfe avoids projections altogether."], "5": ["the point of the ball furthest downhill", "corner", "the whole budget", "large gradients get large weights", "Projections often need an algorithm of their own."], "6": ["drop-in replacement", "MSFW"], "7": ["inductive bias"], "8": ["SGD with momentum"], "10": ["MSFW wins", "Rest of the paper: SFW and MSFW."], "11": ["only the LMO differs"], "12": ["far fewer active weights", "the most"], "13": ["above weight decay only on DenseNet/CIFAR-10"], "14": ["beats plain SGD", "roughly matches SGD with weight decay"], "15": ["Drop-in replacement for SGD", "Choose sparse or dense updates", "tuning moves, it doesn't disappear", "Weight decay still wins"], "16": ["constrained weights", "beats plain SGD", "shapes the network", "SFW with momentum"], "22": ["per layer", "K tunes how sparse the update is."], "23": ["the length equals an SGD step", "Region size:"], "24": ["so we need another measure", "A guide, not a guarantee."]};
-window.SHILITE={"0": ["force the weights to stay inside a convex set", "state-of-the-art accuracy", "the shape of the set actually changes what the network learns"], "1": ["That's the biggest part."], "2": ["weight decay", "shrink the weights a little bit toward zero", "one minus lambda"], "3": ["require the weights to stay inside some set", "The projection is itself an optimization problem", "It never projects at all."], "4": ["linear minimization oracle", "the answer is always a corner", "convex combination", "we never leave", "exactly the one minus lambda from weight decay"], "5": ["furthest downhill", "Both are one line", "you need a dedicated algorithm", "about as cheap as an SGD step"], "6": ["almost exactly SGD with momentum", "rho is the weight on the new gradient", "the only lines that change", "drop-in replacement"], "7": ["SGD-like", "Dense.", "Sparse.", "inductive bias"], "8": ["from small scale to large scale", "SGD with momentum, with and without weight decay"], "10": ["the two different x-axes", "the fair measure of work", "SFW with momentum, is the best", "variance reduction isn't worth it here"], "11": ["a few scattered pixels", "saturated, smooth shapes", "looks close to SGD", "the learned representation changes a lot"], "12": ["far fewer active weights", "uses the most", "one route to sparse networks"], "13": ["it's the best of all four", "weight decay is still the best", "always above SGD without weight decay", "only true for three of the five models"], "14": ["you beat plain SGD", "roughly match SGD with weight decay", "slightly worse there"], "15": ["drop-in replacement for SGD", "design tool", "the theory doesn't match the practice", "it just moves it somewhere else", "weight decay still wins"], "16": ["no projections", "roughly matches SGD with weight decay", "shapes the network", "SFW with momentum", "the practical recipe"], "20": ["width factor"], "21": ["around 92 percent", "single runs of 10 epochs"], "22": ["applied per layer", "one non-zero entry", "its LMO is dense", "K tunes how sparse the update is"], "23": ["a good alpha would depend on tau", "divide alpha by the diameter", "The arrow's own length cancels out", "the same thing as SGD's learning rate"], "24": ["the gradient is not zero", "the best v in the whole set", "exactly the LMO output", "G becomes zero", "one over root T", "a guide, not a guarantee"]};
+window.HILITE={"0": ["state-of-the-art accuracy", "the shape of C changes what the network learns"], "2": ["unconstrained", "generalize worse", "comes back in Frank–Wolfe"], "3": ["require", "Frank–Wolfe avoids projections altogether."], "5": ["the point of the ball furthest downhill", "corner", "the whole budget", "Projections often need an algorithm of their own."], "6": ["drop-in replacement", "MSFW"], "7": ["inductive bias"], "8": ["SGD with momentum"], "9": ["one region per layer", "made to look like SGD"], "10": ["only in lines 4–5", "less noise per step"], "11": ["MSFW wins", "Rest of the paper: SFW and MSFW."], "12": ["only the LMO differs"], "13": ["inductive bias"], "14": ["far fewer active weights", "the most"], "15": ["L2 ≈ weight decay"], "16": ["above weight decay only on DenseNet/CIFAR-10"], "17": ["beats plain SGD", "roughly matches SGD with weight decay"], "18": ["Drop-in replacement for SGD", "Choose sparse or dense updates", "tuning moves, it doesn't disappear", "Weight decay still wins"], "19": ["constrained weights", "beats plain SGD", "shapes the network", "SFW with momentum"], "25": ["per layer", "K tunes how sparse the update is."], "26": ["the length equals an SGD step", "Region size:"], "27": ["so we need another measure", "A guide, not a guarantee."]};
+window.SHILITE={"0": ["force the weights to stay inside a convex set", "state-of-the-art accuracy", "the shape of the set actually changes what the network learns"], "1": ["That's the biggest part."], "2": ["weight decay", "shrink the weights a little bit toward zero", "one minus lambda"], "3": ["require the weights to stay inside some set", "The projection is itself an optimization problem", "It never projects at all."], "4": ["linear minimization oracle", "the answer is always a corner", "convex combination", "we never leave", "exactly the one minus lambda from weight decay"], "5": ["furthest downhill", "Both are one line", "you need a dedicated algorithm", "about as cheap as an SGD step"], "6": ["almost exactly SGD with momentum", "rho is the weight on the new gradient", "the only lines that change", "drop-in replacement"], "7": ["SGD-like", "Dense.", "Sparse.", "inductive bias"], "8": ["from small scale to large scale", "SGD with momentum, with and without weight decay"], "9": ["how many times bigger than the initialization the weights may grow", "exactly like an SGD step", "every method is tuned separately", "not from a different learning rate or a different amount of work"], "10": ["The only thing that changes is lines four and five", "the noise partly cancels", "two gradients per sample, plus a full pass over the data every epoch", "Which one wins?"], "11": ["the two different x-axes", "the fair measure of work", "SFW with momentum, is the best", "variance reduction isn't worth it here"], "12": ["a few scattered pixels", "saturated, smooth shapes", "looks close to SGD", "the learned representation changes a lot"], "13": ["the weights end up looking like the LMO outputs", "scattered dots", "saturated shapes", "which is basically SGD", "at little cost in accuracy"], "14": ["far fewer active weights", "uses the most", "one route to sparse networks"], "15": ["It's the same shrink, with lambda equal to alpha", "basically SGD with momentum and weight decay", "every weight moves by exactly the same amount", "throws away the magnitude information"], "16": ["it's the best of all four", "weight decay is still the best", "always above SGD without weight decay", "only true for three of the five models", "these are real differences"], "17": ["you beat plain SGD", "roughly match SGD with weight decay", "slightly worse there"], "18": ["drop-in replacement for SGD", "design tool", "the theory doesn't match the practice", "it just moves it somewhere else", "weight decay still wins"], "19": ["no projections", "roughly matches SGD with weight decay", "shapes the network", "SFW with momentum", "the practical recipe"], "23": ["width factor"], "24": ["around 92 percent", "single runs of 10 epochs"], "25": ["applied per layer", "one non-zero entry", "its LMO is dense", "K tunes how sparse the update is"], "26": ["a good alpha would depend on tau", "divide alpha by the diameter", "The arrow's own length cancels out", "the same thing as SGD's learning rate"], "27": ["the gradient is not zero", "the best v in the whole set", "exactly the LMO output", "G becomes zero", "one over root T", "a guide, not a guarantee"]};
 window.SCRIPT=[
 {
 "s": [
@@ -1098,11 +1191,26 @@ window.SCRIPT=[
 "Two: does the region change what the network learns? That's a linear classifier on MNIST, so we can literally look at the weights as images.",
 "Three: does the region change how many weights are actually used? MNIST again, with a small MLP and a small CNN.",
 "And four: does it scale to real deep networks? CIFAR-10, CIFAR-100 and ImageNet, with DenseNet, WideResNet, GoogLeNet and ResNeXt.",
-"The baseline the whole time is SGD with momentum, with and without weight decay, on unconstrained weights. (Time check, don't say: about 19 minutes. If you're behind, skip the sparsity slide and go straight to Table 1.)"
+"The baseline the whole time is SGD with momentum, with and without weight decay, on unconstrained weights. (Time check, don't say: about 15 minutes. If you're behind, skip the sparsity slide and the explanation slide after experiment 2.)"
+],
+"n": "Before any results, here's the setup that all four experiments share.",
+"b": [
+"the LMO shapes the update",
+"common setup"
+]
+},
+{
+"s": [
+"Before any results, here's the setup that all four experiments share. If you remember these four points, every plot will make sense.",
+"First, the constraints. Every layer gets its own region, all of the same type, for example all L2 balls. The size of each region follows that layer's random initialization: equation sixteen says »the diameter of C equals two w times the expected norm of the initial weights.« So w is a width factor: how many times bigger than the initialization the weights may grow. It's a new hyperparameter: 100 on the small networks, and 13 or 30 on DenseNet. In the picture, the gray dot is the initial size, and the circle is the region.",
+"Second, the step size. With the rescaled step, rule fourteen, every SFW step has length »alpha times the norm of m t,« exactly like an SGD step. That's what makes the comparison fair: SFW can use the same learning rate and the same schedule as SGD. And momentum is 0.9, so rho equals 0.1.",
+"Third, the baselines. SGD with momentum, with and without weight decay, on unconstrained weights. And every method is tuned separately: the learning rate, the weight decay, and the width w.",
+"Fourth, what they measure. Training loss and test accuracy everywhere. In experiment one, also the number of gradients computed, which is the real cost. In experiment three, the number of active weights. And in experiment four, top-1 accuracy, which just means the class with the highest score is the correct one. Results are averaged over three to ten runs, and the plus-minus numbers are standard deviations.",
+"So whenever we see a difference, it comes from the region and its LMO, not from a different learning rate or a different amount of work."
 ],
 "n": "Experiment one compares four versions of the algorithm. Before the plots, let me show you what those four actually are.",
 "b": [
-"the LMO shapes the update",
+"four experiments",
 "the four variants"
 ]
 },
@@ -1117,7 +1225,7 @@ window.SCRIPT=[
 ],
 "n": "Let's look at the experiment.",
 "b": [
-"Algorithm 1 · four experiments",
+"common setup",
 "experiment 1"
 ]
 },
@@ -1140,47 +1248,79 @@ window.SCRIPT=[
 {
 "s": [
 "Experiment two is my favourite, because you can actually see the effect.",
-"They use the simplest possible network: a linear classifier on MNIST. The 784 pixels go straight to 10 outputs, with no hidden layer and no bias. So the weight matrix is 784 by 10, one column per digit. And since 784 is 28 times 28, we can fold each column back into an image. Green is a positive weight, red is negative. The figure shows the digits zero and five.",
+"They use the simplest possible network: a linear classifier on MNIST. The 784 pixels go straight to 10 outputs, with no hidden layer and no bias. So the weight matrix is 784 by 10, one column per digit. And since 784 is 28 times 28, we can fold each column back into an image. How do you read it? The score for digit k is »the inner product of w k and x,« so each pixel with ink adds its weight. A green pixel votes for that digit, a red pixel votes against it. The figure shows the digits zero and five.",
 "The first column is SGD, unconstrained. You get kind of a noisy template of the digit.",
 "With the L1 ball, whose LMO only ever switches on one coordinate, you get just a few scattered pixels.",
 "With the hypercube, where the LMO pushes every coordinate to plus or minus tau, you get these saturated, smooth shapes.",
 "And the L2 ball looks close to SGD. That's what we'd expect, since its LMO is parallel to the gradient.",
 "So: same data, same model, and only the constraint set changes. And the learned representation changes a lot."
 ],
-"n": "The pictures look different, but can we measure it? Experiment three counts how many weights the network actually uses.",
+"n": "But why do they look like this? One line of algebra explains all four pictures.",
 "b": [
 "experiment 1",
+"why the pictures differ"
+]
+},
+{
+"s": [
+"We just saw four very different pictures. Now let's see why.",
+"One line of algebra explains it. Start from the shrink form of the Frank–Wolfe step that we saw earlier: »theta t plus one equals one minus alpha, times theta t, plus alpha v t.« Every step shrinks the weights and adds a small piece of the LMO output.",
+"Now apply it twice. »theta t plus two equals one minus alpha squared, theta t, plus alpha one minus alpha v t, plus alpha v t plus one.« The old LMO output is still there, just shrunk once more, and the new one is added.",
+"Repeat that T times. »theta T equals one minus alpha to the T, theta zero, plus a weighted sum of all the LMO outputs.« The initialization fades away geometrically, and what's left is basically a weighted average of the LMO outputs, with recent ones counting most. So the weights end up looking like the LMO outputs.",
+"And that explains the pictures. With the L1 ball, every LMO output is a single pixel, so the weights are a mix of a few pixels: scattered dots. With the hypercube, every output sets every pixel to plus or minus tau, so the weights get pushed to plus or minus tau everywhere: saturated shapes. And with the L2 ball, the output is just the gradient direction, so the weights are a decayed sum of gradients, which is basically SGD.",
+"Does this cost accuracy? The appendix trains on all ten digits. SGD gets 92.15 percent, the L2 ball 92.17, K-sparse 91.92, and the hypercube 90.07. Only the very sparse L1 ball drops to about 87 percent. These are single runs, so don't over-read the decimals.",
+"So the constraint is an inductive bias: it chooses which solution you get, often at little cost in accuracy. And that's exactly what experiment three measures."
+],
+"n": "The pictures look different, but can we measure it? Experiment three counts how many weights the network actually uses.",
+"b": [
+"experiment 2",
 "experiment 3"
 ]
 },
 {
 "s": [
 "Experiment three makes this more quantitative: how many weights is the network actually using?",
-"They call a weight inactive if, after training, its absolute value is smaller than its random initial value. Then they count the active ones. They do this on MNIST with an MLP of about 26 thousand parameters and a CNN of about 93 thousand, averaged over five runs.",
-"In the plot, the x-axis is test error, and the y-axis is the number of active weights, on a log scale. So lower means the network uses fewer weights.",
-"The blue line at the bottom is the K-sparse polytope. It uses far fewer active weights, roughly half or less, at a similar error, in both networks.",
+"They call a weight inactive if, after training, its absolute value is smaller than its random initial value. Why that threshold? Remember the mix-of-LMO-outputs formula: every step multiplies all weights by one minus alpha. So a weight that the LMO never picks just decays below its initial value. If a weight is bigger than at the start, the data must have pushed it there. Then they count the active ones. They do this on MNIST with an MLP of about 26 thousand parameters and a CNN of about 93 thousand, averaged over five runs.",
+"How to read the plot: each curve is one training run followed over time. As training goes on, the test error drops, so the curve moves from right to left. The y-axis is the number of active weights, on a log scale, so lower means the network uses fewer weights. The left end of each curve is where training finished.",
+"The blue line at the bottom is the K-sparse polytope, where each LMO output switches on only K weights, ten percent of the weights for the MLP, three percent for the CNN. It ends with far fewer active weights, roughly half or less, at a similar error, in both networks.",
 "The red line at the top is the hypercube, which uses the most, and that matches its dense LMO. Weight decay and unconstrained SGD are somewhere in between.",
 "So the geometric story from before really shows up in the numbers. And it suggests that constraint sets could be one route to sparse networks."
 ],
-"n": "So far everything was small. Now the big question: does it hold up on real deep networks?",
+"n": "So far everything was small. Now the big question: does it hold up on real deep networks? First, the setup.",
 "b": [
-"experiment 2",
+"why the pictures differ",
+"experiment 4 setup"
+]
+},
+{
+"s": [
+"Before the big table, two questions: why these two constraints, and what are these networks?",
+"Start again from the shrink form: »theta t plus one equals one minus alpha, times theta t, plus alpha v t.« Now let's insert the two LMOs used in experiment four.",
+"First the L2 ball. Its LMO is minus tau times m t over its norm, so it points straight downhill. Insert it: »theta t plus one equals one minus alpha, times theta t, minus alpha tau, m t over the norm of m t.« Compare that with weight decay, equation two: one minus lambda times theta t, minus alpha g t. It's the same shrink, with lambda equal to alpha, plus a gradient step of fixed length. So L2-SFW is basically SGD with momentum and weight decay, with normalized steps. That's why it's the natural candidate to match weight decay.",
+"Second, the L-infinity ball, the hypercube. Its LMO keeps only the sign: »theta t plus one equals one minus alpha, times theta t, minus alpha tau, sign of m t.« Now every weight moves by exactly the same amount, whether its gradient is large or tiny. That's like sign-SGD with weight decay. It throws away the magnitude information, which is a plausible reason it does worse.",
+"So the prediction is: L2 should be close to weight decay, and L-infinity is the bolder test.",
+"The datasets. CIFAR-10 and CIFAR-100 are sixty thousand small colour images, 32 by 32 pixels, with 10 or 100 classes. ImageNet is the big one: 1.28 million images and a thousand classes. They report top-1 accuracy.",
+"And the networks are all standard image classifiers. DenseNet121 has 121 layers, and each layer sees all earlier feature maps. WideResNet 28-10 is a ResNet with 28 layers, ten times wider. GoogLeNet uses Inception blocks, parallel filters of different sizes. And ResNeXt50 is a ResNet-50 with grouped convolutions. They train 200 epochs on CIFAR and 90 on ImageNet, and tune the width w and the weight decay per model."
+],
+"n": "Now the results.",
+"b": [
+"experiment 3",
 "experiment 4"
 ]
 },
 {
 "s": [
-"Experiment four is the main result.",
+"Experiment four is the main result. We just saw the setup, so let's go straight to the numbers.",
 "They train five standard architectures on three datasets: DenseNet121 and WideResNet on CIFAR-10, GoogLeNet on CIFAR-100, and DenseNet121 and ResNeXt50 on ImageNet. The numbers are top-1 test accuracy, in percent.",
 "There are four rows. SGD without weight decay. SGD with weight decay, which is the state-of-the-art baseline. And then SFW with L2 constraints, and with L-infinity constraints, on every layer.",
-"Now look at the third row, SFW with L2. On CIFAR-10 with DenseNet, and on CIFAR-100 with GoogLeNet, it's the best of all four. It beats weight decay by about half a point, and by 1.4 points. The red bars on the right show that difference.",
+"Now look at the third row, SFW with L2. On CIFAR-10 with DenseNet, and on CIFAR-100 with GoogLeNet, it's the best of all four. It beats weight decay by about half a point, and by 1.4 points. The red bars on the right show that difference. Are these gaps real? Look at the plus-minus: the standard deviations are about 0.1, so a gap of 0.45 is four standard deviations, and 1.38 is more than ten. So on CIFAR, these are real differences.",
 "On WideResNet and on ImageNet, weight decay is still the best, but L2-SFW is close behind, by 0.3 to 1.4 points. Those are the blue bars. And L2-SFW is always above SGD without weight decay, although on WideResNet only by 0.14.",
-"L-infinity is weaker. It beats weight decay only on CIFAR-10 with DenseNet. The paper says it still beats SGD without weight decay, but if you check the table, that's only true for three of the five models.",
-"For the setup: SGD uses Nesterov momentum 0.9 and weight decay ten to the minus four. SFW uses momentum 0.9 with the rescaled step from equation fourteen. 200 epochs on CIFAR, 90 on ImageNet. And the runtime was comparable to SGD, because these LMOs are cheap."
+"L-infinity is weaker, as the sign-step view predicted. It beats weight decay only on CIFAR-10 with DenseNet. The paper says it still beats SGD without weight decay, but if you check the table, that's only true for three of the five models.",
+"One last caveat on the setup: on ImageNet there's no spread reported, so a gap of 0.3 there is hard to judge. And the runtime was comparable to SGD, because these LMOs are cheap."
 ],
 "n": "Let me put that whole table into one sentence.",
 "b": [
-"experiment 3",
+"experiment 4 setup",
 "the main result"
 ]
 },

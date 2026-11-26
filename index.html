@@ -123,6 +123,19 @@ body.presenter #pv{display:flex;flex-direction:column;position:fixed;top:0;right
 #scr .tr{margin:12px 0 0;padding:9px 12px;border:1.5px dashed var(--acc);border-radius:8px;font-size:16.5px}
 #scr .tr::before{content:"Transition → next slide";display:block;font-size:12.5px;font-weight:600;color:var(--acc)}
 #scr .eqs{font-size:13.5px;color:var(--mut);margin:2px 12px 8px}
+
+/* --- editable presenter script --- */
+#pvbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:6px 14px;border-bottom:1px solid var(--rule);font-size:13px}
+#pvbar button{font:inherit;font-size:13px;padding:3px 10px;border:1px solid var(--rule);border-radius:6px;background:var(--bg);color:var(--ink);cursor:pointer}
+#pvbar button.on{background:var(--acc);border-color:var(--acc);color:#fff}
+#pvbar .ed{display:none}body.scredit #pvbar .ed{display:inline-block}
+#pvbar .stt{color:var(--mut);margin-left:auto}
+body.scredit #scr .st,body.scredit #scr .st.done{opacity:1}
+body.scredit #scr [data-edit]{outline:1.5px dashed var(--rule);border-radius:6px;padding:4px 6px;margin-top:2px;white-space:pre-wrap;cursor:text;min-height:1.5em}
+body.scredit #scr [data-edit]:focus{outline:2px solid var(--acc);background:var(--bg)}
+#scr .st.mod .kk::after,#scr .tr.mod::after{content:" · edited";color:#d9822b;font-weight:600}
+#scr .tr.mod::after{display:block;font-size:12px}
+body.scredit #scr .tr::before{content:"Transition → next slide (editable)"}
 #pvmsg{font-size:13.5px;color:var(--acc);padding:0 16px}
 body.audience #hud,body.audience #pv,body.audience #notes,body.audience #toc{display:none!important}
 #toc{display:none;position:fixed;left:12px;bottom:60px;width:min(480px,92vw);max-height:72vh;overflow:auto;background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:8px;z-index:9;box-shadow:0 10px 30px #0003;font-size:15px}
@@ -924,7 +937,7 @@ mark.hi.on{background-size:100% 100%}
 </div></div>
 <div id="notes"></div>
 <nav id="toc" aria-label="Sections"></nav>
-<aside id="pv" aria-label="Presenter script"><div id="pvh"></div><div id="scr"></div><div id="pvmsg"></div></aside>
+<aside id="pv" aria-label="Presenter script"><div id="pvh"></div><div id="pvbar"><button id="bed" title="Edit the script (E)">✎ Edit script</button><button class="ed" id="bexp" title="Download all edits as JSON">Export</button><button class="ed" id="bimp" title="Load edits from a JSON file">Import</button><button class="ed" id="brst" title="Undo all edits on this slide">Reset slide</button><input type="file" id="fimp" accept=".json,application/json" hidden><span class="stt" id="edst"></span></div><div id="scr"></div><div id="pvmsg"></div></aside>
 <div id="hud">
   <button id="bp" aria-label="Previous step">←</button><button id="bn" aria-label="Next step">→</button>
   <span id="ctr"></span><div id="prog"></div>
@@ -1305,6 +1318,12 @@ window.SCRIPT=[
 {
 const R=String.raw;
 const SC=window.SCRIPT||[];
+const SC0=JSON.parse(JSON.stringify(SC));
+const EDK='deck-script-edits:'+location.pathname.split('/').pop()+':'+(document.title||'');
+let EDS={};try{EDS=JSON.parse(localStorage.getItem(EDK)||'{}')||{}}catch(e){EDS={}}
+function applyEds(){for(const k in EDS){const i=+k,e=EDS[k];if(!SC[i])continue;if(e.s)for(const j in e.s)if(SC[i].s&&+j<SC[i].s.length)SC[i].s[+j]=e.s[j];if(typeof e.n==='string')SC[i].n=e.n}}
+applyEds();
+function saveEds(){try{localStorage.setItem(EDK,JSON.stringify(EDS));return true}catch(e){return false}}
 const EQ=window.EQS||{};
 const esc=x=>x.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const LBL=window.EQLABEL||{};const lab=k=>LBL[k]||'('+k.replace('-','–')+')';
@@ -1406,11 +1425,11 @@ function pres(){
   try{if(window.MathJax&&MathJax.typesetPromise)MathJax.typesetPromise([document.getElementById('pvh')])}catch(e){}
   const scr=document.getElementById('scr');
   if(pvBuilt!==cur){
-    scr.innerHTML=d.s.map((t,i)=>{const eqs=[...sl.querySelectorAll('.ln')].filter(l=>+(l.dataset.s||0)===i&&l.dataset.eq).map(l=>'('+l.dataset.eq+')');return `<div class="st" data-i="${i}"><span class="kk">${i===0?'On entering the slide':'Click '+i}${eqs.length?' · shows '+eqs.join(' '):''}</span>${fmtS(t)}</div>`}).join('')+(d.n?`<div class="tr">${fmtS(d.n)}</div>`:'');
+    scr.innerHTML=d.s.map((t,i)=>{const eqs=[...sl.querySelectorAll('.ln')].filter(l=>+(l.dataset.s||0)===i&&l.dataset.eq).map(l=>'('+l.dataset.eq+')');const ED=document.body.classList.contains('scredit');const mod=!!(EDS[cur]&&EDS[cur].s&&EDS[cur].s[i]!=null&&EDS[cur].s[i]!==SC0[cur].s[i]);return `<div class="st${mod?' mod':''}" data-i="${i}"><span class="kk">${i===0?'On entering the slide':'Click '+i}${eqs.length?' · shows '+eqs.join(' '):''}</span>${ED?`<div data-edit="s" data-j="${i}" contenteditable="plaintext-only" spellcheck="true">${esc(t)}</div>`:fmtS(t)}</div>`}).join('')+((d.n||document.body.classList.contains('scredit'))?`<div class="tr${EDS[cur]&&typeof EDS[cur].n==='string'&&EDS[cur].n!==SC0[cur].n?' mod':''}">${document.body.classList.contains('scredit')?`<div data-edit="n" contenteditable="plaintext-only" spellcheck="true">${esc(d.n||'')}</div>`:fmtS(d.n)}</div>`:'');
     pvBuilt=cur;scr.scrollTop=0;
   }
   scr.querySelectorAll('.st').forEach(e=>{const i=+e.dataset.i;e.classList.toggle('now',i===step);e.classList.toggle('done',i<step)});
-  const now=scr.querySelector('.st.now');if(now)now.scrollIntoView({block:'center',behavior:'smooth'});
+  const now=scr.querySelector('.st.now');if(now&&!scr.contains(document.activeElement))now.scrollIntoView({block:'center',behavior:'smooth'});
   else if(step>=d.s.length){const tr=scr.querySelector('.tr');tr&&tr.scrollIntoView({block:'center'})}
 }
 function onMsg(m){if(!m||typeof m!=='object')return;
@@ -1535,6 +1554,35 @@ function watchT(tok){let last=sig(),n=0;const iv=setInterval(()=>{if(tok!==tflow
 document.querySelectorAll('.deriv,.rail,.side').forEach(e=>e.addEventListener('scroll',()=>{if(tflowReady&&e.closest('.slide')===slides[cur])requestAnimationFrame(()=>drawTFlows(false))},{passive:true}));
 addEventListener('resize',()=>{if(tflowReady)setTimeout(()=>drawTFlows(false),60)});
 addEventListener('keydown',e=>{if(!e.metaKey&&!e.ctrlKey&&(e.key==='f'||e.key==='F'))document.body.classList.toggle('noflow')});
+
+/* --- editable presenter script --- */
+(function(){
+  const scr=document.getElementById('scr'),st=document.getElementById('edst');
+  function flash(m){st.textContent=m;clearTimeout(flash.t);flash.t=setTimeout(()=>st.textContent=Object.keys(EDS).length?'edits saved in this browser':'',2200)}
+  function toggle(){document.body.classList.toggle('scredit');document.getElementById('bed').classList.toggle('on',document.body.classList.contains('scredit'));
+    document.getElementById('bed').textContent=document.body.classList.contains('scredit')?'✓ Done editing':'✎ Edit script';pvBuilt=-1;pres()}
+  document.getElementById('bed').onclick=toggle;
+  // never let typing drive the deck
+  addEventListener('keydown',e=>{const el=e.target;if(el&&(el.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName))){if(e.key==='Escape'){el.blur()}e.stopImmediatePropagation()}},true);
+  addEventListener('keydown',e=>{if(e.metaKey||e.ctrlKey||e.altKey)return;if((e.key==='e'||e.key==='E')&&document.body.classList.contains('presenter')){e.preventDefault();toggle()}});
+  scr.addEventListener('click',e=>{if(e.target.closest('[data-edit]'))e.stopPropagation()});
+  scr.addEventListener('input',e=>{const el=e.target.closest('[data-edit]');if(!el)return;
+    const v=el.innerText.replace(/ /g,' ').replace(/\n+$/,'');const E=EDS[cur]||(EDS[cur]={});
+    if(el.dataset.edit==='s'){const j=+el.dataset.j;E.s=E.s||{};E.s[j]=v;SC[cur].s[j]=v;if(v===SC0[cur].s[j])delete E.s[j];el.closest('.st').classList.toggle('mod',v!==SC0[cur].s[j])}
+    else{E.n=v;SC[cur].n=v;if(v===(SC0[cur].n||''))delete E.n;el.closest('.tr').classList.toggle('mod',v!==(SC0[cur].n||''))}
+    if(E.s&&!Object.keys(E.s).length)delete E.s;if(!Object.keys(E).length)delete EDS[cur];
+    flash(saveEds()?'saved ✓':'could not save (storage blocked) — use Export')});
+  document.getElementById('brst').onclick=()=>{if(!EDS[cur])return flash('nothing to reset');delete EDS[cur];SC[cur]=JSON.parse(JSON.stringify(SC0[cur]));saveEds();pvBuilt=-1;pres();flash('slide reset')};
+  document.getElementById('bexp').onclick=()=>{
+    const out={deck:document.title,saved:new Date().toISOString(),edits:EDS,script:SC};
+    const b=new Blob([JSON.stringify(out,null,1)],{type:'application/json'});const a=document.createElement('a');
+    a.href=URL.createObjectURL(b);a.download='script-edits.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);flash('exported script-edits.json')};
+  document.getElementById('bimp').onclick=()=>document.getElementById('fimp').click();
+  document.getElementById('fimp').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(x=>{const o=JSON.parse(x);const ed=o.edits||o;
+    for(const k in ed)EDS[k]=ed[k];for(let i=0;i<SC.length;i++)SC[i]=JSON.parse(JSON.stringify(SC0[i]));applyEds();saveEds();pvBuilt=-1;pres();flash('imported '+Object.keys(ed).length+' slide(s)')}).catch(()=>flash('not a valid JSON file'));e.target.value=''};
+  if(Object.keys(EDS).length)st.textContent='edits saved in this browser';
+})();
+
 /* presenter panel: drag its left edge to resize; double-click to reset; width remembered */
 {const pv=document.getElementById('pv');const hd=document.createElement('div');hd.id='pvdrag';hd.title='Drag to resize · double-click to reset';pv.prepend(hd);
  const setW=w=>{w=Math.max(18,Math.min(70,w));document.body.style.setProperty('--pvw',w+'%');try{localStorage.setItem('deck-pvw',w)}catch(e){}fit();if(tflowReady)setTimeout(()=>drawTFlows(false),30)};

@@ -7,6 +7,7 @@ CAS 746 paper presentation by Chase (Hu Yang) on Pokutta, Spiegel & Zimmer (2020
 ## Controls
 
 - → / Space / click: next step · ← / right-click: back · Home / End: first / last slide
+- **G** or **Sections**: jump to any part or slide · **1–9**: jump to part n · click the progress bar or a Roadmap item to jump
 - **P**: presenter view (click-synced verbatim script)
 - **Audience window**: opens a slides-only window for the projector; both windows stay in sync
 - **A**: show all derivation notes · **N**: short cues

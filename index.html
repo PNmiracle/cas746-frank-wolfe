@@ -123,7 +123,18 @@ body.presenter #pv{display:flex;flex-direction:column;position:fixed;top:0;right
 #scr .tr::before{content:"Transition → next slide";display:block;font-size:12.5px;font-weight:600;color:var(--acc)}
 #scr .eqs{font-size:13.5px;color:var(--mut);margin:2px 12px 8px}
 #pvmsg{font-size:13.5px;color:var(--acc);padding:0 16px}
-body.audience #hud,body.audience #pv,body.audience #notes{display:none!important}
+body.audience #hud,body.audience #pv,body.audience #notes,body.audience #toc{display:none!important}
+#toc{display:none;position:fixed;left:12px;bottom:60px;width:min(480px,92vw);max-height:72vh;overflow:auto;background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:8px;z-index:9;box-shadow:0 10px 30px #0003;font-size:15px}
+#toc.show{display:block}
+#toc button{display:block;width:100%;text-align:left;font:inherit;background:none;border:0;color:var(--ink);cursor:pointer;border-radius:6px;padding:3px 8px}
+#toc button:hover{background:var(--prt)}
+#toc .tch{font-weight:600;color:var(--pr);margin-top:4px;display:flex;gap:8px;align-items:center}
+#toc .tch .tk{font-size:12px;min-width:20px;height:20px;border:1px solid var(--rule);border-radius:4px;display:inline-flex;align-items:center;justify-content:center;color:var(--mut);font-weight:500}
+#toc .tsl{padding-left:36px;color:var(--mut);font-size:14px}
+#toc .tch.now{color:var(--acc)}#toc .tsl.now{color:var(--acc);font-weight:600;background:var(--acct)}
+#prog{cursor:pointer}#prog i{cursor:pointer}#prog i.cs{margin-left:3px}
+[data-jump]{cursor:pointer}[data-jump]:hover{outline:2px solid var(--pr);outline-offset:2px}
+[data-only]{transition:opacity .3s}
 body.audience #view{inset:0}
 .bridge{display:flex;justify-content:space-between;gap:16px;font-size:14px;color:var(--mut);border-top:1px solid var(--rule);padding-top:6px;margin-top:8px}
 .bridge span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -229,7 +240,7 @@ aside.notes{display:none}
 </style></head><body>
 <div id="view"><div id="stage">
 
-<section class="slide cov" data-plan="60">
+<section class="slide cov" id="cover" data-chap="Opening" data-plan="60">
   <div class="body full" style="margin-top:0">
   <div class="deriv" style="overflow:hidden">
     <p class="kick bit" style="--d:.05s">CAS 746 · Paper presentation</p>
@@ -263,11 +274,11 @@ aside.notes{display:none}
 <section class="slide" data-plan="60">
   <div class="hd"><span class="sec">Overview</span><h2>Roadmap</h2></div>
   <div class="body full"><div class="deriv">
-    <div class="rm" data-s="1"><span class="rn">1</span><div><b>Motivation</b><span>from weight decay to constrained weights</span></div></div>
-    <div class="rm" data-s="2"><span class="rn">2</span><div><b>Stochastic Frank–Wolfe</b><span>the algorithm, convergence and variants</span></div></div>
-    <div class="rm" data-s="3"><span class="rn">3</span><div><b>Feasible regions</b><span>the sets, and the practical choices that make it work</span></div></div>
-    <div class="rm" data-s="4"><span class="rn">4</span><div><b>Experiments</b><span>variants, learned features, sparsity, deep networks</span></div></div>
-    <div class="rm" data-s="5"><span class="rn">5</span><div><b>Critique and takeaways</b><span>my own reading</span></div></div>
+    <div class="rm" data-s="1" data-jump="motivation" title="Jump to this part"><span class="rn">1</span><div><b>Motivation</b><span>from weight decay to constrained weights</span></div></div>
+    <div class="rm" data-s="2" data-jump="fw-step" title="Jump to this part"><span class="rn">2</span><div><b>Stochastic Frank–Wolfe</b><span>the algorithm, convergence and variants</span></div></div>
+    <div class="rm" data-s="3" data-jump="regions" title="Jump to this part"><span class="rn">3</span><div><b>Feasible regions</b><span>the sets, and the practical choices that make it work</span></div></div>
+    <div class="rm" data-s="4" data-jump="exp-overview" title="Jump to this part"><span class="rn">4</span><div><b>Experiments</b><span>variants, learned features, sparsity, deep networks</span></div></div>
+    <div class="rm" data-s="5" data-jump="key-result" title="Jump to this part"><span class="rn">5</span><div><b>Critique and takeaways</b><span>my own reading</span></div></div>
     <div class="hb" style="margin:22px 14px 0;height:26px">
       <div class="growx" data-s="1" style="flex:0 0 14%;background:var(--pr)">1</div>
       <div class="growx" data-s="2" style="flex:0 0 20%;background:#2f7f9a">2</div>
@@ -275,11 +286,11 @@ aside.notes{display:none}
       <div class="growx" data-s="4" style="flex:0 0 34%;background:var(--acc)">4</div>
       <div class="growx" data-s="5" style="flex:0 0 14%;background:var(--mut)">5</div>
     </div>
-    <p class="note">Bar: rough share of the talk.</p>
+    <p class="note">Bar: rough share of the talk. Click a part to jump there; press G for all sections.</p>
   </div></div>
 </section>
 
-<section class="slide" data-plan="120" data-trail="1,2">
+<section class="slide" id="motivation" data-chap="Motivation" data-plan="120" data-trail="1,2">
   <div class="hd"><span class="sec">1 · Motivation</span><h2>SGD and weight decay</h2></div>
   <div class="body" data-rail="1,2">
     <div class="railfig">
@@ -335,7 +346,7 @@ aside.notes{display:none}
   </div>
 </section>
 
-<section class="slide E" data-plan="180" data-trail="4,5,5b" style="--sw:430px">
+<section class="slide E" id="fw-step" data-chap="Stochastic Frank–Wolfe" data-plan="180" data-trail="4,5,5b" style="--sw:430px">
   <div class="hd"><span class="sec">2 · Stochastic Frank–Wolfe</span><h2>Frank–Wolfe: a projection-free step</h2></div>
   <div class="body">
     <div class="deriv">
@@ -465,7 +476,7 @@ aside.notes{display:none}
   <aside class="notes">Smooth = the gradient is Lipschitz. Gap ≥ 0: take v = θ.</aside>
 </section>
 
-<section class="slide" data-plan="90">
+<section class="slide" id="regions" data-chap="Feasible regions" data-plan="90">
   <div class="hd"><span class="sec">3 · Feasible regions</span><h2>Feasible regions used in the paper</h2></div>
   <div class="body full"><div class="deriv">
     <div class="note">Applied <strong>per layer</strong>: each layer's weights and biases get their own region. Sketches in 2D.</div>
@@ -525,7 +536,7 @@ aside.notes{display:none}
   </div>
 </section>
 
-<section class="slide" data-plan="60">
+<section class="slide" id="exp-overview" data-chap="Experiments" data-plan="60">
   <div class="hd"><span class="sec">4 · Experiments</span><h2>Four experiments, from small to large</h2></div>
   <div class="body full"><div class="deriv">
     <table class="tbl">
@@ -660,7 +671,7 @@ aside.notes{display:none}
   </div>
 </section>
 
-<section class="slide E" data-plan="60">
+<section class="slide E" id="key-result" data-chap="Result and critique" data-plan="60">
   <div class="hd"><span class="sec">5 · Result</span><h2>The main result in one sentence</h2></div>
   <div class="body full"><div class="deriv">
     <div class="say" style="font-size:24px">With <b>L2 constraints</b>, SFW <b>beats plain SGD</b> and <b>roughly matches SGD with weight decay</b>.</div>
@@ -715,7 +726,7 @@ aside.notes{display:none}
   </div>
 </section>
 
-<section class="slide" data-plan="15">
+<section class="slide" id="references" data-chap="End" data-plan="15">
   <div class="hd"><span class="sec">References</span><h2>References</h2></div>
   <div class="body full"><div class="deriv refs">
     <p class="bit" style="--d:.0s">Pokutta, S., Spiegel, C., &amp; Zimmer, M. (2020). Deep neural network training with Frank–Wolfe. arXiv:2010.07243.</p>
@@ -741,7 +752,7 @@ aside.notes{display:none}
   </div></div>
 </section>
 
-<section class="slide" data-plan="0">
+<section class="slide" id="backup" data-chap="Backup" data-plan="0">
   <div class="hd"><span class="sec">Backup</span><h2>Backup slides</h2></div>
   <div class="body full"><div class="deriv">
     <div class="say">Extra detail, shown only if asked.</div>
@@ -796,10 +807,12 @@ aside.notes{display:none}
 </section>
 </div></div>
 <div id="notes"></div>
+<nav id="toc" aria-label="Sections"></nav>
 <aside id="pv" aria-label="Presenter script"><div id="pvh"></div><div id="scr"></div><div id="pvmsg"></div></aside>
 <div id="hud">
   <button id="bp" aria-label="Previous step">←</button><button id="bn" aria-label="Next step">→</button>
   <span id="ctr"></span><div id="prog"></div>
+  <button id="bg" class="opt" aria-label="Jump to a section">Sections (G)</button>
   <button id="bpv" aria-label="Toggle presenter mode">Presenter (P)</button>
   <button id="baw" class="opt" aria-label="Open audience window">Audience window</button>
   <button id="ba" class="opt" aria-label="Show all annotations">Labels</button>
@@ -1174,6 +1187,7 @@ const OLD=new Set(window.EQ_OLD||[]),STATED=new Set(window.EQ_STATED||[]),NEWK=n
 const TRAIL=window.TRAIL||[];
 const slides=[...document.querySelectorAll('.slide')];
 slides.forEach(x=>{const h=x.querySelector('h1,h2');if(h)h.dataset.tex=h.textContent});
+const TITLES=slides.map(x=>{const h=x.querySelector('h1,h2');return h?h.innerHTML.replace(/<br\s*\/?>/gi,' ').replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim():''});
 const stage=document.getElementById('stage'),view=document.getElementById('view');
 
 /* build lines, rails, trails */
@@ -1244,7 +1258,8 @@ function render(){
   const c=sl.querySelector('.ln.cur');
   setTimeout(()=>{if(c){const d=c.closest('.deriv');if(d){const top=c.offsetTop-d.offsetTop;if(top+c.offsetHeight>d.scrollTop+d.clientHeight||top<d.scrollTop)d.scrollTo({top:Math.max(0,top-d.clientHeight+c.offsetHeight+16),behavior:'smooth'})}}
   else{const d=sl.querySelector('.deriv');if(d&&step===0)d.scrollTop=0}},380);
-  document.getElementById('ctr').textContent=`${cur+1}/${slides.length} · step ${step}/${sl.max}`;
+  document.getElementById('ctr').textContent=`${CH.length>1?CH[chapOf(cur)].t+' · ':''}${cur+1}/${slides.length} · step ${step}/${sl.max}`;
+  markToc();
   [...prog.children].forEach((b,i)=>b.style.opacity=i<cur?.9:i===cur?.6:.2);
   const n=sl.querySelector('aside.notes');document.getElementById('notes').textContent=n?n.textContent:'';
   if(!AUD){try{history.replaceState(null,'','#s'+cur)}catch(e){}}
@@ -1258,7 +1273,7 @@ let pvBuilt=-1;
 function pres(){
   if(!document.body.classList.contains('presenter'))return;
   const d=SC[cur]||{s:[],n:''};const sl=slides[cur];
-  document.getElementById('pvh').innerHTML=`Slide ${cur+1} / ${slides.length} · click ${step} of ${sl.max}<b>${esc(sl.querySelector('h1,h2').dataset.tex||sl.querySelector('h1,h2').textContent)}</b>`;
+  document.getElementById('pvh').innerHTML=`${CH.length>1?esc(CH[chapOf(cur)].t)+' · ':''}Slide ${cur+1} / ${slides.length} · click ${step} of ${sl.max}<b>${esc(sl.querySelector('h1,h2').dataset.tex||sl.querySelector('h1,h2').textContent)}</b>`;
   try{if(window.MathJax&&MathJax.typesetPromise)MathJax.typesetPromise([document.getElementById('pvh')])}catch(e){}
   const scr=document.getElementById('scr');
   if(pvBuilt!==cur){
@@ -1272,7 +1287,8 @@ function pres(){
 function onMsg(m){if(!m||typeof m!=='object')return;
   if(m.t==='deck'&&AUD){remote=true;cur=Math.min(m.cur,slides.length-1);step=m.step;render()}
   else if(m.t==='nav'&&!AUD){m.d>0?next():prev()}
-  else if(m.t==='hello'&&!AUD){send({t:'deck',cur,step})}}
+  else if(m.t==='hello'&&!AUD){send({t:'deck',cur,step})}
+  else if(m.t==='go'&&!AUD){cur=Math.max(0,Math.min(+m.cur,slides.length-1));step=Math.min(+m.step||0,slides[cur].max);render()}}
 if(bc)bc.onmessage=e=>onMsg(e.data);
 addEventListener('message',e=>onMsg(e.data));
 function next(){if(AUD&&hasPresenter){send({t:'nav',d:1});return}if(step<slides[cur].max)step++;else if(cur<slides.length-1){cur++;step=0}render()}
@@ -1303,6 +1319,30 @@ addEventListener('keydown',e=>{
   else if(e.key==='Home'){cur=0;step=0;render()}
   else if(e.key==='End'){cur=slides.length-1;step=slides[cur].max;render()}
 });
+/* chapters and jumps: data-chap starts a chapter; G or "Sections" opens the menu; 1-9 jump to chapter n; click the progress bar; data-jump="slideId" on any element */
+const CH=[];slides.forEach((s,i)=>{if(s.dataset.chap)CH.push({t:s.dataset.chap,i})});
+if(!CH.length||CH[0].i!==0)CH.unshift({t:(TITLES[0]||'Start'),i:0});
+function chapOf(i){let c=0;CH.forEach((x,k)=>{if(x.i<=i)c=k});return c}
+CH.forEach(c=>{if(c.i>0&&prog.children[c.i])prog.children[c.i].classList.add('cs')});
+const toc=document.getElementById('toc');
+toc.innerHTML=CH.map((c,k)=>{const end=k+1<CH.length?CH[k+1].i:slides.length;
+  return `<button class="tch" data-i="${c.i}"><span class="tk">${k<9?k+1:''}</span>${esc(c.t)}</button>`+
+  slides.slice(c.i,end).map((s,j)=>`<button class="tsl" data-i="${c.i+j}">${c.i+j+1}. ${esc(TITLES[c.i+j]||'')}</button>`).join('')}).join('');
+function markToc(){const ch=chapOf(cur);toc.querySelectorAll('button').forEach(b=>{const i=+b.dataset.i;b.classList.toggle('now',b.classList.contains('tch')?CH[ch].i===i:i===cur)})}
+function closeToc(){toc.classList.remove('show')}
+function toggleToc(){toc.classList.toggle('show');if(toc.classList.contains('show')){const n=toc.querySelector('.tsl.now');n&&n.scrollIntoView({block:'center'})}}
+function go(i,s){i=Math.max(0,Math.min(slides.length-1,i));s=s||0;closeToc();
+  if(AUD&&hasPresenter){send({t:'go',cur:i,step:s});return}
+  cur=i;step=Math.min(s,slides[i].max);render()}
+toc.addEventListener('click',e=>{const b=e.target.closest('button[data-i]');if(b){e.stopPropagation();go(+b.dataset.i,0)}});
+prog.addEventListener('click',e=>{const k=[...prog.children].indexOf(e.target);if(k>=0)go(k,0)});
+document.getElementById('bg').onclick=e=>{e.stopPropagation();toggleToc()};
+document.querySelectorAll('[data-jump]').forEach(el=>el.addEventListener('click',e=>{e.stopPropagation();const k=slides.indexOf(document.getElementById(el.dataset.jump));if(k>=0)go(k,0)}));
+addEventListener('keydown',e=>{if(e.metaKey||e.ctrlKey||e.altKey)return;
+  if(e.key==='g'||e.key==='G'){e.preventDefault();toggleToc()}
+  else if(e.key==='Escape')closeToc();
+  else if(/^[1-9]$/.test(e.key)&&CH[+e.key-1]){e.preventDefault();go(CH[+e.key-1].i,0)}});
+document.addEventListener('click',e=>{if(toc.classList.contains('show')&&!e.target.closest('#toc,#bg')){closeToc();e.stopPropagation();e.preventDefault()}},true);
 const h=/^#s(\d+)$/.exec(location.hash);if(h)cur=Math.min(+h[1],slides.length-1);
 if(AUD){addEventListener('message',e=>{if(e.data&&e.data.t==='deck')hasPresenter=true});if(bc)bc.addEventListener('message',e=>{if(e.data&&e.data.t==='deck')hasPresenter=true});send({t:'hello'})}
 render();

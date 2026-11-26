@@ -220,6 +220,7 @@ body.noflow svg.tflow{display:none}
 .ln.cur .rd,body.allann .ln .rd{display:block}
 .ln .tag small{display:block;font-size:11.5px;font-weight:500;color:var(--mut);text-align:right;margin-top:1px;max-width:110px;line-height:1.2}
 .ln{padding-right:118px}
+svg [data-only]{opacity:0;transition:opacity .35s}svg [data-only].on{opacity:1}
 .ln.cur g.tA,.ln.src g.tA,.card.use g.tA{fill:#c1121f;color:#c1121f}
 .ln.cur g.tB,.ln.src g.tB,.card.use g.tB{fill:#0b4f8a;color:#0b4f8a}
 .ln.cur g.tC,.ln.src g.tC,.card.use g.tC{fill:#1a7f4b;color:#1a7f4b}
@@ -567,7 +568,7 @@ body.noflow svg.tflow{display:none}
             <text x="226" y="70" font-size="13" style="fill:#c2185b;font-weight:600">G(θ)</text></g>
           <g class="dot sh" data-on="5"><circle cx="200" cy="40" r="8"/></g>
           <text data-s="4" x="132" y="34" font-size="12" style="fill:#7b3fa0">best corner v*</text>
-          <text data-s="5" x="150" y="16" font-size="11.5" class="k">v* = LMO output (4)</text>
+          <text data-s="5" x="40" y="16" font-size="11.5" class="k">ringed corner v* = LMO output (4)</text>
           <g class="mv" data-on="6" style="--tx:110px;--ty:-110px"><circle cx="90" cy="150" r="6" fill="var(--ink)"/></g>
           <text class="fade" data-on="6" x="66" y="168" font-size="12">θ</text>
           <g data-s="6"><path d="M200 40 L 240 10" stroke="#0b4f8a" stroke-width="3" fill="none" marker-end="url(#gar)"/>

@@ -371,7 +371,7 @@ mark.hi.on{background-size:100% 100%}
   <div class="hd"><span class="sec">Overview</span><h2>Roadmap</h2></div>
   <div class="body full"><div class="deriv">
     <div class="rm" data-s="1" data-jump="motivation" title="Jump to this part"><span class="rn">1</span><div><b>Motivation</b><span>from weight decay to constrained weights</span></div></div>
-    <div class="rm" data-s="2" data-jump="fw-step" title="Jump to this part"><span class="rn">2</span><div><b>Stochastic Frank–Wolfe</b><span>the algorithm, convergence and variants</span></div></div>
+    <div class="rm" data-s="2" data-jump="fw-step" title="Jump to this part"><span class="rn">2</span><div><b>Stochastic Frank–Wolfe</b><span>the algorithm and how it relates to SGD</span></div></div>
     <div class="rm" data-s="3" data-jump="regions" title="Jump to this part"><span class="rn">3</span><div><b>Feasible regions</b><span>the sets, and the practical choices that make it work</span></div></div>
     <div class="rm" data-s="4" data-jump="exp-overview" title="Jump to this part"><span class="rn">4</span><div><b>Experiments</b><span>variants, learned features, sparsity, deep networks</span></div></div>
     <div class="rm" data-s="5" data-jump="key-result" title="Jump to this part"><span class="rn">5</span><div><b>Critique and takeaways</b><span>my own reading</span></div></div>
@@ -515,7 +515,7 @@ mark.hi.on{background-size:100% 100%}
       <div class="al in chg" data-only="3"><span class="no">7</span><span>\(\theta_{t+1}\leftarrow\theta_t+\alpha_t(v_t-\theta_t)\) <span class="chip">step (5)</span></span></div>
       <div class="al"><span class="no">8</span><span><b>end for</b></span></div>
       <div class="say" data-s="4">\(g_t\) is unbiased: \(\mathbb E[g_t]=\nabla L(\theta_t)\).</div>
-      <div class="say" data-s="5">A <b>drop-in replacement</b> for an SGD optimizer (PyTorch and TensorFlow code released). With momentum, it is called <b>MSFW</b>.</div>
+      <div class="say" data-s="5">A <b>drop-in replacement</b> for an SGD optimizer (PyTorch and TensorFlow code released). With momentum, it is called <b>MSFW</b>.<br><span style="font-size:17px;color:var(--mut)">Theory: on non-convex losses it reaches a stationary point at rate \(1/\sqrt T\) (Thm 2.1, cited from Reddi et al., 2016; details in Backup).</span></div>
     </div>
     <div class="side">
       <div class="railfig" data-s="2">
@@ -531,65 +531,6 @@ mark.hi.on{background-size:100% 100%}
       </div><div class="rh">Equations used</div><div class="card" data-k="1"><span class="src">paper §1</span><span class="no">(1)</span> SGD step<div class="ct">\(\theta_{t+1}=\class{tA}{\theta_t}\class{tB}{-\alpha g_t}\)</div></div><div class="card" data-k="4"><span class="src">paper §1</span><span class="no">(4)</span> LMO<div class="ct">\(v_t=\arg\min_{v\in C}\langle g_t,v\rangle\)</div></div><div class="card" data-k="5"><span class="src">paper §1</span><span class="no">(5)</span> Frank–Wolfe step<div class="ct">\(\theta_{t+1}=\class{tA}{\theta_t}+\class{tD}{\alpha}(\class{tE}{v_t}-\class{tA}{\theta_t})\)</div></div>
     </div>
   </div>
-</section>
-
-<section class="slide" data-plan="60">
-  <div class="hd"><span class="sec">2 · Stochastic Frank–Wolfe</span><h2>Convergence: the Frank–Wolfe gap</h2></div>
-  <div class="body">
-    <div class="deriv">
-      <div class="say" data-s="1" style="font-size:18px">Without constraints we stop when \(\nabla L(\theta)=0\). With constraints the optimum can sit on the boundary of \(C\) with \(\nabla L\neq 0\), so we need another measure.</div>
-      <div class="ln" data-srcs="A:-;;B:-;;C:-" data-moves="A:value at the current point;;B:slope (the gradient);;C:how far we move" data-read="L of v is approximately L of theta plus the inner product of grad L of theta with v minus theta" data-nick="Linear model" data-s="2" data-eq="L1" data-via="Start: the first-order (linear) model of the loss around \(\theta\)" data-why="Every Frank–Wolfe quantity is built from this model: the LMO minimizes it, and the gap measures it." data-how="Taylor expansion: near \(\theta\), the loss is approximately its value plus the gradient times the displacement \(v-\theta\)." data-sym="v::any candidate point in \(C\);; \nabla L(\theta)::full gradient at \(\theta\)">\[ L(v)\;\approx\;\class{tA}{L(\theta)}+\langle \class{tB}{\nabla L(\theta)},\,\class{tC}{v-\theta}\rangle \]</div>
-      <div class="ln" data-srcs="A:L1;;B:L1;;C:L1" data-moves="A:L(θ) − L(θ) cancels;;B:the minus sign moves onto the gradient;;C:same displacement" data-read="L of theta minus the model value equals the inner product of v minus theta with minus grad L" data-s="3" data-uses="L1" data-via="Predicted decrease if we moved from \(\theta\) to \(v\)" data-why="A positive value means: according to the linear model, moving toward \(v\) lowers the loss." data-how="Subtract the model value at \(v\) from \(L(\theta)\). The \(L(\theta)\) terms cancel, and the minus sign moves onto the gradient.">\[ \class{tA}{L(\theta)}-\big[\class{tA}{L(\theta)}+\langle\nabla L(\theta),v-\theta\rangle\big]=\langle \class{tC}{v-\theta},\,\class{tB}{-\nabla L(\theta)}\rangle \]</div>
-      <div class="ln box" data-srcs="C:^1;;B:^1;;E:-" data-moves="C:the predicted decrease…;;B:…along −∇L;;E:take the best v in C" data-read="G of theta equals the max over v in C of the inner product of v minus theta with minus grad L of theta" data-nick="FW gap" data-s="4" data-eq="7" data-uses="L1" data-via="Definition: the best predicted decrease over all of \(C\)" data-why="It answers one question: is there any feasible point that still looks downhill? If not, we are done (to first order)." data-how="Maximize the predicted decrease from the previous line over every \(v\in C\): take the most optimistic feasible point." data-sym="G(\theta)::the Frank–Wolfe gap at \(\theta\);; \max_{v\in C}::best over all feasible points">\[ G(\theta)=\class{tE}{\max_{v\in C}}\ \langle \class{tC}{v-\theta},\,\class{tB}{-\nabla L(\theta)}\rangle \]</div>
-      <div class="ln" data-srcs="E:7;;B:7" data-moves="E:the best v is exactly the LMO output (4);;B:flip the sign: θ − v* instead of v* − θ" data-read="v star is the LMO output, so G of theta equals the inner product of grad L with theta minus v star" data-nick="Gap via LMO" data-s="5" data-uses="7,4" data-via="Computing it: the maximizer is the LMO output" data-why="Cheap to monitor during training: one LMO call plus one inner product, and SFW calls the LMO every step anyway." data-how="Maximizing \(\langle v,-\nabla L\rangle\) is the same as minimizing \(\langle \nabla L, v\rangle\), which is the LMO (4). Plug its output \(v^*\) back in." data-sym="v^*::LMO output at \(\theta\)">\[ \class{tE}{v^*}=\arg\min_{v\in C}\langle\nabla L(\theta),v\rangle\ \Rightarrow\ G(\theta)=\langle \class{tB}{\nabla L(\theta)},\,\theta-\class{tE}{v^*}\rangle \]</div>
-      <div class="ln" data-srcs="E:7/E" data-moves="E:v = θ gives 0, so the max is ≥ 0; = 0 means no feasible downhill point" data-read="G of theta is at least zero, and equals zero exactly at a stationary point" data-nick="Stopping test" data-s="6" data-uses="7" data-via="Two properties: why it measures convergence" data-why="This is what replaces “gradient = 0” as the stopping test when there is a constraint." data-how="Take \(v=\theta\in C\): the inner product is 0, so the max is at least 0. \(G=0\) means no point of \(C\) is downhill to first order: a first-order critical (stationary) point. With no constraint (\(C=\mathbb R^n\)) this reduces to \(\nabla L=0\).">\[ \class{tE}{G(\theta)}\ge 0,\qquad \class{tE}{G(\theta)}=0\iff \theta \text{ is stationary} \]</div>
-      <div class="ln box" data-srcs="E:7/E;;F:-;;D:-" data-moves="E:the gap at a random iterate;;F:how far we start from the best loss;;D:shrinks like 1/√T" data-read="the expected gap at theta a is big O of L of theta zero minus L of theta star, over root T" data-nick="Rate 1/√T" data-s="7" data-eq="T" data-uses="7" data-via="Theorem 2.1 (Reddi et al., 2016)" data-why="It guarantees SFW makes progress on non-convex losses like neural networks, at rate \(1/\sqrt T\)." data-how="Assumes smooth \(\ell_i\), no momentum (\(\rho=1\)), \(\alpha_t=1/\sqrt T\), batch size \(b_t=T\), and \(\theta_a\) drawn uniformly from the iterates." data-sym="\theta^*::a minimizer;; T::number of steps;; \theta_a::a randomly chosen iterate">\[ \mathbb E\big[\class{tE}{G(\theta_a)}\big]=O\!\left(\frac{\class{tF}{L(\theta_0)-L(\theta^*)}}{\class{tD}{\sqrt T}}\right) \]</div>
-      <div class="say" data-s="8"><b>Caveat:</b> the theorem needs batch size \(T\) and no momentum; the experiments use fixed batches and momentum. A guide, not a guarantee.</div>
-    </div>
-    <div class="side">
-      <div class="railfig gapfig">
-        <svg class="fig2" viewBox="0 0 290 262" width="290" height="262">
-          <defs><clipPath id="gclip"><rect x="0" y="0" width="290" height="262"/></clipPath>
-          <marker id="gar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#0b4f8a"/></marker>
-          <marker id="gar2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#c2185b"/></marker></defs>
-          <rect x="40" y="40" width="160" height="160" fill="var(--prt)" stroke="var(--pr)" stroke-width="2"/>
-          <text x="46" y="194" class="lbl p">C</text>
-          <g data-s="2" clip-path="url(#gclip)" stroke="#0b4f8a" stroke-opacity=".35" stroke-dasharray="4 4">
-            <line x1="8" y1="66" x2="176" y2="290"/><line x1="32" y1="48" x2="200" y2="272"/><line x1="56" y1="30" x2="224" y2="254"/><line x1="80" y1="12" x2="248" y2="236"/><line x1="104" y1="-6" x2="272" y2="218"/><line x1="128" y1="-24" x2="296" y2="200"/>
-          </g>
-          <text data-s="2" class="fade" data-on="6" x="6" y="226" font-size="11.5" style="fill:#0b4f8a">dashed: level lines of the linear model</text>
-          <g class="fade" data-on="6"><path d="M90 150 L 130 120" stroke="#0b4f8a" stroke-width="3" fill="none" marker-end="url(#gar)"/>
-          <text x="98" y="114" font-size="12" style="fill:#0b4f8a">−∇L</text></g>
-          <g data-only="3"><circle cx="60" cy="60" r="5" fill="#1a7f4b"/><text x="46" y="54" font-size="12" style="fill:#1a7f4b">v</text>
-            <line x1="90" y1="150" x2="60" y2="60" stroke="#1a7f4b" stroke-width="1.6" stroke-dasharray="4 3"/>
-            <line x1="90" y1="150" x2="114" y2="132" stroke="#c2185b" stroke-width="6" stroke-linecap="round" stroke-opacity=".6"/>
-            <text x="120" y="146" font-size="11.5" style="fill:#c2185b">predicted decrease</text></g>
-          <g data-s="4" class="fade" data-on="6"><line x1="90" y1="150" x2="200" y2="40" stroke="#7b3fa0" stroke-width="1.6" stroke-dasharray="4 3"/>
-            <path class="draw" data-on="4" pathLength="1000" d="M90 150 L 213 57.6" stroke="#c2185b" stroke-width="7" stroke-linecap="round" stroke-opacity=".55" fill="none"/>
-            <text x="226" y="70" font-size="13" style="fill:#c2185b;font-weight:600">G(θ)</text></g>
-          <g class="dot sh" data-on="5"><circle cx="200" cy="40" r="8"/></g>
-          <text data-s="4" x="132" y="34" font-size="12" style="fill:#7b3fa0">best corner v*</text>
-          <text data-s="5" x="40" y="16" font-size="11.5" class="k">ringed corner v* = LMO output (4)</text>
-          <g class="mv" data-on="6" style="--tx:110px;--ty:-110px"><circle cx="90" cy="150" r="6" fill="var(--ink)"/></g>
-          <text class="fade" data-on="6" x="66" y="168" font-size="12">θ</text>
-          <g data-s="6"><path d="M200 40 L 240 10" stroke="#0b4f8a" stroke-width="3" fill="none" marker-end="url(#gar)"/>
-            <text x="6" y="238" font-size="12" class="k">θ at the corner: every v ∈ C is uphill</text>
-            <text x="6" y="255" font-size="12" class="k">⇒ G(θ) = 0, though ∇L ≠ 0</text></g>
-        </svg>
-        <div class="cap" data-s="1">Goal: a stopping test that works on the boundary, where \(\nabla L\neq0\).</div>
-      </div>
-      <div class="railfig" data-s="7">
-        <svg class="fig2" viewBox="0 0 290 120" width="290" height="120">
-          <line x1="30" y1="10" x2="30" y2="105" stroke="var(--rule)"/><line x1="30" y1="105" x2="270" y2="105" stroke="var(--rule)"/>
-          <path class="draw" data-on="7" pathLength="1000" d="M30 12 C 50 70, 90 88, 270 98" fill="none" stroke="#7b3fa0" stroke-width="3"/>
-          <text x="36" y="22" font-size="12">E[G]</text><text x="252" y="118" font-size="12">T</text>
-          <text x="140" y="74" font-size="12" style="fill:#7b3fa0">∝ 1/√T</text>
-        </svg>
-      </div>
-      <div class="rh">Equations used</div><div class="card" data-k="4"><span class="src">paper §1</span><span class="no">(4)</span> LMO<div class="ct">\(v_t=\arg\min_{v\in C}\langle g_t,v\rangle\)</div></div><div class="card" data-k="7"><span class="src">paper §2</span><span class="no">(7)</span> Frank–Wolfe gap<div class="ct">\(G(\theta)=\max_{v\in C}\langle v-\theta,-\nabla L(\theta)\rangle\)</div></div>
-    </div>
-  </div>
-  <aside class="notes">Smooth = the gradient is Lipschitz. Gap ≥ 0: take v = θ.</aside>
 </section>
 
 <section class="slide" id="regions" data-chap="Feasible regions" data-plan="90">
@@ -937,6 +878,65 @@ mark.hi.on{background-size:100% 100%}
     </div>
   </div>
 </section>
+
+<section class="slide" id="convergence" data-plan="0">
+  <div class="hd"><span class="sec">Backup · Convergence</span><h2>Convergence: the Frank–Wolfe gap</h2></div>
+  <div class="body">
+    <div class="deriv">
+      <div class="say" data-s="1" style="font-size:18px">Without constraints we stop when \(\nabla L(\theta)=0\). With constraints the optimum can sit on the boundary of \(C\) with \(\nabla L\neq 0\), so we need another measure.</div>
+      <div class="ln" data-srcs="A:-;;B:-;;C:-" data-moves="A:value at the current point;;B:slope (the gradient);;C:how far we move" data-read="L of v is approximately L of theta plus the inner product of grad L of theta with v minus theta" data-nick="Linear model" data-s="2" data-eq="L1" data-via="Start: the first-order (linear) model of the loss around \(\theta\)" data-why="Every Frank–Wolfe quantity is built from this model: the LMO minimizes it, and the gap measures it." data-how="Taylor expansion: near \(\theta\), the loss is approximately its value plus the gradient times the displacement \(v-\theta\)." data-sym="v::any candidate point in \(C\);; \nabla L(\theta)::full gradient at \(\theta\)">\[ L(v)\;\approx\;\class{tA}{L(\theta)}+\langle \class{tB}{\nabla L(\theta)},\,\class{tC}{v-\theta}\rangle \]</div>
+      <div class="ln" data-srcs="A:L1;;B:L1;;C:L1" data-moves="A:L(θ) − L(θ) cancels;;B:the minus sign moves onto the gradient;;C:same displacement" data-read="L of theta minus the model value equals the inner product of v minus theta with minus grad L" data-s="3" data-uses="L1" data-via="Predicted decrease if we moved from \(\theta\) to \(v\)" data-why="A positive value means: according to the linear model, moving toward \(v\) lowers the loss." data-how="Subtract the model value at \(v\) from \(L(\theta)\). The \(L(\theta)\) terms cancel, and the minus sign moves onto the gradient.">\[ \class{tA}{L(\theta)}-\big[\class{tA}{L(\theta)}+\langle\nabla L(\theta),v-\theta\rangle\big]=\langle \class{tC}{v-\theta},\,\class{tB}{-\nabla L(\theta)}\rangle \]</div>
+      <div class="ln box" data-srcs="C:^1;;B:^1;;E:-" data-moves="C:the predicted decrease…;;B:…along −∇L;;E:take the best v in C" data-read="G of theta equals the max over v in C of the inner product of v minus theta with minus grad L of theta" data-nick="FW gap" data-s="4" data-eq="7" data-uses="L1" data-via="Definition: the best predicted decrease over all of \(C\)" data-why="It answers one question: is there any feasible point that still looks downhill? If not, we are done (to first order)." data-how="Maximize the predicted decrease from the previous line over every \(v\in C\): take the most optimistic feasible point." data-sym="G(\theta)::the Frank–Wolfe gap at \(\theta\);; \max_{v\in C}::best over all feasible points">\[ G(\theta)=\class{tE}{\max_{v\in C}}\ \langle \class{tC}{v-\theta},\,\class{tB}{-\nabla L(\theta)}\rangle \]</div>
+      <div class="ln" data-srcs="E:7;;B:7" data-moves="E:the best v is exactly the LMO output (4);;B:flip the sign: θ − v* instead of v* − θ" data-read="v star is the LMO output, so G of theta equals the inner product of grad L with theta minus v star" data-nick="Gap via LMO" data-s="5" data-uses="7,4" data-via="Computing it: the maximizer is the LMO output" data-why="Cheap to monitor during training: one LMO call plus one inner product, and SFW calls the LMO every step anyway." data-how="Maximizing \(\langle v,-\nabla L\rangle\) is the same as minimizing \(\langle \nabla L, v\rangle\), which is the LMO (4). Plug its output \(v^*\) back in." data-sym="v^*::LMO output at \(\theta\)">\[ \class{tE}{v^*}=\arg\min_{v\in C}\langle\nabla L(\theta),v\rangle\ \Rightarrow\ G(\theta)=\langle \class{tB}{\nabla L(\theta)},\,\theta-\class{tE}{v^*}\rangle \]</div>
+      <div class="ln" data-srcs="E:7/E" data-moves="E:v = θ gives 0, so the max is ≥ 0; = 0 means no feasible downhill point" data-read="G of theta is at least zero, and equals zero exactly at a stationary point" data-nick="Stopping test" data-s="6" data-uses="7" data-via="Two properties: why it measures convergence" data-why="This is what replaces “gradient = 0” as the stopping test when there is a constraint." data-how="Take \(v=\theta\in C\): the inner product is 0, so the max is at least 0. \(G=0\) means no point of \(C\) is downhill to first order: a first-order critical (stationary) point. With no constraint (\(C=\mathbb R^n\)) this reduces to \(\nabla L=0\).">\[ \class{tE}{G(\theta)}\ge 0,\qquad \class{tE}{G(\theta)}=0\iff \theta \text{ is stationary} \]</div>
+      <div class="ln box" data-srcs="E:7/E;;F:-;;D:-" data-moves="E:the gap at a random iterate;;F:how far we start from the best loss;;D:shrinks like 1/√T" data-read="the expected gap at theta a is big O of L of theta zero minus L of theta star, over root T" data-nick="Rate 1/√T" data-s="7" data-eq="T" data-uses="7" data-via="Theorem 2.1 (Reddi et al., 2016)" data-why="It guarantees SFW makes progress on non-convex losses like neural networks, at rate \(1/\sqrt T\)." data-how="Assumes smooth \(\ell_i\), no momentum (\(\rho=1\)), \(\alpha_t=1/\sqrt T\), batch size \(b_t=T\), and \(\theta_a\) drawn uniformly from the iterates." data-sym="\theta^*::a minimizer;; T::number of steps;; \theta_a::a randomly chosen iterate">\[ \mathbb E\big[\class{tE}{G(\theta_a)}\big]=O\!\left(\frac{\class{tF}{L(\theta_0)-L(\theta^*)}}{\class{tD}{\sqrt T}}\right) \]</div>
+      <div class="say" data-s="8"><b>Caveat:</b> the theorem needs batch size \(T\) and no momentum; the experiments use fixed batches and momentum. A guide, not a guarantee.</div>
+    </div>
+    <div class="side">
+      <div class="railfig gapfig">
+        <svg class="fig2" viewBox="0 0 290 262" width="290" height="262">
+          <defs><clipPath id="gclip"><rect x="0" y="0" width="290" height="262"/></clipPath>
+          <marker id="gar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#0b4f8a"/></marker>
+          <marker id="gar2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#c2185b"/></marker></defs>
+          <rect x="40" y="40" width="160" height="160" fill="var(--prt)" stroke="var(--pr)" stroke-width="2"/>
+          <text x="46" y="194" class="lbl p">C</text>
+          <g data-s="2" clip-path="url(#gclip)" stroke="#0b4f8a" stroke-opacity=".35" stroke-dasharray="4 4">
+            <line x1="8" y1="66" x2="176" y2="290"/><line x1="32" y1="48" x2="200" y2="272"/><line x1="56" y1="30" x2="224" y2="254"/><line x1="80" y1="12" x2="248" y2="236"/><line x1="104" y1="-6" x2="272" y2="218"/><line x1="128" y1="-24" x2="296" y2="200"/>
+          </g>
+          <text data-s="2" class="fade" data-on="6" x="6" y="226" font-size="11.5" style="fill:#0b4f8a">dashed: level lines of the linear model</text>
+          <g class="fade" data-on="6"><path d="M90 150 L 130 120" stroke="#0b4f8a" stroke-width="3" fill="none" marker-end="url(#gar)"/>
+          <text x="98" y="114" font-size="12" style="fill:#0b4f8a">−∇L</text></g>
+          <g data-only="3"><circle cx="60" cy="60" r="5" fill="#1a7f4b"/><text x="46" y="54" font-size="12" style="fill:#1a7f4b">v</text>
+            <line x1="90" y1="150" x2="60" y2="60" stroke="#1a7f4b" stroke-width="1.6" stroke-dasharray="4 3"/>
+            <line x1="90" y1="150" x2="114" y2="132" stroke="#c2185b" stroke-width="6" stroke-linecap="round" stroke-opacity=".6"/>
+            <text x="120" y="146" font-size="11.5" style="fill:#c2185b">predicted decrease</text></g>
+          <g data-s="4" class="fade" data-on="6"><line x1="90" y1="150" x2="200" y2="40" stroke="#7b3fa0" stroke-width="1.6" stroke-dasharray="4 3"/>
+            <path class="draw" data-on="4" pathLength="1000" d="M90 150 L 213 57.6" stroke="#c2185b" stroke-width="7" stroke-linecap="round" stroke-opacity=".55" fill="none"/>
+            <text x="226" y="70" font-size="13" style="fill:#c2185b;font-weight:600">G(θ)</text></g>
+          <g class="dot sh" data-on="5"><circle cx="200" cy="40" r="8"/></g>
+          <text data-s="4" x="132" y="34" font-size="12" style="fill:#7b3fa0">best corner v*</text>
+          <text data-s="5" x="40" y="16" font-size="11.5" class="k">ringed corner v* = LMO output (4)</text>
+          <g class="mv" data-on="6" style="--tx:110px;--ty:-110px"><circle cx="90" cy="150" r="6" fill="var(--ink)"/></g>
+          <text class="fade" data-on="6" x="66" y="168" font-size="12">θ</text>
+          <g data-s="6"><path d="M200 40 L 240 10" stroke="#0b4f8a" stroke-width="3" fill="none" marker-end="url(#gar)"/>
+            <text x="6" y="238" font-size="12" class="k">θ at the corner: every v ∈ C is uphill</text>
+            <text x="6" y="255" font-size="12" class="k">⇒ G(θ) = 0, though ∇L ≠ 0</text></g>
+        </svg>
+        <div class="cap" data-s="1">Goal: a stopping test that works on the boundary, where \(\nabla L\neq0\).</div>
+      </div>
+      <div class="railfig" data-s="7">
+        <svg class="fig2" viewBox="0 0 290 120" width="290" height="120">
+          <line x1="30" y1="10" x2="30" y2="105" stroke="var(--rule)"/><line x1="30" y1="105" x2="270" y2="105" stroke="var(--rule)"/>
+          <path class="draw" data-on="7" pathLength="1000" d="M30 12 C 50 70, 90 88, 270 98" fill="none" stroke="#7b3fa0" stroke-width="3"/>
+          <text x="36" y="22" font-size="12">E[G]</text><text x="252" y="118" font-size="12">T</text>
+          <text x="140" y="74" font-size="12" style="fill:#7b3fa0">∝ 1/√T</text>
+        </svg>
+      </div>
+      <div class="rh">Equations used</div><div class="card" data-k="4"><span class="src">paper §1</span><span class="no">(4)</span> LMO<div class="ct">\(v_t=\arg\min_{v\in C}\langle g_t,v\rangle\)</div></div><div class="card" data-k="7"><span class="src">paper §2</span><span class="no">(7)</span> Frank–Wolfe gap<div class="ct">\(G(\theta)=\max_{v\in C}\langle v-\theta,-\nabla L(\theta)\rangle\)</div></div>
+    </div>
+  </div>
+  <aside class="notes">Smooth = the gradient is Lipschitz. Gap ≥ 0: take v = θ.</aside>
+</section>
 </div></div>
 <div id="notes"></div>
 <nav id="toc" aria-label="Sections"></nav>
@@ -955,8 +955,8 @@ window.EQS={"1": ["SGD step", "paper §1", "\\theta_{t+1}=\\class{tA}{\\theta_t}
 window.EQ_NEW=['13','14','16'];
 window.EQLABEL={'5b':'(5′)','P':'(3′)','T':'Thm 2.1','L1':'(7a)'};
 window.TRAIL=[['1','SGD'],['2','weight decay'],['6','constrain'],['3','project?'],['4','LMO'],['5','FW step'],['5b','= shrink']];
-window.HILITE={"0": ["state-of-the-art accuracy", "the shape of C changes what the network learns"], "2": ["unconstrained", "generalize worse", "comes back in Frank–Wolfe"], "3": ["require", "Frank–Wolfe avoids projections altogether."], "5": ["the point of the ball furthest downhill", "corner", "the whole budget", "large gradients get large weights", "Projections often need an algorithm of their own."], "6": ["drop-in replacement", "MSFW"], "7": ["so we need another measure", "A guide, not a guarantee."], "8": ["per layer", "K tunes how sparse the update is."], "9": ["inductive bias"], "10": ["the length equals an SGD step", "Region size:"], "11": ["SGD with momentum"], "12": ["MSFW wins", "Rest of the paper: SFW and MSFW."], "13": ["only the LMO differs"], "14": ["far fewer active weights", "the most"], "15": ["above weight decay only on DenseNet/CIFAR-10"], "16": ["beats plain SGD", "roughly matches SGD with weight decay"], "17": ["Drop-in replacement for SGD", "Choose sparse or dense updates", "tuning moves, it doesn't disappear", "Weight decay still wins"], "18": ["constrained weights", "beats plain SGD", "shapes the network", "SFW with momentum"]};
-window.SHILITE={"0": ["force the weights to stay inside a convex set", "state-of-the-art accuracy", "the shape of the set actually changes what the network learns"], "1": ["That's the biggest part."], "2": ["weight decay", "shrink the weights a little bit toward zero", "one minus lambda"], "3": ["require the weights to stay inside some set", "The projection is itself an optimization problem", "It never projects at all."], "4": ["linear minimization oracle", "the answer is always a corner", "convex combination", "we never leave", "exactly the one minus lambda from weight decay"], "5": ["furthest downhill", "Both are one line", "you need a dedicated algorithm", "about as cheap as an SGD step"], "6": ["almost exactly SGD with momentum", "rho is the weight on the new gradient", "the only lines that change", "drop-in replacement"], "7": ["the gradient is not zero", "the best v in the whole set", "exactly the LMO output", "G becomes zero", "one over root T", "a guide, not a guarantee"], "8": ["applied per layer", "one non-zero entry", "its LMO is dense", "K tunes how sparse the update is"], "9": ["SGD-like", "Dense.", "Sparse.", "inductive bias"], "10": ["a good alpha would depend on tau", "divide alpha by the diameter", "The arrow's own length cancels out", "the same thing as SGD's learning rate"], "11": ["from small scale to large scale", "SGD with momentum, with and without weight decay"], "12": ["the two different x-axes", "the fair measure of work", "SFW with momentum, is the best", "variance reduction isn't worth it here"], "13": ["a few scattered pixels", "saturated, smooth shapes", "looks close to SGD", "the learned representation changes a lot"], "14": ["far fewer active weights", "uses the most", "one route to sparse networks"], "15": ["it's the best of all four", "weight decay is still the best", "always above SGD without weight decay", "only true for three of the five models"], "16": ["you beat plain SGD", "roughly match SGD with weight decay", "slightly worse there"], "17": ["drop-in replacement for SGD", "design tool", "the theory doesn't match the practice", "it just moves it somewhere else", "weight decay still wins"], "18": ["no projections", "roughly matches SGD with weight decay", "shapes the network", "SFW with momentum", "the practical recipe"], "22": ["how they estimate the gradient", "extra gradient evaluations"], "23": ["width factor"], "24": ["around 92 percent", "single runs of 10 epochs"]};
+window.HILITE={"0": ["state-of-the-art accuracy", "the shape of C changes what the network learns"], "2": ["unconstrained", "generalize worse", "comes back in Frank–Wolfe"], "3": ["require", "Frank–Wolfe avoids projections altogether."], "5": ["the point of the ball furthest downhill", "corner", "the whole budget", "large gradients get large weights", "Projections often need an algorithm of their own."], "6": ["drop-in replacement", "MSFW"], "24": ["so we need another measure", "A guide, not a guarantee."], "7": ["per layer", "K tunes how sparse the update is."], "8": ["inductive bias"], "9": ["the length equals an SGD step", "Region size:"], "10": ["SGD with momentum"], "11": ["MSFW wins", "Rest of the paper: SFW and MSFW."], "12": ["only the LMO differs"], "13": ["far fewer active weights", "the most"], "14": ["above weight decay only on DenseNet/CIFAR-10"], "15": ["beats plain SGD", "roughly matches SGD with weight decay"], "16": ["Drop-in replacement for SGD", "Choose sparse or dense updates", "tuning moves, it doesn't disappear", "Weight decay still wins"], "17": ["constrained weights", "beats plain SGD", "shapes the network", "SFW with momentum"]};
+window.SHILITE={"0": ["force the weights to stay inside a convex set", "state-of-the-art accuracy", "the shape of the set actually changes what the network learns"], "1": ["That's the biggest part."], "2": ["weight decay", "shrink the weights a little bit toward zero", "one minus lambda"], "3": ["require the weights to stay inside some set", "The projection is itself an optimization problem", "It never projects at all."], "4": ["linear minimization oracle", "the answer is always a corner", "convex combination", "we never leave", "exactly the one minus lambda from weight decay"], "5": ["furthest downhill", "Both are one line", "you need a dedicated algorithm", "about as cheap as an SGD step"], "6": ["almost exactly SGD with momentum", "rho is the weight on the new gradient", "the only lines that change", "drop-in replacement"], "24": ["the gradient is not zero", "the best v in the whole set", "exactly the LMO output", "G becomes zero", "one over root T", "a guide, not a guarantee"], "7": ["applied per layer", "one non-zero entry", "its LMO is dense", "K tunes how sparse the update is"], "8": ["SGD-like", "Dense.", "Sparse.", "inductive bias"], "9": ["a good alpha would depend on tau", "divide alpha by the diameter", "The arrow's own length cancels out", "the same thing as SGD's learning rate"], "10": ["from small scale to large scale", "SGD with momentum, with and without weight decay"], "11": ["the two different x-axes", "the fair measure of work", "SFW with momentum, is the best", "variance reduction isn't worth it here"], "12": ["a few scattered pixels", "saturated, smooth shapes", "looks close to SGD", "the learned representation changes a lot"], "13": ["far fewer active weights", "uses the most", "one route to sparse networks"], "14": ["it's the best of all four", "weight decay is still the best", "always above SGD without weight decay", "only true for three of the five models"], "15": ["you beat plain SGD", "roughly match SGD with weight decay", "slightly worse there"], "16": ["drop-in replacement for SGD", "design tool", "the theory doesn't match the practice", "it just moves it somewhere else", "weight decay still wins"], "17": ["no projections", "roughly matches SGD with weight decay", "shapes the network", "SFW with momentum", "the practical recipe"], "21": ["how they estimate the gradient", "extra gradient evaluations"], "22": ["width factor"], "23": ["around 92 percent", "single runs of 10 epochs"]};
 window.SCRIPT=[
 {
 "s": [
@@ -975,7 +975,7 @@ window.SCRIPT=[
 "s": [
 "Here's the plan for today, in five parts.",
 "First, the motivation: why would we want to constrain the weights at all?",
-"Second, the algorithm itself, stochastic Frank–Wolfe, plus a little on convergence and the different variants.",
+"Second, the algorithm itself, stochastic Frank–Wolfe, and how it relates to SGD with momentum.",
 "Third, the feasible regions, so the actual sets they use, and two practical tricks you need to make training work.",
 "Fourth, their four experiments, which go from small networks all the way up to ImageNet. That's the biggest part.",
 "And finally, my own critique, and the main takeaways."
@@ -1053,29 +1053,11 @@ window.SCRIPT=[
 "Line five is momentum. »m t equals one minus rho t, times m t minus one, plus rho t times g t.« So m t is a running average of the gradients. Careful with the notation here: rho is the weight on the new gradient. So rho equal to 0.1, ten percent new and ninety percent old, is what we usually call momentum 0.9. And rho equal to one means no momentum: that's plain SFW.",
 "Then the only lines that change compared to SGD are six and seven. Line six: instead of stepping along minus m t, we call the LMO on m t. Line seven: we move toward the LMO output, the same step as before.",
 "One more detail on line four: g t is unbiased. »The expected value of g t equals the gradient of L at theta t.«",
-"So in practice, this is a drop-in replacement for an SGD optimizer, as long as you have an LMO for your set. The authors released it for both PyTorch and TensorFlow. And the version with momentum is what the experiments call MSFW."
+"So in practice, this is a drop-in replacement for an SGD optimizer, as long as you have an LMO for your set. The authors released it for both PyTorch and TensorFlow. And the version with momentum is what the experiments call MSFW. On theory, the paper cites one result, Theorem 2.1: even though the loss is non-convex, SFW reaches a stationary point at rate one over root T. It needs some assumptions, no momentum and a growing batch, and I'll come back to that in the limitations. The details are in the backup if anyone asks."
 ],
-"n": "We have an algorithm. The next question is: does it converge? And how do we even measure convergence when there's a constraint?",
+"n": "So the algorithm is the same for every set; only the LMO changes. So which sets do they actually use?",
 "b": [
 "LMO is cheap",
-"convergence"
-]
-},
-{
-"s": [
-"Quickly, on convergence. The question is: how do we know the algorithm is done?",
-"Without constraints, we stop when the gradient is zero. But with a constraint, the best point can sit on the boundary of C, where the gradient is not zero. So we need a different stopping test. Let me build it in four steps, with the picture on the right.",
-"Step one: the linear model of the loss around theta. »L of v is approximately L of theta plus the inner product of grad L of theta with v minus theta.« The three coloured pieces are: the value now, the slope, and how far we move. In the picture, the blue arrow is minus the gradient, and the dashed lines are the level lines of this linear model: moving along the arrow goes downhill.",
-"Step two: if we jumped from theta to some point v, how much would this model say the loss goes down? Subtract the model value from L of theta. Watch the red L of theta: it cancels. And the minus sign moves onto the gradient, in blue. We get »the inner product of v minus theta with minus grad L.« In the picture, that's the pink bar: how far v lies along the downhill arrow.",
-"Step three: take the best v in the whole set. That's the Frank–Wolfe gap, equation seven. »G of theta equals the max over v in C of the inner product of v minus theta with minus grad L of theta.« In the picture, the best point is the top-right corner, v star, and the long pink bar is G: the biggest decrease the linear model still promises inside C.",
-"Step four: how do we compute it? The best v is exactly the LMO output, v star, the ringed corner. So »G of theta equals the inner product of grad L with theta minus v star.« One LMO call and one inner product, and SFW calls the LMO at every step anyway.",
-"Why this is the right stopping test. G is never negative, because v equal to theta gives zero. And watch the picture: when theta reaches that corner, every other point of C is uphill, so G becomes zero, even though the gradient still points out of the set. That's what a stationary point means with a constraint. Without constraints, it reduces to the gradient being zero.",
-"The theorem they cite, from Reddi and others in 2016, says »the expected gap at theta a is big O of L of theta zero minus L of theta star, over root T.« The gap goes to zero at rate one over root T, as in the purple curve.",
-"The catch is that it assumes no momentum and a batch size equal to T, while the experiments use momentum and fixed batches. So the theory is a guide, not a guarantee for what they actually run. (Time check, don't say: about 14 minutes.)"
-],
-"n": "So far C was just “some convex set”. Next: which sets do they actually use?",
-"b": [
-"Algorithm 1",
 "feasible regions"
 ]
 },
@@ -1090,7 +1072,7 @@ window.SCRIPT=[
 ],
 "n": "We just saw that the shape decides what the LMO returns. So let's see what that does to the weights.",
 "b": [
-"convergence (7)",
+"Algorithm 1",
 "how the shape moves the weights"
 ]
 },
@@ -1312,6 +1294,24 @@ window.SCRIPT=[
 "n": "",
 "b": [
 "",
+""
+]
+},
+{
+"s": [
+"Quickly, on convergence. The question is: how do we know the algorithm is done?",
+"Without constraints, we stop when the gradient is zero. But with a constraint, the best point can sit on the boundary of C, where the gradient is not zero. So we need a different stopping test. Let me build it in four steps, with the picture on the right.",
+"Step one: the linear model of the loss around theta. »L of v is approximately L of theta plus the inner product of grad L of theta with v minus theta.« The three coloured pieces are: the value now, the slope, and how far we move. In the picture, the blue arrow is minus the gradient, and the dashed lines are the level lines of this linear model: moving along the arrow goes downhill.",
+"Step two: if we jumped from theta to some point v, how much would this model say the loss goes down? Subtract the model value from L of theta. Watch the red L of theta: it cancels. And the minus sign moves onto the gradient, in blue. We get »the inner product of v minus theta with minus grad L.« In the picture, that's the pink bar: how far v lies along the downhill arrow.",
+"Step three: take the best v in the whole set. That's the Frank–Wolfe gap, equation seven. »G of theta equals the max over v in C of the inner product of v minus theta with minus grad L of theta.« In the picture, the best point is the top-right corner, v star, and the long pink bar is G: the biggest decrease the linear model still promises inside C.",
+"Step four: how do we compute it? The best v is exactly the LMO output, v star, the ringed corner. So »G of theta equals the inner product of grad L with theta minus v star.« One LMO call and one inner product, and SFW calls the LMO at every step anyway.",
+"Why this is the right stopping test. G is never negative, because v equal to theta gives zero. And watch the picture: when theta reaches that corner, every other point of C is uphill, so G becomes zero, even though the gradient still points out of the set. That's what a stationary point means with a constraint. Without constraints, it reduces to the gradient being zero.",
+"The theorem they cite, from Reddi and others in 2016, says »the expected gap at theta a is big O of L of theta zero minus L of theta star, over root T.« The gap goes to zero at rate one over root T, as in the purple curve.",
+"The catch is that it assumes no momentum and a batch size equal to T, while the experiments use momentum and fixed batches. So the theory is a guide, not a guarantee for what they actually run."
+],
+"n": "",
+"b": [
+"Algorithm 1 (main talk)",
 ""
 ]
 }

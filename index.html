@@ -55,6 +55,7 @@ h2{font-size:32px;line-height:1.1;margin:0;font-weight:600;text-wrap:balance}
 .ln.cur .ann,body.allann .ann{max-height:420px;opacity:1;margin:4px 0 6px 4px}
 body.allann .ln:not(.cur) .ann{border-left-color:var(--rule)}
 .ann .how{font-size:15.5px;line-height:1.4;margin:0 0 4px}
+.ann .why b{color:var(--pr)}
 .ann .how b,.ann .sh{font-weight:600;color:var(--acc);font-size:13px}
 .ann .sy{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 18px;font-size:15px;line-height:1.35}
 .ann .sy div{display:flex;gap:8px;align-items:baseline}
@@ -318,9 +319,9 @@ aside.notes{display:none}
     </div>
     <div class="deriv">
       <div class="note">SGD is still the default, with the weights \(\theta\) left <strong>unconstrained</strong>.</div>
-      <div class="ln" data-s="1" data-eq="1" data-via="Plain SGD" data-how="Move against the mini-batch gradient, scaled by the learning rate." data-sym="\theta_t::weights at step \(t\);; \alpha::learning rate;; g_t::mini-batch gradient of \(L\) at \(\theta_t\)">\[ \theta_{t+1}=\theta_t-\alpha\, g_t \]</div>
+      <div class="ln" data-s="1" data-eq="1" data-via="Plain SGD" data-why="The baseline every result in the paper is compared against." data-how="Move against the mini-batch gradient, scaled by the learning rate." data-sym="\theta_t::weights at step \(t\);; \alpha::learning rate;; g_t::mini-batch gradient of \(L\) at \(\theta_t\)">\[ \theta_{t+1}=\theta_t-\alpha\, g_t \]</div>
       <div class="say" data-s="2">Adaptive methods (Adam, Adagrad) train faster early on, but often <b>generalize worse</b> (Wilson et al., 2017).</div>
-      <div class="ln" data-s="3" data-eq="2" data-uses="1" data-via="Add weight decay: shrink first, then step" data-how="Same as SGD on the loss \(L+\frac{\lambda}{2\alpha}\|\theta\|_2^2\): the penalty's gradient \(\frac{\lambda}{\alpha}\theta\), times \(\alpha\), gives the extra \(-\lambda\theta\)." data-sym="\lambda::decay rate (about \(10^{-4}\));; 1-\lambda::shrink factor per step">\[ \theta_{t+1}=(1-\lambda)\,\theta_t-\alpha\, g_t \]</div>
+      <div class="ln" data-s="3" data-eq="2" data-uses="1" data-via="Add weight decay: shrink first, then step" data-why="Weight decay is what gives state-of-the-art accuracy; the factor \((1-\lambda)\) will reappear inside Frank–Wolfe." data-how="Same as SGD on the loss \(L+\frac{\lambda}{2\alpha}\|\theta\|_2^2\): the penalty's gradient \(\frac{\lambda}{\alpha}\theta\), times \(\alpha\), gives the extra \(-\lambda\theta\)." data-sym="\lambda::decay rate (about \(10^{-4}\));; 1-\lambda::shrink factor per step">\[ \theta_{t+1}=(1-\lambda)\,\theta_t-\alpha\, g_t \]</div>
       <div class="say" data-s="4">Remember the factor <b class="k">\((1-\lambda)\)</b>: it comes back in Frank–Wolfe.</div>
     </div>
   </div>
@@ -331,9 +332,9 @@ aside.notes{display:none}
   <div class="body">
     <div class="deriv">
       <div class="say" data-s="1">If penalizing big \(\theta\) helps, why not <b>require</b> \(\theta\) to stay in a compact convex set \(C\)?</div>
-      <div class="ln" data-s="2" data-eq="6" data-via="Hard constraint instead of soft penalty" data-how="The loss is still non-convex (it is a neural network). Only the set \(C\) is convex." data-sym="C::compact convex set, e.g. a ball or a box;; m::number of training examples;; \ell_i::loss on example i">\[ \min_{\theta\in C}\; L(\theta)=\frac1m\sum_{i=1}^{m}\ell_i(\theta) \]</div>
-      <div class="ln" data-s="3" data-eq="3" data-uses="1" data-via="Projected SGD: take an SGD step, then pull back into \(C\)" data-sym="\Pi_C::closest point of \(C\), in \(L_2\) distance">\[ \theta_{t+1}=\Pi_C\big(\theta_t-\alpha\, g_t\big) \]</div>
-      <div class="ln" data-s="4" data-eq="P" data-uses="3" data-via="But the projection is an optimization problem of its own" data-how="Easy for the \(L_2\) ball (rescale) and the box (clip). For a general \(L_p\) ball there is no closed form: solve a small problem at every step, for every layer.">\[ \Pi_C(x)=\arg\min_{v\in C}\ \|v-x\|_2 \]</div>
+      <div class="ln" data-s="2" data-eq="6" data-via="Hard constraint instead of soft penalty" data-why="This is the problem the whole paper solves: train the network with \(\theta\) forced to stay in \(C\)." data-how="The loss is still non-convex (it is a neural network). Only the set \(C\) is convex." data-sym="C::compact convex set, e.g. a ball or a box;; m::number of training examples;; \ell_i::loss on example i">\[ \min_{\theta\in C}\; L(\theta)=\frac1m\sum_{i=1}^{m}\ell_i(\theta) \]</div>
+      <div class="ln" data-s="3" data-eq="3" data-uses="1" data-via="Projected SGD: take an SGD step, then pull back into \(C\)" data-why="The obvious way to handle a constraint, and the method Frank–Wolfe is meant to replace." data-sym="\Pi_C::closest point of \(C\), in \(L_2\) distance">\[ \theta_{t+1}=\Pi_C\big(\theta_t-\alpha\, g_t\big) \]</div>
+      <div class="ln" data-s="4" data-eq="P" data-uses="3" data-via="But the projection is an optimization problem of its own" data-why="Solving this at every step for every layer can be expensive: the motivation for a projection-free method." data-how="Easy for the \(L_2\) ball (rescale) and the box (clip). For a general \(L_p\) ball there is no closed form: solve a small problem at every step, for every layer.">\[ \Pi_C(x)=\arg\min_{v\in C}\ \|v-x\|_2 \]</div>
       <div class="say" data-s="5"><b>Frank–Wolfe avoids projections altogether.</b></div>
     </div>
     <div class="side">
@@ -359,10 +360,10 @@ aside.notes{display:none}
   <div class="hd"><span class="sec">2 · Stochastic Frank–Wolfe</span><h2>Frank–Wolfe: a projection-free step</h2></div>
   <div class="body">
     <div class="deriv">
-      <div class="ln" data-s="1" data-eq="4" data-via="Step 1 · linear minimization oracle (LMO)" data-how="Replace \(L\) by its linear approximation and minimize that over \(C\). Result: the point of \(C\) furthest in the direction \(-g_t\). On a polytope, a vertex." data-sym="\langle a,b\rangle::inner product;; v_t::LMO output, a point of C">\[ v_t=\arg\min_{v\in C}\ \langle g_t,\, v\rangle \]</div>
-      <div class="ln" data-s="2" data-eq="5" data-uses="4" data-via="Step 2 · move part of the way toward \(v_t\)" data-sym="\alpha::step size in \([0,1]\)">\[ \theta_{t+1}=\theta_t+\alpha\,(v_t-\theta_t),\quad \alpha\in[0,1] \]</div>
-      <div class="ln" data-s="3" data-uses="5" data-via="Why we never leave \(C\)" data-how="\(\theta_{t+1}\) is a convex combination of \(\theta_t\in C\) and \(v_t\in C\). \(C\) is convex, so the whole segment lies in \(C\). Start inside, stay inside.">\[ \theta_t\in C,\ v_t\in C\ \Rightarrow\ \theta_{t+1}\in C \]</div>
-      <div class="ln box" data-s="4" data-eq="5b" data-uses="5,2" data-via="Rewrite (5): a shrink, like weight decay" data-how="\((1-\alpha)\,\theta_t\) shrinks the current weights every step, just like \((1-\lambda)\,\theta_t\) in (2).">\[ \theta_{t+1}=(1-\alpha)\,\theta_t+\alpha\, v_t \]</div>
+      <div class="ln" data-s="1" data-eq="4" data-via="Step 1 · linear minimization oracle (LMO)" data-why="The LMO replaces the projection. It is usually a cheap closed-form rule (next slide)." data-how="Replace \(L\) by its linear approximation and minimize that over \(C\). Result: the point of \(C\) furthest in the direction \(-g_t\). On a polytope, a vertex." data-sym="\langle a,b\rangle::inner product;; v_t::LMO output, a point of C">\[ v_t=\arg\min_{v\in C}\ \langle g_t,\, v\rangle \]</div>
+      <div class="ln" data-s="2" data-eq="5" data-uses="4" data-via="Step 2 · move part of the way toward \(v_t\)" data-why="This is the whole update: no projection, just an average of two points." data-sym="\alpha::step size in \([0,1]\)">\[ \theta_{t+1}=\theta_t+\alpha\,(v_t-\theta_t),\quad \alpha\in[0,1] \]</div>
+      <div class="ln" data-s="3" data-uses="5" data-via="Why we never leave \(C\)" data-why="Feasibility comes for free from convexity, so no correction step is ever needed." data-how="\(\theta_{t+1}\) is a convex combination of \(\theta_t\in C\) and \(v_t\in C\). \(C\) is convex, so the whole segment lies in \(C\). Start inside, stay inside.">\[ \theta_t\in C,\ v_t\in C\ \Rightarrow\ \theta_{t+1}\in C \]</div>
+      <div class="ln box" data-s="4" data-eq="5b" data-uses="5,2" data-via="Rewrite (5): a shrink, like weight decay" data-why="It explains why constraints act like regularization: every step decays the weights, as weight decay does." data-how="\((1-\alpha)\,\theta_t\) shrinks the current weights every step, just like \((1-\lambda)\,\theta_t\) in (2).">\[ \theta_{t+1}=(1-\alpha)\,\theta_t+\alpha\, v_t \]</div>
     </div>
     <div class="side">
       <svg class="fig2" viewBox="0 0 420 330" width="420" height="330">
@@ -479,10 +480,14 @@ aside.notes{display:none}
   <div class="hd"><span class="sec">2 · Stochastic Frank–Wolfe</span><h2>Convergence: the Frank–Wolfe gap</h2></div>
   <div class="body">
     <div class="deriv">
-      <div class="ln" data-s="1" data-eq="7" data-via="The Frank–Wolfe gap" data-how="How much a linear model of \(L\) could still decrease inside \(C\)." data-sym="\nabla L(\theta)::full gradient at \(\theta\);; G(\theta)::the gap">\[ G(\theta)=\max_{v\in C}\ \langle v-\theta,\,-\nabla L(\theta)\rangle \]</div>
-      <div class="ln" data-s="2" data-uses="7" data-via="Replaces \(\|\nabla L\|\) as the measure of convergence" data-how="Take \(v=\theta\) to get 0, so \(G\ge 0\). \(G=0\) exactly at a first-order critical point. Cost: one LMO call plus one inner product.">\[ G(\theta)\ge 0,\qquad G(\theta)=0\iff \theta \text{ is stationary} \]</div>
-      <div class="ln box" data-s="3" data-eq="T" data-uses="7" data-via="Theorem 2.1 (Reddi et al., 2016)" data-how="Assumes smooth \(\ell_i\), no momentum (\(\rho=1\)), \(\alpha_t=1/\sqrt T\), batch size \(b_t=T\), and \(\theta_a\) drawn uniformly from the iterates." data-sym="\theta^*::a minimizer;; T::number of steps">\[ \mathbb E\big[G(\theta_a)\big]=O\!\left(\frac{L(\theta_0)-L(\theta^*)}{\sqrt T}\right) \]</div>
-      <div class="say" data-s="4"><b>Caveat:</b> the theorem needs batch size \(T\) and no momentum; the experiments use fixed batches and momentum. A guide, not a guarantee.</div>
+      <div class="say" data-s="1" style="font-size:18px">Without constraints we stop when \(\nabla L(\theta)=0\). With constraints the optimum can sit on the boundary of \(C\) with \(\nabla L\neq 0\), so we need another measure.</div>
+      <div class="ln" data-s="2" data-eq="L1" data-via="Start: the first-order (linear) model of the loss around \(\theta\)" data-why="Every Frank–Wolfe quantity is built from this model: the LMO minimizes it, and the gap measures it." data-how="Taylor expansion: near \(\theta\), the loss is approximately its value plus the gradient times the displacement \(v-\theta\)." data-sym="v::any candidate point in \(C\);; \nabla L(\theta)::full gradient at \(\theta\)">\[ L(v)\;\approx\; L(\theta)+\langle \nabla L(\theta),\,v-\theta\rangle \]</div>
+      <div class="ln" data-s="3" data-uses="L1" data-via="Predicted decrease if we moved from \(\theta\) to \(v\)" data-why="A positive value means: according to the linear model, moving toward \(v\) lowers the loss." data-how="Subtract the model value at \(v\) from \(L(\theta)\). The \(L(\theta)\) terms cancel, and the minus sign moves onto the gradient.">\[ L(\theta)-\big[L(\theta)+\langle\nabla L(\theta),v-\theta\rangle\big]=\langle v-\theta,\,-\nabla L(\theta)\rangle \]</div>
+      <div class="ln box" data-s="4" data-eq="7" data-uses="L1" data-via="Definition: the best predicted decrease over all of \(C\)" data-why="It answers one question: is there any feasible point that still looks downhill? If not, we are done (to first order)." data-how="Maximize the predicted decrease from the previous line over every \(v\in C\): take the most optimistic feasible point." data-sym="G(\theta)::the Frank–Wolfe gap at \(\theta\);; \max_{v\in C}::best over all feasible points">\[ G(\theta)=\max_{v\in C}\ \langle v-\theta,\,-\nabla L(\theta)\rangle \]</div>
+      <div class="ln" data-s="5" data-uses="7,4" data-via="Computing it: the maximizer is the LMO output" data-why="Cheap to monitor during training: one LMO call plus one inner product, and SFW calls the LMO every step anyway." data-how="Maximizing \(\langle v,-\nabla L\rangle\) is the same as minimizing \(\langle \nabla L, v\rangle\), which is the LMO (4). Plug its output \(v^*\) back in." data-sym="v^*::LMO output at \(\theta\)">\[ v^*=\arg\min_{v\in C}\langle\nabla L(\theta),v\rangle\ \Rightarrow\ G(\theta)=\langle \nabla L(\theta),\,\theta-v^*\rangle \]</div>
+      <div class="ln" data-s="6" data-uses="7" data-via="Two properties: why it measures convergence" data-why="This is what replaces “gradient = 0” as the stopping test when there is a constraint." data-how="Take \(v=\theta\in C\): the inner product is 0, so the max is at least 0. \(G=0\) means no point of \(C\) is downhill to first order: a first-order critical (stationary) point. With no constraint (\(C=\mathbb R^n\)) this reduces to \(\nabla L=0\).">\[ G(\theta)\ge 0,\qquad G(\theta)=0\iff \theta \text{ is stationary} \]</div>
+      <div class="ln box" data-s="7" data-eq="T" data-uses="7" data-via="Theorem 2.1 (Reddi et al., 2016)" data-why="It guarantees SFW makes progress on non-convex losses like neural networks, at rate \(1/\sqrt T\)." data-how="Assumes smooth \(\ell_i\), no momentum (\(\rho=1\)), \(\alpha_t=1/\sqrt T\), batch size \(b_t=T\), and \(\theta_a\) drawn uniformly from the iterates." data-sym="\theta^*::a minimizer;; T::number of steps;; \theta_a::a randomly chosen iterate">\[ \mathbb E\big[G(\theta_a)\big]=O\!\left(\frac{L(\theta_0)-L(\theta^*)}{\sqrt T}\right) \]</div>
+      <div class="say" data-s="8"><b>Caveat:</b> the theorem needs batch size \(T\) and no momentum; the experiments use fixed batches and momentum. A guide, not a guarantee.</div>
     </div>
     <div class="side">
       <div class="railfig">
@@ -492,18 +497,18 @@ aside.notes{display:none}
           <circle cx="180" cy="75" r="6" fill="var(--acc)"/><text x="150" y="66" class="k">θ*</text>
           <path class="draw" data-on="1" pathLength="1000" d="M180 75 L 250 75" stroke="var(--acc)" stroke-width="3" fill="none"/>
           <text data-s="1" x="196" y="100" class="k">−∇L ≠ 0</text>
-          <text data-s="1" x="196" y="116" class="k">but G = 0</text>
+          <text data-s="6" x="196" y="116" class="k">but G = 0</text>
         </svg>
         <div class="cap">On the boundary, the gradient can stay non-zero at the optimum.</div>
       </div>
       <div class="railfig">
         <svg class="fig2" viewBox="0 0 290 170" width="290" height="170">
           <line x1="30" y1="20" x2="30" y2="150" stroke="var(--rule)"/><line x1="30" y1="150" x2="270" y2="150" stroke="var(--rule)"/>
-          <path class="draw" data-on="3" pathLength="1000" d="M30.0 40.0 L33.8 64.8 L37.7 78.0 L41.5 86.5 L45.3 92.6 L49.2 97.2 L53.0 100.8 L56.8 103.8 L60.7 106.3 L64.5 108.4 L68.3 110.3 L72.2 111.9 L76.0 113.3 L79.8 114.6 L83.7 115.8 L87.5 116.8 L91.3 117.8 L95.2 118.7 L99.0 119.5 L102.8 120.2 L106.7 120.9 L110.5 121.6 L114.3 122.2 L118.2 122.8 L122.0 123.3 L125.8 123.8 L129.7 124.3 L133.5 124.8 L137.3 125.2 L141.2 125.6 L145.0 126.0 L148.8 126.4 L152.7 126.7 L156.5 127.1 L160.3 127.4 L164.2 127.7 L168.0 128.0 L171.8 128.3 L175.7 128.6 L179.5 128.8 L183.3 129.1 L187.2 129.3 L191.0 129.6 L194.8 129.8 L198.7 130.0 L202.5 130.2 L206.3 130.5 L210.2 130.7 L214.0 130.9 L217.8 131.0 L221.7 131.2 L225.5 131.4 L229.3 131.6 L233.2 131.8 L237.0 131.9 L240.8 132.1 L244.7 132.2 L248.5 132.4 L252.3 132.5 L256.2 132.7 L260.0 132.8" fill="none" stroke="var(--acc)" stroke-width="3"/>
+          <path class="draw" data-on="7" pathLength="1000" d="M30.0 40.0 L33.8 64.8 L37.7 78.0 L41.5 86.5 L45.3 92.6 L49.2 97.2 L53.0 100.8 L56.8 103.8 L60.7 106.3 L64.5 108.4 L68.3 110.3 L72.2 111.9 L76.0 113.3 L79.8 114.6 L83.7 115.8 L87.5 116.8 L91.3 117.8 L95.2 118.7 L99.0 119.5 L102.8 120.2 L106.7 120.9 L110.5 121.6 L114.3 122.2 L118.2 122.8 L122.0 123.3 L125.8 123.8 L129.7 124.3 L133.5 124.8 L137.3 125.2 L141.2 125.6 L145.0 126.0 L148.8 126.4 L152.7 126.7 L156.5 127.1 L160.3 127.4 L164.2 127.7 L168.0 128.0 L171.8 128.3 L175.7 128.6 L179.5 128.8 L183.3 129.1 L187.2 129.3 L191.0 129.6 L194.8 129.8 L198.7 130.0 L202.5 130.2 L206.3 130.5 L210.2 130.7 L214.0 130.9 L217.8 131.0 L221.7 131.2 L225.5 131.4 L229.3 131.6 L233.2 131.8 L237.0 131.9 L240.8 132.1 L244.7 132.2 L248.5 132.4 L252.3 132.5 L256.2 132.7 L260.0 132.8" fill="none" stroke="var(--acc)" stroke-width="3"/>
           <text x="36" y="30">E[G]</text><text x="246" y="166">T</text>
-          <text data-s="3" x="150" y="96" class="k">∝ 1/√T</text>
+          <text data-s="7" x="150" y="96" class="k">∝ 1/√T</text>
         </svg>
-      </div><div class="rh">Equations used</div><div class="card" data-k="4"><span class="src">§2</span><span class="no">(4)</span> LMO<div class="ct">\(v_t=\arg\min_{v\in C}\langle g_t,v\rangle\)</div></div><div class="card" data-k="5"><span class="src">§2</span><span class="no">(5)</span> Frank–Wolfe step<div class="ct">\(\theta_{t+1}=\theta_t+\alpha(v_t-\theta_t)\)</div></div>
+      </div><div class="rh">Equations used</div><div class="card" data-k="4"><span class="src">§2</span><span class="no">(4)</span> LMO<div class="ct">\(v_t=\arg\min_{v\in C}\langle g_t,v\rangle\)</div></div><div class="card" data-k="7"><span class="src">§2</span><span class="no">(7)</span> Frank–Wolfe gap<div class="ct">\(G(\theta)=\max_{v\in C}\langle v-\theta,-\nabla L(\theta)\rangle\)</div></div>
     </div>
   </div>
   <aside class="notes">Smooth = the gradient is Lipschitz. Gap ≥ 0: take v = θ.</aside>
@@ -560,10 +565,10 @@ aside.notes{display:none}
       <div class="cap">Dashed: \(v-\theta\). Red: plain step, same \(\alpha\). Green: rescaled step (14).</div>
     </div>
     <div class="deriv">
-      <div class="ln" data-s="1" data-uses="5" data-via="Problem: the step length grows with \(C\)" data-how="\(v_t\) lies on the boundary, so \(\|v_t-\theta_t\|\) grows with the size \(\tau\) of \(C\). Ten times bigger \(C\) → about ten times longer steps for the same \(\alpha\).">\[ \|\theta_{t+1}-\theta_t\|=\alpha\,\|v_t-\theta_t\| \]</div>
-      <div class="ln" data-s="2" data-eq="13" data-uses="5" data-via="Option A · divide by the diameter" data-how="Like decoupling the learning rate from weight decay (Loshchilov & Hutter, 2017). \(\min(\cdot,1)\) means we never go past \(v_t\)." data-sym="D(C)::diameter: largest distance in C">\[ \theta_{t+1}=\theta_t+\min\!\Big(\tfrac{\alpha}{D(C)},1\Big)(v_t-\theta_t) \]</div>
-      <div class="ln" data-s="3" data-eq="14" data-uses="5" data-via="Option B · match the gradient's length" data-sym="\|g_t\|::length of the gradient (\(L_2\) norm)">\[ \theta_{t+1}=\theta_t+\min\!\Big(\tfrac{\alpha\,\|g_t\|}{\|v_t-\theta_t\|},1\Big)(v_t-\theta_t) \]</div>
-      <div class="ln box" data-s="4" data-uses="14" data-via="Check: the arrow's length cancels" data-how="\(\frac{a}{b}\cdot b=a\). The vertex only gives the direction; the length equals an SGD step, \(\alpha\|g_t\|\). Used for CIFAR and ImageNet; stabilizes very deep networks.">\[ \|\theta_{t+1}-\theta_t\|=\frac{\alpha\|g_t\|}{\|v_t-\theta_t\|}\cdot\|v_t-\theta_t\|=\alpha\,\|g_t\| \]</div>
+      <div class="ln" data-s="1" data-uses="5" data-via="Problem: the step length grows with \(C\)" data-why="Without a fix, a good \(\alpha\) would have to be re-tuned for every region size \(\tau\)." data-how="\(v_t\) lies on the boundary, so \(\|v_t-\theta_t\|\) grows with the size \(\tau\) of \(C\). Ten times bigger \(C\) → about ten times longer steps for the same \(\alpha\).">\[ \|\theta_{t+1}-\theta_t\|=\alpha\,\|v_t-\theta_t\| \]</div>
+      <div class="ln" data-s="2" data-eq="13" data-uses="5" data-via="Option A · divide by the diameter" data-why="Makes \(\alpha\) independent of the size of \(C\)." data-how="Like decoupling the learning rate from weight decay (Loshchilov & Hutter, 2017). \(\min(\cdot,1)\) means we never go past \(v_t\)." data-sym="D(C)::diameter: largest distance in C">\[ \theta_{t+1}=\theta_t+\min\!\Big(\tfrac{\alpha}{D(C)},1\Big)(v_t-\theta_t) \]</div>
+      <div class="ln" data-s="3" data-eq="14" data-uses="5" data-via="Option B · match the gradient's length" data-why="Makes one SFW step as long as one SGD step, so learning rates carry over. Used for CIFAR and ImageNet." data-sym="\|g_t\|::length of the gradient (\(L_2\) norm)">\[ \theta_{t+1}=\theta_t+\min\!\Big(\tfrac{\alpha\,\|g_t\|}{\|v_t-\theta_t\|},1\Big)(v_t-\theta_t) \]</div>
+      <div class="ln box" data-s="4" data-uses="14" data-via="Check: the arrow's length cancels" data-why="Shows why Option B works: the vertex gives only the direction." data-how="\(\frac{a}{b}\cdot b=a\). The vertex only gives the direction; the length equals an SGD step, \(\alpha\|g_t\|\). Used for CIFAR and ImageNet; stabilizes very deep networks.">\[ \|\theta_{t+1}-\theta_t\|=\frac{\alpha\|g_t\|}{\|v_t-\theta_t\|}\cdot\|v_t-\theta_t\|=\alpha\,\|g_t\| \]</div>
       <div class="note" data-s="5"><strong>Region size:</strong> tied to each layer's random initialization, times a width \(w\) (10 to 100). Momentum 0.9 (\(\rho=0.1\)); batch sizes as for SGD.</div>
     </div>
   </div>
@@ -816,8 +821,8 @@ aside.notes{display:none}
     <div class="railfig" data-s="4"><b>Ties in the LMO</b><div class="cap" style="font-size:14px">If several vertices solve the LMO (e.g. a zero gradient), pick one at random on the boundary. Then SFW can even train a <b>zero-initialized</b> layer in a hypercube.</div></div>
     <div class="deriv">
       <div class="note">Same constraint type for all layers; only the size varies, tied to the initialization (Glorot / He).</div>
-      <div class="ln" data-s="1" data-eq="15" data-via="Expected norm of a random initialization" data-how="Entries of \(x\in\mathbb R^n\) drawn from \(\mathcal N(0,\sigma^2)\)." data-sym="\Gamma::Gamma function;; \sigma::init standard deviation">\[ \mathbb E\|x\|_2=\frac{n\,\sigma\,\Gamma\!\big(\frac n2+\frac12\big)}{\sqrt2\,\Gamma\!\big(\frac n2+1\big)} \]</div>
-      <div class="ln box" data-s="2" data-eq="16" data-uses="15" data-via="Set the diameter to \(2w\) times that norm" data-sym="w::width: how much bigger than the init">\[ D(C)=2w\;\mathbb E\|x\|_2 \]</div>
+      <div class="ln" data-s="1" data-eq="15" data-via="Expected norm of a random initialization" data-why="Gives each layer a natural size scale, so one width \(w\) works for every layer." data-how="Entries of \(x\in\mathbb R^n\) drawn from \(\mathcal N(0,\sigma^2)\)." data-sym="\Gamma::Gamma function;; \sigma::init standard deviation">\[ \mathbb E\|x\|_2=\frac{n\,\sigma\,\Gamma\!\big(\frac n2+\frac12\big)}{\sqrt2\,\Gamma\!\big(\frac n2+1\big)} \]</div>
+      <div class="ln box" data-s="2" data-eq="16" data-uses="15" data-via="Set the diameter to \(2w\) times that norm" data-why="Turns the region size into a single hyperparameter \(w\)." data-sym="w::width: how much bigger than the init">\[ D(C)=2w\;\mathbb E\|x\|_2 \]</div>
       <div class="say" data-s="3">The <b>width \(w\)</b> is a new hyperparameter: \(w=10\) to \(100\) in the deep-network runs.</div>
     </div>
   </div>
@@ -852,9 +857,9 @@ aside.notes{display:none}
   <button id="bt" class="opt" aria-label="Toggle speaker notes">Notes</button>
 </div>
 <script>
-window.EQS={"1": ["SGD step", "§1", "\\theta_{t+1}=\\theta_t-\\alpha g_t"], "2": ["Weight decay", "§1", "\\theta_{t+1}=(1-\\lambda)\\theta_t-\\alpha g_t"], "3": ["Projected SGD", "§1", "\\theta_{t+1}=\\Pi_C(\\theta_t-\\alpha g_t)"], "P": ["Projection", "§1", "\\Pi_C(x)=\\arg\\min_{v\\in C}\\|v-x\\|_2"], "4": ["LMO", "§2", "v_t=\\arg\\min_{v\\in C}\\langle g_t,v\\rangle"], "5": ["Frank–Wolfe step", "§2", "\\theta_{t+1}=\\theta_t+\\alpha(v_t-\\theta_t)"], "5b": ["Shrink form of (5)", "§2", "(1-\\alpha)\\theta_t+\\alpha v_t"], "6": ["Constrained problem", "§1", "\\min_{\\theta\\in C}L(\\theta)"], "7": ["Frank–Wolfe gap", "§2", "G(\\theta)=\\max_{v\\in C}\\langle v-\\theta,-\\nabla L(\\theta)\\rangle"], "T": ["Rate", "Thm 2.1", "O\\big(1/\\sqrt T\\big)"], "13": ["Step ÷ diameter", "§3.1", "\\min(\\alpha/D(C),1)"], "14": ["Step = gradient length", "§3.1", "\\min\\big(\\tfrac{\\alpha\\|g_t\\|}{\\|v_t-\\theta_t\\|},1\\big)"], "15": ["Expected init norm", "§3.2", "\\mathbb E\\|x\\|_2"], "16": ["Region diameter", "§3.2", "D(C)=2w\\,\\mathbb E\\|x\\|_2"]};
+window.EQS={"1": ["SGD step", "§1", "\\theta_{t+1}=\\theta_t-\\alpha g_t"], "2": ["Weight decay", "§1", "\\theta_{t+1}=(1-\\lambda)\\theta_t-\\alpha g_t"], "3": ["Projected SGD", "§1", "\\theta_{t+1}=\\Pi_C(\\theta_t-\\alpha g_t)"], "P": ["Projection", "§1", "\\Pi_C(x)=\\arg\\min_{v\\in C}\\|v-x\\|_2"], "4": ["LMO", "§2", "v_t=\\arg\\min_{v\\in C}\\langle g_t,v\\rangle"], "5": ["Frank–Wolfe step", "§2", "\\theta_{t+1}=\\theta_t+\\alpha(v_t-\\theta_t)"], "5b": ["Shrink form of (5)", "§2", "(1-\\alpha)\\theta_t+\\alpha v_t"], "6": ["Constrained problem", "§1", "\\min_{\\theta\\in C}L(\\theta)"], "L1": ["Linear model", "Taylor", "L(v)\\approx L(\\theta)+\\langle\\nabla L(\\theta),v-\\theta\\rangle"], "7": ["Frank–Wolfe gap", "§2", "G(\\theta)=\\max_{v\\in C}\\langle v-\\theta,-\\nabla L(\\theta)\\rangle"], "T": ["Rate", "Thm 2.1", "O\\big(1/\\sqrt T\\big)"], "13": ["Step ÷ diameter", "§3.1", "\\min(\\alpha/D(C),1)"], "14": ["Step = gradient length", "§3.1", "\\min\\big(\\tfrac{\\alpha\\|g_t\\|}{\\|v_t-\\theta_t\\|},1\\big)"], "15": ["Expected init norm", "§3.2", "\\mathbb E\\|x\\|_2"], "16": ["Region diameter", "§3.2", "D(C)=2w\\,\\mathbb E\\|x\\|_2"]};
 window.EQ_NEW=['13','14','16'];
-window.EQLABEL={'5b':'(5′)','P':'(3′)','T':'Thm 2.1'};
+window.EQLABEL={'5b':'(5′)','P':'(3′)','T':'Thm 2.1','L1':'(7a)'};
 window.TRAIL=[['1','SGD'],['2','weight decay'],['6','constrain'],['3','project?'],['4','LMO'],['5','FW step'],['5b','= shrink']];
 window.SCRIPT=[
 {
@@ -959,11 +964,15 @@ window.SCRIPT=[
 },
 {
 "s": [
-"Quickly, on convergence.",
-"Without constraints, we'd check that the gradient goes to zero. But with a constraint, the gradient doesn't have to be zero at the optimum. In the picture, the best point is on the boundary, and minus the gradient still points outward. So instead we use the Frank–Wolfe gap, equation seven. »G of theta equals the max over v in C of the inner product of v minus theta with minus the gradient of L at theta.« It measures how much a linear model of the loss could still go down inside C.",
-"It has two nice properties. It's always at least zero, because we can pick v equal to theta. And it's zero exactly at a stationary point. It's also cheap to monitor: one LMO call and one inner product.",
+"Quickly, on convergence. The question is: how do we know the algorithm is done?",
+"Without constraints, we'd check that the gradient goes to zero. But with a constraint, the best point can sit on the boundary, and the gradient there doesn't have to be zero. In the picture, minus the gradient still points outward, but we can't go there. So we need a different measure.",
+"We start from the linear model of the loss around theta. »L of v is approximately L of theta plus the inner product of the gradient of L at theta with v minus theta.« That's just a first-order Taylor expansion, and it's the same linear model the LMO uses.",
+"Now ask: if we moved from theta to some point v, how much would this model say the loss goes down? Take L of theta minus the model value. The L of theta terms cancel, and we get »the inner product of v minus theta with minus the gradient.«",
+"The Frank–Wolfe gap is the best predicted decrease over the whole set. Equation seven: »G of theta equals the max over v in C of the inner product of v minus theta with minus the gradient of L at theta.« So it asks: is there any feasible point that still looks downhill?",
+"And it's cheap. The v that maximizes this is exactly the LMO output, v star. So »G of theta equals the inner product of the gradient with theta minus v star.« One LMO call and one inner product, and SFW calls the LMO at every step anyway.",
+"Two properties make it a good measure. It's always at least zero, because we can pick v equal to theta. And it's zero exactly when no feasible direction goes downhill, which is what a stationary point means with constraints. Without constraints, this reduces to the gradient being zero.",
 "The theorem they cite, from Reddi and others in 2016, says »the expected gap at theta a is big O of L of theta zero minus L of theta star, over root T.« So the gap goes to zero at rate one over root T.",
-"The catch is that it assumes no momentum and a batch size equal to T, while the experiments use momentum and fixed batches. So the theory is a guide, not a guarantee for what they actually run. (Time check, don't say: about 13 minutes.)"
+"The catch is that it assumes no momentum and a batch size equal to T, while the experiments use momentum and fixed batches. So the theory is a guide, not a guarantee for what they actually run. (Time check, don't say: about 14 minutes.)"
 ],
 "n": "So far C was just “some convex set”. Next: which sets do they actually use?",
 "b": [
@@ -1231,9 +1240,10 @@ for(const sl of slides){
     via.innerHTML='<b>↓</b>'+(ln.dataset.via?'<span></span>':'')+uses.map(u=>`<span class="chip" data-k="${u}">${lab(u)}</span>`).join('');
     if(ln.dataset.via) via.querySelector('span').textContent=ln.dataset.via;
     ln.prepend(via);
-    if(ln.dataset.how||ln.dataset.sym){
+    if(ln.dataset.how||ln.dataset.sym||ln.dataset.why){
       const a=document.createElement('div');a.className='ann';
       let h='';
+      if(ln.dataset.why)h+=`<p class="how why"><b>Why it matters · </b>${esc(ln.dataset.why)}</p>`;
       if(ln.dataset.how)h+=`<p class="how"><b>How it comes · </b>${esc(ln.dataset.how)}</p>`;
       const sy=(ln.dataset.sym||'').split(';;').map(x=>x.trim()).filter(Boolean);
       if(sy.length)h+='<div class="sh">Symbols</div><div class="sy">'+sy.map(x=>{const [t,d]=x.split('::');return `<div><span class="t">\\(${esc(t.trim())}\\)</span><span class="d">${esc((d||'').trim())}</span></div>`}).join('')+'</div>';

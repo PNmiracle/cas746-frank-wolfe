@@ -243,6 +243,7 @@ aside.notes{display:none}
 .lpp{border:1px solid var(--rule);border-radius:8px;background:var(--card);padding:3px 6px}
 .lph{font-size:14px;display:flex;justify-content:space-between;gap:6px;align-items:baseline}.lph span{color:var(--mut);font-size:13px}
 .lpp>svg{width:100%;height:auto;max-height:none}
+.lpn{font-size:12.5px;color:var(--mut);text-align:right;margin-top:-2px}
 .lp .m{display:block}
 .tk>span:last-child b{font-weight:600}
 </style></head><body>
@@ -405,42 +406,39 @@ aside.notes{display:none}
     </div>
     <div class="side">
       <div class="lpps"><div class="lpp" data-s="1"><div class="lph"><b>L2 ball</b> <span>LMO \(-\tau g/\|g\|_2\)</span></div>
-<svg class="fig2" viewBox="0 0 300 140" width="300" height="140">
+<svg class="fig2" viewBox="0 0 300 130" width="300" height="130">
 <text x="40" y="14" font-size="12">LMO (Frank–Wolfe)</text><text x="186" y="14" font-size="12">projection</text>
 <circle cx="75" cy="78" r="48" fill="var(--prt)" stroke="var(--pr)" stroke-width="2"/><circle cx="225" cy="78" r="48" fill="var(--prt)" stroke="var(--pr)" stroke-width="2"/>
 <line x1="75" y1="78" x2="300" y2="78" stroke="none"/>
 <path class="draw" data-on="1" pathLength="1000" d="M75 78 L 101 63" stroke="#d9822b" stroke-width="2.5" fill="none"/>
-<text x="92" y="98" font-size="11" style="fill:#d9822b">−g</text>
+<text x="58" y="72" font-size="11" style="fill:#d9822b">−g</text>
 <g class="dot sh" data-on="1"><circle cx="116.6" cy="54" r="6"/></g>
 <circle cx="285" cy="22" r="4" fill="var(--mut)"/><text x="268" y="16" font-size="11">x</text>
 <path class="draw" data-on="1" pathLength="1000" d="M285 22 L 261.8 47" stroke="var(--pr)" stroke-width="2" stroke-dasharray="4 3" fill="none"/>
 <circle cx="261.8" cy="47" r="4.5" fill="var(--pr)"/>
-<text x="168" y="134" font-size="11.5">rescale: easy</text>
-</svg></div><div class="lpp" data-s="1"><div class="lph"><b>Hypercube (L∞)</b> <span>LMO \(-\tau\,\mathrm{sign}(g)\)</span></div>
-<svg class="fig2" viewBox="0 0 300 140" width="300" height="140">
+</svg><div class="lpn">rescale: easy</div></div><div class="lpp" data-s="1"><div class="lph"><b>Hypercube (L∞)</b> <span>LMO \(-\tau\,\mathrm{sign}(g)\)</span></div>
+<svg class="fig2" viewBox="0 0 300 130" width="300" height="130">
 <text x="40" y="14" font-size="12">LMO (Frank–Wolfe)</text><text x="186" y="14" font-size="12">projection</text>
 <rect x="30" y="33" width="90" height="90" fill="var(--prt)" stroke="var(--pr)" stroke-width="2"/><rect x="180" y="33" width="90" height="90" fill="var(--prt)" stroke="var(--pr)" stroke-width="2"/>
 <line x1="75" y1="78" x2="300" y2="78" stroke="none"/>
 <path class="draw" data-on="1" pathLength="1000" d="M75 78 L 101 63" stroke="#d9822b" stroke-width="2.5" fill="none"/>
-<text x="92" y="98" font-size="11" style="fill:#d9822b">−g</text>
+<text x="58" y="72" font-size="11" style="fill:#d9822b">−g</text>
 <g class="dot sh" data-on="1"><circle cx="120" cy="33" r="6"/></g>
 <circle cx="285" cy="22" r="4" fill="var(--mut)"/><text x="268" y="16" font-size="11">x</text>
 <path class="draw" data-on="1" pathLength="1000" d="M285 22 L 270 33" stroke="var(--pr)" stroke-width="2" stroke-dasharray="4 3" fill="none"/>
 <circle cx="270" cy="33" r="4.5" fill="var(--pr)"/>
-<text x="168" y="134" font-size="11.5">clip each entry: easy</text>
-</svg></div><div class="lpp" data-s="2"><div class="lph"><b>L1 ball</b> <span>LMO \(\pm\tau\ \text{at}\ \arg\max_i|g_i|\)</span></div>
-<svg class="fig2" viewBox="0 0 300 140" width="300" height="140">
+</svg><div class="lpn">clip each entry: easy</div></div><div class="lpp" data-s="2"><div class="lph"><b>L1 ball</b> <span>LMO \(\pm\tau\ \text{at}\ \arg\max_i|g_i|\)</span></div>
+<svg class="fig2" viewBox="0 0 300 130" width="300" height="130">
 <text x="40" y="14" font-size="12">LMO (Frank–Wolfe)</text><text x="186" y="14" font-size="12">projection</text>
 <polygon points="75,30 123,78 75,126 27,78" fill="var(--prt)" stroke="var(--pr)" stroke-width="2"/><polygon points="225,30 273,78 225,126 177,78" fill="var(--prt)" stroke="var(--pr)" stroke-width="2"/>
 <line x1="75" y1="78" x2="300" y2="78" stroke="none"/>
 <path class="draw" data-on="2" pathLength="1000" d="M75 78 L 101 63" stroke="#d9822b" stroke-width="2.5" fill="none"/>
-<text x="92" y="98" font-size="11" style="fill:#d9822b">−g</text>
+<text x="58" y="72" font-size="11" style="fill:#d9822b">−g</text>
 <g class="dot sh" data-on="2"><circle cx="123" cy="78" r="6"/></g>
 <circle cx="285" cy="22" r="4" fill="var(--mut)"/><text x="268" y="16" font-size="11">x</text>
 <path class="draw" data-on="2" pathLength="1000" d="M285 22 L 254 59" stroke="var(--pr)" stroke-width="2" stroke-dasharray="4 3" fill="none"/>
 <circle cx="254" cy="59" r="4.5" fill="var(--pr)"/>
-<text x="168" y="134" font-size="11.5">needs an O(n) algorithm</text>
-</svg></div></div>
+</svg><div class="lpn">needs an O(n) algorithm</div></div></div>
     </div>
   </div>
 </section>

@@ -305,13 +305,13 @@ aside.notes{display:none}
         <path d="M135 134 L 146 140" stroke="var(--acc)" stroke-width="2.5" marker-end="url(#ah)"/></g>
         <defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--acc)"/></marker></defs>
       </svg>
-      <div class="cap">Blue: SGD steps downhill. Red (click 3): weight decay also pulls θ toward 0.</div>
+      <div class="cap">Blue: SGD steps downhill. Red (click 3): weight decay also pulls \(\theta\) toward 0.</div>
     </div>
     <div class="deriv">
-      <div class="note">SGD is still the default, with the weights θ left <strong>unconstrained</strong>.</div>
-      <div class="ln" data-s="1" data-eq="1" data-via="Plain SGD" data-how="Move against the mini-batch gradient, scaled by the learning rate." data-sym="\theta_t::weights at step t;; \alpha::learning rate;; g_t::mini-batch gradient of L at θ_t">\[ \theta_{t+1}=\theta_t-\alpha\, g_t \]</div>
+      <div class="note">SGD is still the default, with the weights \(\theta\) left <strong>unconstrained</strong>.</div>
+      <div class="ln" data-s="1" data-eq="1" data-via="Plain SGD" data-how="Move against the mini-batch gradient, scaled by the learning rate." data-sym="\theta_t::weights at step \(t\);; \alpha::learning rate;; g_t::mini-batch gradient of \(L\) at \(\theta_t\)">\[ \theta_{t+1}=\theta_t-\alpha\, g_t \]</div>
       <div class="say" data-s="2">Adaptive methods (Adam, Adagrad) train faster early on, but often <b>generalize worse</b> (Wilson et al., 2017).</div>
-      <div class="ln" data-s="3" data-eq="2" data-uses="1" data-via="Add weight decay: shrink first, then step" data-how="Same as SGD on the loss L + (λ/2α)‖θ‖²: the penalty's gradient (λ/α)θ, times α, gives the extra −λθ." data-sym="\lambda::decay rate (about 10⁻⁴);; 1-\lambda::shrink factor per step">\[ \theta_{t+1}=(1-\lambda)\,\theta_t-\alpha\, g_t \]</div>
+      <div class="ln" data-s="3" data-eq="2" data-uses="1" data-via="Add weight decay: shrink first, then step" data-how="Same as SGD on the loss \(L+\frac{\lambda}{2\alpha}\|\theta\|_2^2\): the penalty's gradient \(\frac{\lambda}{\alpha}\theta\), times \(\alpha\), gives the extra \(-\lambda\theta\)." data-sym="\lambda::decay rate (about \(10^{-4}\));; 1-\lambda::shrink factor per step">\[ \theta_{t+1}=(1-\lambda)\,\theta_t-\alpha\, g_t \]</div>
       <div class="say" data-s="4">Remember the factor <b class="k">\((1-\lambda)\)</b>: it comes back in Frank–Wolfe.</div>
     </div>
   </div>
@@ -321,10 +321,10 @@ aside.notes{display:none}
   <div class="hd"><span class="sec">1 · Motivation</span><h2>Idea: constrain the weights instead</h2></div>
   <div class="body">
     <div class="deriv">
-      <div class="say" data-s="1">If penalizing big θ helps, why not <b>require</b> θ to stay in a compact convex set C?</div>
-      <div class="ln" data-s="2" data-eq="6" data-via="Hard constraint instead of soft penalty" data-how="The loss is still non-convex (it is a neural network). Only the set C is convex." data-sym="C::compact convex set, e.g. a ball or a box;; m::number of training examples;; \ell_i::loss on example i">\[ \min_{\theta\in C}\; L(\theta)=\frac1m\sum_{i=1}^{m}\ell_i(\theta) \]</div>
-      <div class="ln" data-s="3" data-eq="3" data-uses="1" data-via="Projected SGD: take an SGD step, then pull back into C" data-sym="\Pi_C::closest point of C, in L2 distance">\[ \theta_{t+1}=\Pi_C\big(\theta_t-\alpha\, g_t\big) \]</div>
-      <div class="ln" data-s="4" data-eq="P" data-uses="3" data-via="But the projection is an optimization problem of its own" data-how="Easy for the L2 ball (rescale) and the box (clip). For a general Lp ball there is no closed form: solve a small problem at every step, for every layer.">\[ \Pi_C(x)=\arg\min_{v\in C}\ \|v-x\|_2 \]</div>
+      <div class="say" data-s="1">If penalizing big \(\theta\) helps, why not <b>require</b> \(\theta\) to stay in a compact convex set \(C\)?</div>
+      <div class="ln" data-s="2" data-eq="6" data-via="Hard constraint instead of soft penalty" data-how="The loss is still non-convex (it is a neural network). Only the set \(C\) is convex." data-sym="C::compact convex set, e.g. a ball or a box;; m::number of training examples;; \ell_i::loss on example i">\[ \min_{\theta\in C}\; L(\theta)=\frac1m\sum_{i=1}^{m}\ell_i(\theta) \]</div>
+      <div class="ln" data-s="3" data-eq="3" data-uses="1" data-via="Projected SGD: take an SGD step, then pull back into \(C\)" data-sym="\Pi_C::closest point of \(C\), in \(L_2\) distance">\[ \theta_{t+1}=\Pi_C\big(\theta_t-\alpha\, g_t\big) \]</div>
+      <div class="ln" data-s="4" data-eq="P" data-uses="3" data-via="But the projection is an optimization problem of its own" data-how="Easy for the \(L_2\) ball (rescale) and the box (clip). For a general \(L_p\) ball there is no closed form: solve a small problem at every step, for every layer.">\[ \Pi_C(x)=\arg\min_{v\in C}\ \|v-x\|_2 \]</div>
       <div class="say" data-s="5"><b>Frank–Wolfe avoids projections altogether.</b></div>
     </div>
     <div class="side">
@@ -350,10 +350,10 @@ aside.notes{display:none}
   <div class="hd"><span class="sec">2 · Stochastic Frank–Wolfe</span><h2>Frank–Wolfe: a projection-free step</h2></div>
   <div class="body">
     <div class="deriv">
-      <div class="ln" data-s="1" data-eq="4" data-via="Step 1 · linear minimization oracle (LMO)" data-how="Replace L by its linear approximation and minimize that over C. Result: the point of C furthest in the direction −g_t. On a polytope, a vertex." data-sym="\langle a,b\rangle::inner product;; v_t::LMO output, a point of C">\[ v_t=\arg\min_{v\in C}\ \langle g_t,\, v\rangle \]</div>
-      <div class="ln" data-s="2" data-eq="5" data-uses="4" data-via="Step 2 · move part of the way toward v_t" data-sym="\alpha::step size in [0, 1]">\[ \theta_{t+1}=\theta_t+\alpha\,(v_t-\theta_t),\quad \alpha\in[0,1] \]</div>
-      <div class="ln" data-s="3" data-uses="5" data-via="Why we never leave C" data-how="θ_{t+1} is a convex combination of θ_t ∈ C and v_t ∈ C. C is convex, so the whole segment lies in C. Start inside, stay inside.">\[ \theta_t\in C,\ v_t\in C\ \Rightarrow\ \theta_{t+1}\in C \]</div>
-      <div class="ln box" data-s="4" data-eq="5b" data-uses="5,2" data-via="Rewrite (5): a shrink, like weight decay" data-how="(1 − α) θ_t shrinks the current weights every step, just like (1 − λ) θ_t in (2).">\[ \theta_{t+1}=(1-\alpha)\,\theta_t+\alpha\, v_t \]</div>
+      <div class="ln" data-s="1" data-eq="4" data-via="Step 1 · linear minimization oracle (LMO)" data-how="Replace \(L\) by its linear approximation and minimize that over \(C\). Result: the point of \(C\) furthest in the direction \(-g_t\). On a polytope, a vertex." data-sym="\langle a,b\rangle::inner product;; v_t::LMO output, a point of C">\[ v_t=\arg\min_{v\in C}\ \langle g_t,\, v\rangle \]</div>
+      <div class="ln" data-s="2" data-eq="5" data-uses="4" data-via="Step 2 · move part of the way toward \(v_t\)" data-sym="\alpha::step size in \([0,1]\)">\[ \theta_{t+1}=\theta_t+\alpha\,(v_t-\theta_t),\quad \alpha\in[0,1] \]</div>
+      <div class="ln" data-s="3" data-uses="5" data-via="Why we never leave \(C\)" data-how="\(\theta_{t+1}\) is a convex combination of \(\theta_t\in C\) and \(v_t\in C\). \(C\) is convex, so the whole segment lies in \(C\). Start inside, stay inside.">\[ \theta_t\in C,\ v_t\in C\ \Rightarrow\ \theta_{t+1}\in C \]</div>
+      <div class="ln box" data-s="4" data-eq="5b" data-uses="5,2" data-via="Rewrite (5): a shrink, like weight decay" data-how="\((1-\alpha)\,\theta_t\) shrinks the current weights every step, just like \((1-\lambda)\,\theta_t\) in (2).">\[ \theta_{t+1}=(1-\alpha)\,\theta_t+\alpha\, v_t \]</div>
     </div>
     <div class="side">
       <svg class="fig2" viewBox="0 0 420 330" width="420" height="330">
@@ -392,7 +392,7 @@ aside.notes{display:none}
         <tr data-s="3" class="em"><td>K-sparse polytope</td><td>\(\pm\tau\) on the K largest \(|g_i|\), 0 elsewhere</td><td>no closed form given</td></tr>
         <tr data-s="3"><td>Permutahedron</td><td>Hungarian method</td><td>specialized algorithms</td></tr>
       </table>
-      <p class="note" data-s="3">For the Lp ball, \(1/p+1/q=1\).</p>
+      <p class="note" data-s="3">For the \(L_p\) ball, \(1/p+1/q=1\).</p>
       <div class="say" data-s="4"><b>Takeaway:</b> the LMO is usually a cheap, coordinate-wise rule, about as costly as an SGD step.</div>
     </div>
     <div class="side">
@@ -428,9 +428,9 @@ aside.notes{display:none}
     </div>
     <div class="side">
       <div class="railfig" data-s="2">
-        <div style="margin-bottom:6px"><b>Line 5 with ρ = 0.1</b></div>
+        <div style="margin-bottom:6px"><b>Line 5 with \(\rho=0.1\)</b></div>
         <div class="hb"><div class="growx" data-s="2" style="flex:0 0 90%;background:var(--mut)">90% old m<sub>t−1</sub></div><div class="growx" data-s="2" style="flex:0 0 10%;background:var(--acc)">g<sub>t</sub></div></div>
-        <div class="cap">ρ is the weight on the <b>new</b> gradient, so ρ = 0.1 is the usual “momentum 0.9”. ρ = 1: no momentum, plain SFW.</div>
+        <div class="cap">\(\rho\) is the weight on the <b>new</b> gradient, so \(\rho=0.1\) is the usual “momentum 0.9”. \(\rho=1\): no momentum, plain SFW.</div>
       </div>
       <div class="railfig" data-s="3">
         <div style="margin-bottom:4px"><b>Compared with SGD + momentum</b></div>
@@ -446,10 +446,10 @@ aside.notes{display:none}
   <div class="hd"><span class="sec">2 · Stochastic Frank–Wolfe</span><h2>Convergence: the Frank–Wolfe gap</h2></div>
   <div class="body">
     <div class="deriv">
-      <div class="ln" data-s="1" data-eq="7" data-via="The Frank–Wolfe gap" data-how="How much a linear model of L could still decrease inside C." data-sym="\nabla L(\theta)::full gradient at θ;; G(\theta)::the gap">\[ G(\theta)=\max_{v\in C}\ \langle v-\theta,\,-\nabla L(\theta)\rangle \]</div>
-      <div class="ln" data-s="2" data-uses="7" data-via="Replaces ‖∇L‖ as the measure of convergence" data-how="Take v = θ to get 0, so G ≥ 0. G = 0 exactly at a first-order critical point. Cost: one LMO call plus one inner product.">\[ G(\theta)\ge 0,\qquad G(\theta)=0\iff \theta \text{ is stationary} \]</div>
-      <div class="ln box" data-s="3" data-eq="T" data-uses="7" data-via="Theorem 2.1 (Reddi et al., 2016)" data-how="Assumes smooth ℓ_i, no momentum (ρ = 1), α_t = 1/√T, batch size b_t = T, and θ_a drawn uniformly from the iterates." data-sym="\theta^*::a minimizer;; T::number of steps">\[ \mathbb E\big[G(\theta_a)\big]=O\!\left(\frac{L(\theta_0)-L(\theta^*)}{\sqrt T}\right) \]</div>
-      <div class="say" data-s="4"><b>Caveat:</b> the theorem needs batch size T and no momentum; the experiments use fixed batches and momentum. A guide, not a guarantee.</div>
+      <div class="ln" data-s="1" data-eq="7" data-via="The Frank–Wolfe gap" data-how="How much a linear model of \(L\) could still decrease inside \(C\)." data-sym="\nabla L(\theta)::full gradient at \(\theta\);; G(\theta)::the gap">\[ G(\theta)=\max_{v\in C}\ \langle v-\theta,\,-\nabla L(\theta)\rangle \]</div>
+      <div class="ln" data-s="2" data-uses="7" data-via="Replaces \(\|\nabla L\|\) as the measure of convergence" data-how="Take \(v=\theta\) to get 0, so \(G\ge 0\). \(G=0\) exactly at a first-order critical point. Cost: one LMO call plus one inner product.">\[ G(\theta)\ge 0,\qquad G(\theta)=0\iff \theta \text{ is stationary} \]</div>
+      <div class="ln box" data-s="3" data-eq="T" data-uses="7" data-via="Theorem 2.1 (Reddi et al., 2016)" data-how="Assumes smooth \(\ell_i\), no momentum (\(\rho=1\)), \(\alpha_t=1/\sqrt T\), batch size \(b_t=T\), and \(\theta_a\) drawn uniformly from the iterates." data-sym="\theta^*::a minimizer;; T::number of steps">\[ \mathbb E\big[G(\theta_a)\big]=O\!\left(\frac{L(\theta_0)-L(\theta^*)}{\sqrt T}\right) \]</div>
+      <div class="say" data-s="4"><b>Caveat:</b> the theorem needs batch size \(T\) and no momentum; the experiments use fixed batches and momentum. A guide, not a guarantee.</div>
     </div>
     <div class="side">
       <div class="railfig">
@@ -497,12 +497,12 @@ aside.notes{display:none}
 <section class="slide E" data-plan="120">
   <div class="hd"><span class="sec">3 · Feasible regions</span><h2>The LMO decides how the weights move</h2></div>
   <div class="body full"><div class="deriv">
-    <div class="lrow"><div class="lgrad"><b>One gradient g</b> (10 entries)<svg class="fig2" viewBox="0 0 290 118" width="290" height="118"><line x1="10" y1="58" x2="282" y2="58" stroke="var(--rule)"/><g  style="transform-box:view-box;transform-origin:0 58px"><rect x="18" y="22.8" width="18" height="35.2" rx="2" fill="var(--mut)"/><rect x="44" y="58.0" width="18" height="13.2" rx="2" fill="var(--mut)"/><rect x="70" y="53.6" width="18" height="4.4" rx="2" fill="var(--mut)"/><rect x="96" y="58.0" width="18" height="44.0" rx="2" fill="var(--mut)"/><rect x="122" y="40.4" width="18" height="17.6" rx="2" fill="var(--mut)"/><rect x="148" y="58.0" width="18" height="6.6" rx="2" fill="var(--mut)"/><rect x="174" y="31.6" width="18" height="26.4" rx="2" fill="var(--mut)"/><rect x="200" y="58.0" width="18" height="22.0" rx="2" fill="var(--mut)"/><rect x="226" y="49.2" width="18" height="8.8" rx="2" fill="var(--mut)"/><rect x="252" y="58.0" width="18" height="2.2" rx="2" fill="var(--mut)"/></g></svg></div>
-    <div class="note" style="flex:1">Feed the <strong>same</strong> g into three LMOs. Each panel shows the output v.<br>The weights then move by \(\theta\leftarrow(1-\alpha)\theta+\alpha v\).</div></div>
+    <div class="lrow"><div class="lgrad"><b>One gradient \(g\)</b> (10 entries)<svg class="fig2" viewBox="0 0 290 118" width="290" height="118"><line x1="10" y1="58" x2="282" y2="58" stroke="var(--rule)"/><g  style="transform-box:view-box;transform-origin:0 58px"><rect x="18" y="22.8" width="18" height="35.2" rx="2" fill="var(--mut)"/><rect x="44" y="58.0" width="18" height="13.2" rx="2" fill="var(--mut)"/><rect x="70" y="53.6" width="18" height="4.4" rx="2" fill="var(--mut)"/><rect x="96" y="58.0" width="18" height="44.0" rx="2" fill="var(--mut)"/><rect x="122" y="40.4" width="18" height="17.6" rx="2" fill="var(--mut)"/><rect x="148" y="58.0" width="18" height="6.6" rx="2" fill="var(--mut)"/><rect x="174" y="31.6" width="18" height="26.4" rx="2" fill="var(--mut)"/><rect x="200" y="58.0" width="18" height="22.0" rx="2" fill="var(--mut)"/><rect x="226" y="49.2" width="18" height="8.8" rx="2" fill="var(--mut)"/><rect x="252" y="58.0" width="18" height="2.2" rx="2" fill="var(--mut)"/></g></svg></div>
+    <div class="note" style="flex:1">Feed the <strong>same</strong> \(g\) into three LMOs. Each panel shows the output \(v\).<br>The weights then move by \(\theta\leftarrow(1-\alpha)\theta+\alpha v\).</div></div>
     <div class="lmo3">
-      <div class="lp" data-s="1"><span class="tg p">SGD-like</span><b>L2 ball</b>\[v=-\tau\,g/\|g\|_2\]<svg class="fig2" viewBox="0 0 290 118" width="290" height="118"><line x1="10" y1="58" x2="282" y2="58" stroke="var(--rule)"/><g class="gy" data-s="1" style="transform-box:view-box;transform-origin:0 58px"><rect x="18" y="58.0" width="18" height="21.9" rx="2" fill="var(--pr)"/><rect x="44" y="49.8" width="18" height="8.2" rx="2" fill="var(--pr)"/><rect x="70" y="58.0" width="18" height="2.7" rx="2" fill="var(--pr)"/><rect x="96" y="30.6" width="18" height="27.4" rx="2" fill="var(--pr)"/><rect x="122" y="58.0" width="18" height="11.0" rx="2" fill="var(--pr)"/><rect x="148" y="53.9" width="18" height="4.1" rx="2" fill="var(--pr)"/><rect x="174" y="58.0" width="18" height="16.5" rx="2" fill="var(--pr)"/><rect x="200" y="44.3" width="18" height="13.7" rx="2" fill="var(--pr)"/><rect x="226" y="58.0" width="18" height="5.5" rx="2" fill="var(--pr)"/><rect x="252" y="56.6" width="18" height="1.4" rx="2" fill="var(--pr)"/></g></svg><span class="m">same shape as −g, rescaled</span></div>
-      <div class="lp" data-s="2"><span class="tg" style="color:#2e8b57">Dense</span><b>Hypercube</b>\[v=-\tau\,\mathrm{sign}(g)\]<svg class="fig2" viewBox="0 0 290 118" width="290" height="118"><line x1="10" y1="58" x2="282" y2="58" stroke="var(--rule)"/><g class="gy" data-s="2" style="transform-box:view-box;transform-origin:0 58px"><rect x="18" y="58.0" width="18" height="44.0" rx="2" fill="#2e8b57"/><rect x="44" y="14.0" width="18" height="44.0" rx="2" fill="#2e8b57"/><rect x="70" y="58.0" width="18" height="44.0" rx="2" fill="#2e8b57"/><rect x="96" y="14.0" width="18" height="44.0" rx="2" fill="#2e8b57"/><rect x="122" y="58.0" width="18" height="44.0" rx="2" fill="#2e8b57"/><rect x="148" y="14.0" width="18" height="44.0" rx="2" fill="#2e8b57"/><rect x="174" y="58.0" width="18" height="44.0" rx="2" fill="#2e8b57"/><rect x="200" y="14.0" width="18" height="44.0" rx="2" fill="#2e8b57"/><rect x="226" y="58.0" width="18" height="44.0" rx="2" fill="#2e8b57"/><rect x="252" y="14.0" width="18" height="44.0" rx="2" fill="#2e8b57"/></g></svg><span class="m">every entry ±τ, however small its gradient</span></div>
-      <div class="lp" data-s="3"><span class="tg k">Sparse</span><b>L1 / K-sparse (K = 2)</b>\[v=\pm\tau \text{ on the K largest } |g_i|\]<svg class="fig2" viewBox="0 0 290 118" width="290" height="118"><line x1="10" y1="58" x2="282" y2="58" stroke="var(--rule)"/><g class="gy" data-s="3" style="transform-box:view-box;transform-origin:0 58px"><rect x="18" y="58.0" width="18" height="44.0" rx="2" fill="var(--acc)"/><rect x="44" y="57" width="18" height="2" fill="var(--mut)"/><rect x="70" y="57" width="18" height="2" fill="var(--mut)"/><rect x="96" y="14.0" width="18" height="44.0" rx="2" fill="var(--acc)"/><rect x="122" y="57" width="18" height="2" fill="var(--mut)"/><rect x="148" y="57" width="18" height="2" fill="var(--mut)"/><rect x="174" y="57" width="18" height="2" fill="var(--mut)"/><rect x="200" y="57" width="18" height="2" fill="var(--mut)"/><rect x="226" y="57" width="18" height="2" fill="var(--mut)"/><rect x="252" y="57" width="18" height="2" fill="var(--mut)"/></g></svg><span class="m">the rest decay by (1 − α)</span></div>
+      <div class="lp" data-s="1"><span class="tg p">SGD-like</span><b>L2 ball</b>\[v=-\tau\,g/\|g\|_2\]<svg class="fig2" viewBox="0 0 290 118" width="290" height="118"><line x1="10" y1="58" x2="282" y2="58" stroke="var(--rule)"/><g class="gy" data-s="1" style="transform-box:view-box;transform-origin:0 58px"><rect x="18" y="58.0" width="18" height="21.9" rx="2" fill="var(--pr)"/><rect x="44" y="49.8" width="18" height="8.2" rx="2" fill="var(--pr)"/><rect x="70" y="58.0" width="18" height="2.7" rx="2" fill="var(--pr)"/><rect x="96" y="30.6" width="18" height="27.4" rx="2" fill="var(--pr)"/><rect x="122" y="58.0" width="18" height="11.0" rx="2" fill="var(--pr)"/><rect x="148" y="53.9" width="18" height="4.1" rx="2" fill="var(--pr)"/><rect x="174" y="58.0" width="18" height="16.5" rx="2" fill="var(--pr)"/><rect x="200" y="44.3" width="18" height="13.7" rx="2" fill="var(--pr)"/><rect x="226" y="58.0" width="18" height="5.5" rx="2" fill="var(--pr)"/><rect x="252" y="56.6" width="18" height="1.4" rx="2" fill="var(--pr)"/></g></svg><span class="m">same shape as \(-g\), rescaled</span></div>
+      <div class="lp" data-s="2"><span class="tg" style="color:#2e8b57">Dense</span><b>Hypercube</b>\[v=-\tau\,\mathrm{sign}(g)\]<svg class="fig2" viewBox="0 0 290 118" width="290" height="118"><line x1="10" y1="58" x2="282" y2="58" stroke="var(--rule)"/><g class="gy" data-s="2" style="transform-box:view-box;transform-origin:0 58px"><rect x="18" y="58.0" width="18" height="44.0" rx="2" fill="#2e8b57"/><rect x="44" y="14.0" width="18" height="44.0" rx="2" fill="#2e8b57"/><rect x="70" y="58.0" width="18" height="44.0" rx="2" fill="#2e8b57"/><rect x="96" y="14.0" width="18" height="44.0" rx="2" fill="#2e8b57"/><rect x="122" y="58.0" width="18" height="44.0" rx="2" fill="#2e8b57"/><rect x="148" y="14.0" width="18" height="44.0" rx="2" fill="#2e8b57"/><rect x="174" y="58.0" width="18" height="44.0" rx="2" fill="#2e8b57"/><rect x="200" y="14.0" width="18" height="44.0" rx="2" fill="#2e8b57"/><rect x="226" y="58.0" width="18" height="44.0" rx="2" fill="#2e8b57"/><rect x="252" y="14.0" width="18" height="44.0" rx="2" fill="#2e8b57"/></g></svg><span class="m">every entry \(\pm\tau\), however small its gradient</span></div>
+      <div class="lp" data-s="3"><span class="tg k">Sparse</span><b>L1 / K-sparse (K = 2)</b>\[v=\pm\tau \text{ on the K largest } |g_i|\]<svg class="fig2" viewBox="0 0 290 118" width="290" height="118"><line x1="10" y1="58" x2="282" y2="58" stroke="var(--rule)"/><g class="gy" data-s="3" style="transform-box:view-box;transform-origin:0 58px"><rect x="18" y="58.0" width="18" height="44.0" rx="2" fill="var(--acc)"/><rect x="44" y="57" width="18" height="2" fill="var(--mut)"/><rect x="70" y="57" width="18" height="2" fill="var(--mut)"/><rect x="96" y="14.0" width="18" height="44.0" rx="2" fill="var(--acc)"/><rect x="122" y="57" width="18" height="2" fill="var(--mut)"/><rect x="148" y="57" width="18" height="2" fill="var(--mut)"/><rect x="174" y="57" width="18" height="2" fill="var(--mut)"/><rect x="200" y="57" width="18" height="2" fill="var(--mut)"/><rect x="226" y="57" width="18" height="2" fill="var(--mut)"/><rect x="252" y="57" width="18" height="2" fill="var(--mut)"/></g></svg><span class="m">the rest decay by \((1-\alpha)\)</span></div>
     </div>
     <div class="say" data-s="4" style="text-align:center">The region is an <b>inductive bias</b>: it shapes the features the network learns.</div>
   </div></div>
@@ -524,14 +524,14 @@ aside.notes{display:none}
         <circle cx="62" cy="100" r="4" fill="var(--ink)"/><circle cx="196" cy="100" r="4" fill="var(--ink)"/>
         <text x="34" y="158">small C</text><text x="160" y="200">10× bigger C</text>
       </svg>
-      <div class="cap">Dashed: v − θ. Red: plain step, same α. Green: rescaled step (14).</div>
+      <div class="cap">Dashed: \(v-\theta\). Red: plain step, same \(\alpha\). Green: rescaled step (14).</div>
     </div>
     <div class="deriv">
-      <div class="ln" data-s="1" data-uses="5" data-via="Problem: the step length grows with C" data-how="v_t lies on the boundary, so ‖v_t − θ_t‖ grows with the size τ of C. Ten times bigger C → about ten times longer steps for the same α.">\[ \|\theta_{t+1}-\theta_t\|=\alpha\,\|v_t-\theta_t\| \]</div>
-      <div class="ln" data-s="2" data-eq="13" data-uses="5" data-via="Option A · divide by the diameter" data-how="Like decoupling the learning rate from weight decay (Loshchilov & Hutter, 2017). min(·, 1) means we never go past v_t." data-sym="D(C)::diameter: largest distance in C">\[ \theta_{t+1}=\theta_t+\min\!\Big(\tfrac{\alpha}{D(C)},1\Big)(v_t-\theta_t) \]</div>
-      <div class="ln" data-s="3" data-eq="14" data-uses="5" data-via="Option B · match the gradient's length" data-sym="\|g_t\|::length of the gradient (L2)">\[ \theta_{t+1}=\theta_t+\min\!\Big(\tfrac{\alpha\,\|g_t\|}{\|v_t-\theta_t\|},1\Big)(v_t-\theta_t) \]</div>
-      <div class="ln box" data-s="4" data-uses="14" data-via="Check: the arrow's length cancels" data-how="(a/b)·b = a. The vertex only gives the direction; the length equals an SGD step. Used for CIFAR and ImageNet; stabilizes very deep networks.">\[ \|\theta_{t+1}-\theta_t\|=\frac{\alpha\|g_t\|}{\|v_t-\theta_t\|}\cdot\|v_t-\theta_t\|=\alpha\,\|g_t\| \]</div>
-      <div class="note" data-s="5"><strong>Region size:</strong> tied to each layer's random initialization, times a width w (10 to 100). Momentum 0.9 (ρ = 0.1); batch sizes as for SGD.</div>
+      <div class="ln" data-s="1" data-uses="5" data-via="Problem: the step length grows with \(C\)" data-how="\(v_t\) lies on the boundary, so \(\|v_t-\theta_t\|\) grows with the size \(\tau\) of \(C\). Ten times bigger \(C\) → about ten times longer steps for the same \(\alpha\).">\[ \|\theta_{t+1}-\theta_t\|=\alpha\,\|v_t-\theta_t\| \]</div>
+      <div class="ln" data-s="2" data-eq="13" data-uses="5" data-via="Option A · divide by the diameter" data-how="Like decoupling the learning rate from weight decay (Loshchilov & Hutter, 2017). \(\min(\cdot,1)\) means we never go past \(v_t\)." data-sym="D(C)::diameter: largest distance in C">\[ \theta_{t+1}=\theta_t+\min\!\Big(\tfrac{\alpha}{D(C)},1\Big)(v_t-\theta_t) \]</div>
+      <div class="ln" data-s="3" data-eq="14" data-uses="5" data-via="Option B · match the gradient's length" data-sym="\|g_t\|::length of the gradient (\(L_2\) norm)">\[ \theta_{t+1}=\theta_t+\min\!\Big(\tfrac{\alpha\,\|g_t\|}{\|v_t-\theta_t\|},1\Big)(v_t-\theta_t) \]</div>
+      <div class="ln box" data-s="4" data-uses="14" data-via="Check: the arrow's length cancels" data-how="\(\frac{a}{b}\cdot b=a\). The vertex only gives the direction; the length equals an SGD step, \(\alpha\|g_t\|\). Used for CIFAR and ImageNet; stabilizes very deep networks.">\[ \|\theta_{t+1}-\theta_t\|=\frac{\alpha\|g_t\|}{\|v_t-\theta_t\|}\cdot\|v_t-\theta_t\|=\alpha\,\|g_t\| \]</div>
+      <div class="note" data-s="5"><strong>Region size:</strong> tied to each layer's random initialization, times a width \(w\) (10 to 100). Momentum 0.9 (\(\rho=0.1\)); batch sizes as for SGD.</div>
     </div>
   </div>
 </section>
@@ -635,7 +635,7 @@ aside.notes{display:none}
     <div class="side">
       <div class="railfig" data-s="1">
         <svg class="fig2" viewBox="0 0 290 130" width="290" height="130"><line x1="10" y1="110" x2="285" y2="110" stroke="var(--rule)"/><rect x="20" y="38" width="14" height="72" fill="var(--rule)"/><rect x="36" y="2" width="14" height="108" fill="var(--acc)"/><rect x="64" y="62" width="14" height="48" fill="var(--rule)"/><rect x="80" y="98" width="14" height="12" fill="var(--mut)"/><rect x="108" y="26" width="14" height="84" fill="var(--rule)"/><rect x="124" y="14" width="14" height="96" fill="var(--acc)"/><rect x="152" y="74" width="14" height="36" fill="var(--rule)"/><rect x="168" y="104" width="14" height="6" fill="var(--mut)"/><rect x="196" y="50" width="14" height="60" fill="var(--rule)"/><rect x="212" y="86" width="14" height="24" fill="var(--mut)"/><rect x="240" y="56" width="14" height="54" fill="var(--rule)"/><rect x="256" y="38" width="14" height="72" fill="var(--acc)"/><text x="10" y="126">gray: |w| at init · bar: after training</text></svg>
-        <div class="cap"><b class="k">Active</b>: |w| ≥ its initial |w|. Otherwise <b>inactive</b>.</div>
+        <div class="cap"><b class="k">Active</b>: \(|w|\ge\) its initial \(|w|\). Otherwise <b>inactive</b>.</div>
       </div>
       <div class="note" data-s="2">x: test error · y: weights used (log). Lower = fewer weights.</div>
       <div class="say" data-s="3"><b>K-sparse</b> (blue): far fewer active weights at similar error.</div>
@@ -659,7 +659,7 @@ aside.notes{display:none}
       </table>
       <p class="note" data-s="2">Highlighted cells = best in the column.</p>
       <div class="say" data-s="5">L∞ is weaker: above weight decay only on DenseNet/CIFAR-10; above plain SGD on 3 of 5.</div>
-      <p class="note" data-s="6"><strong>Setup:</strong> SGD with Nesterov momentum 0.9, weight decay 10⁻⁴. SFW: momentum 0.9, rescaled step (14). 200 epochs on CIFAR (mean of 3–5 runs), 90 on ImageNet (no spread reported). Runtime comparable to SGD.</p>
+      <p class="note" data-s="6"><strong>Setup:</strong> SGD with Nesterov momentum 0.9, weight decay \(10^{-4}\). SFW: momentum 0.9, rescaled step (14). 200 epochs on CIFAR (mean of 3–5 runs), 90 on ImageNet (no spread reported). Runtime comparable to SGD.</p>
     </div>
     <div class="side">
       <div class="railfig">
@@ -697,8 +697,8 @@ aside.notes{display:none}
       </div>
       <div class="tcol new"><div class="th">Limitations</div>
         <div class="ti" data-s="3"><b>Theory ≠ practice.</b>
-          <table class="mini"><tr><th></th><th>Theorem 2.1</th><th>Experiments</th></tr><tr><td>batch size</td><td>T (grows)</td><td>fixed</td></tr><tr><td>momentum</td><td>none (ρ = 1)</td><td>0.9 (ρ = 0.1)</td></tr></table></div>
-        <p class="ti" data-s="4"><b>New hyperparameter.</b> The width w is tuned per model (10 to 100): tuning moves, it doesn't disappear.</p>
+          <table class="mini"><tr><th></th><th>Theorem 2.1</th><th>Experiments</th></tr><tr><td>batch size</td><td>\(T\) (grows)</td><td>fixed</td></tr><tr><td>momentum</td><td>none (\(\rho=1\))</td><td>0.9 (\(\rho=0.1\))</td></tr></table></div>
+        <p class="ti" data-s="4"><b>New hyperparameter.</b> The width \(w\) is tuned per model (10 to 100): tuning moves, it doesn't disappear.</p>
         <p class="ti" data-s="5"><b>ImageNet.</b> Weight decay still wins (74.89 vs. 73.46; 76.09 vs. 75.77), no error bars. One constraint type for every layer.</p>
       </div>
     </div>
@@ -783,9 +783,9 @@ aside.notes{display:none}
     <div class="railfig" data-s="4"><b>Ties in the LMO</b><div class="cap" style="font-size:14px">If several vertices solve the LMO (e.g. a zero gradient), pick one at random on the boundary. Then SFW can even train a <b>zero-initialized</b> layer in a hypercube.</div></div>
     <div class="deriv">
       <div class="note">Same constraint type for all layers; only the size varies, tied to the initialization (Glorot / He).</div>
-      <div class="ln" data-s="1" data-eq="15" data-via="Expected norm of a random initialization" data-how="Entries of x ∈ ℝⁿ drawn from N(0, σ²)." data-sym="\Gamma::Gamma function;; \sigma::init standard deviation">\[ \mathbb E\|x\|_2=\frac{n\,\sigma\,\Gamma\!\big(\frac n2+\frac12\big)}{\sqrt2\,\Gamma\!\big(\frac n2+1\big)} \]</div>
-      <div class="ln box" data-s="2" data-eq="16" data-uses="15" data-via="Set the diameter to 2w times that norm" data-sym="w::width: how much bigger than the init">\[ D(C)=2w\;\mathbb E\|x\|_2 \]</div>
-      <div class="say" data-s="3">The <b>width w</b> is a new hyperparameter: w = 10 to 100 in the deep-network runs.</div>
+      <div class="ln" data-s="1" data-eq="15" data-via="Expected norm of a random initialization" data-how="Entries of \(x\in\mathbb R^n\) drawn from \(\mathcal N(0,\sigma^2)\)." data-sym="\Gamma::Gamma function;; \sigma::init standard deviation">\[ \mathbb E\|x\|_2=\frac{n\,\sigma\,\Gamma\!\big(\frac n2+\frac12\big)}{\sqrt2\,\Gamma\!\big(\frac n2+1\big)} \]</div>
+      <div class="ln box" data-s="2" data-eq="16" data-uses="15" data-via="Set the diameter to \(2w\) times that norm" data-sym="w::width: how much bigger than the init">\[ D(C)=2w\;\mathbb E\|x\|_2 \]</div>
+      <div class="say" data-s="3">The <b>width \(w\)</b> is a new hyperparameter: \(w=10\) to \(100\) in the deep-network runs.</div>
     </div>
   </div>
 </section>
@@ -812,7 +812,7 @@ aside.notes{display:none}
 <div id="hud">
   <button id="bp" aria-label="Previous step">←</button><button id="bn" aria-label="Next step">→</button>
   <span id="ctr"></span><div id="prog"></div>
-  <button id="bg" class="opt" aria-label="Jump to a section">Sections (G)</button>
+  <button id="bg" aria-label="Jump to a section">Sections (G)</button>
   <button id="bpv" aria-label="Toggle presenter mode">Presenter (P)</button>
   <button id="baw" class="opt" aria-label="Open audience window">Audience window</button>
   <button id="ba" class="opt" aria-label="Show all annotations">Labels</button>

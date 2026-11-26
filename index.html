@@ -133,6 +133,9 @@ body.presenter #pv{display:flex;flex-direction:column;position:fixed;top:0;right
 body.scredit #scr .st,body.scredit #scr .st.done{opacity:1}
 body.scredit #scr [data-edit]{outline:1.5px dashed var(--rule);border-radius:6px;padding:4px 6px;margin-top:2px;white-space:pre-wrap;cursor:text;min-height:1.5em}
 body.scredit #scr [data-edit]:focus{outline:2px solid var(--acc);background:var(--bg)}
+#scr .st:not(.now):hover,#scr .tr:hover{cursor:text}
+#scr [data-edit].solo{outline:2px solid var(--acc);border-radius:6px;padding:4px 6px;margin-top:2px;white-space:pre-wrap;background:var(--bg)}
+#scr .st:has(.solo){opacity:1}
 #scr .st.mod .kk::after,#scr .tr.mod::after{content:" · edited";color:#d9822b;font-weight:600}
 #scr .tr.mod::after{display:block;font-size:12px}
 body.scredit #scr .tr::before{content:"Transition → next slide (editable)"}
@@ -1558,7 +1561,7 @@ addEventListener('keydown',e=>{if(!e.metaKey&&!e.ctrlKey&&(e.key==='f'||e.key===
 /* --- editable presenter script --- */
 (function(){
   const scr=document.getElementById('scr'),st=document.getElementById('edst');
-  function flash(m){st.textContent=m;clearTimeout(flash.t);flash.t=setTimeout(()=>st.textContent=Object.keys(EDS).length?'edits saved in this browser':'',2200)}
+  function flash(m){st.textContent=m;clearTimeout(flash.t);flash.t=setTimeout(()=>st.textContent=Object.keys(EDS).length?'edits saved in this browser':'double-click any block to edit',2200)}
   function toggle(){document.body.classList.toggle('scredit');document.getElementById('bed').classList.toggle('on',document.body.classList.contains('scredit'));
     document.getElementById('bed').textContent=document.body.classList.contains('scredit')?'✓ Done editing':'✎ Edit script';pvBuilt=-1;pres()}
   document.getElementById('bed').onclick=toggle;
@@ -1572,6 +1575,20 @@ addEventListener('keydown',e=>{if(!e.metaKey&&!e.ctrlKey&&(e.key==='f'||e.key===
     else{E.n=v;SC[cur].n=v;if(v===(SC0[cur].n||''))delete E.n;el.closest('.tr').classList.toggle('mod',v!==(SC0[cur].n||''))}
     if(E.s&&!Object.keys(E.s).length)delete E.s;if(!Object.keys(E).length)delete EDS[cur];
     flash(saveEds()?'saved ✓':'could not save (storage blocked) — use Export')});
+
+  // double-click any block: edit just that block; click elsewhere (or Esc) saves and re-renders
+  scr.ondblclick=e=>{if(document.body.classList.contains('scredit'))return;
+    const blk=e.target.closest('.st,.tr');if(!blk||blk.querySelector('[data-edit]'))return;
+    const isN=blk.classList.contains('tr');const j=isN?-1:+blk.dataset.i;const raw=isN?(SC[cur].n||''):SC[cur].s[j];
+    const kk=blk.querySelector('.kk');blk.innerHTML='';if(kk)blk.appendChild(kk);
+    const ed=document.createElement('div');ed.className='solo';ed.dataset.edit=isN?'n':'s';if(!isN)ed.dataset.j=j;
+    ed.setAttribute('contenteditable','plaintext-only');ed.spellcheck=true;ed.textContent=raw;blk.appendChild(ed);
+    getSelection().removeAllRanges();ed.focus();
+    let r=null;try{if(document.caretRangeFromPoint)r=document.caretRangeFromPoint(e.clientX,e.clientY);else if(document.caretPositionFromPoint){const p=document.caretPositionFromPoint(e.clientX,e.clientY);r=document.createRange();r.setStart(p.offsetNode,p.offset)}}catch(_){}
+    if(!r||!ed.contains(r.startContainer)){r=document.createRange();r.selectNodeContents(ed);r.collapse(false)}
+    const s=getSelection();s.removeAllRanges();s.addRange(r);
+    flash('editing… click outside to save');
+    ed.addEventListener('blur',()=>{setTimeout(()=>{pvBuilt=-1;pres();flash(EDS[cur]?'saved ✓':'no change')},0)},{once:true})};
   document.getElementById('brst').onclick=()=>{if(!EDS[cur])return flash('nothing to reset');delete EDS[cur];SC[cur]=JSON.parse(JSON.stringify(SC0[cur]));saveEds();pvBuilt=-1;pres();flash('slide reset')};
   document.getElementById('bexp').onclick=()=>{
     const out={deck:document.title,saved:new Date().toISOString(),edits:EDS,script:SC};
@@ -1580,7 +1597,7 @@ addEventListener('keydown',e=>{if(!e.metaKey&&!e.ctrlKey&&(e.key==='f'||e.key===
   document.getElementById('bimp').onclick=()=>document.getElementById('fimp').click();
   document.getElementById('fimp').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(x=>{const o=JSON.parse(x);const ed=o.edits||o;
     for(const k in ed)EDS[k]=ed[k];for(let i=0;i<SC.length;i++)SC[i]=JSON.parse(JSON.stringify(SC0[i]));applyEds();saveEds();pvBuilt=-1;pres();flash('imported '+Object.keys(ed).length+' slide(s)')}).catch(()=>flash('not a valid JSON file'));e.target.value=''};
-  if(Object.keys(EDS).length)st.textContent='edits saved in this browser';
+  st.textContent=Object.keys(EDS).length?'edits saved in this browser':'double-click any block to edit';
 })();
 
 /* presenter panel: drag its left edge to resize; double-click to reset; width remembered */

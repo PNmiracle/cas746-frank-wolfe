@@ -566,8 +566,8 @@ body.noflow svg.tflow{display:none}
             <path class="draw" data-on="4" pathLength="1000" d="M90 150 L 213 57.6" stroke="#c2185b" stroke-width="7" stroke-linecap="round" stroke-opacity=".55" fill="none"/>
             <text x="226" y="70" font-size="13" style="fill:#c2185b;font-weight:600">G(θ)</text></g>
           <g class="dot sh" data-on="5"><circle cx="200" cy="40" r="8"/></g>
-          <text data-s="4" x="206" y="30" font-size="12" style="fill:#7b3fa0">v* (best corner)</text>
-          <text data-s="5" x="150" y="18" font-size="11.5" class="k">= LMO output (4)</text>
+          <text data-s="4" x="132" y="34" font-size="12" style="fill:#7b3fa0">best corner v*</text>
+          <text data-s="5" x="150" y="16" font-size="11.5" class="k">v* = LMO output (4)</text>
           <g class="mv" data-on="6" style="--tx:110px;--ty:-110px"><circle cx="90" cy="150" r="6" fill="var(--ink)"/></g>
           <text class="fade" data-on="6" x="66" y="168" font-size="12">θ</text>
           <g data-s="6"><path d="M200 40 L 240 10" stroke="#0b4f8a" stroke-width="3" fill="none" marker-end="url(#gar)"/>
@@ -1525,7 +1525,9 @@ function drawTFlows(anim){
   ov.innerHTML=h;
   const st=ln.querySelector(':scope>.moves');if(st){const html=pills.join('');const key=html.replace(/ class="an"| class=""|animation-delay:[^;"]*;?/g,'');if(st._pk!==key){st._pk=key;st.innerHTML=html;try{MathJax.typesetPromise&&MathJax.typesetPromise([st]).then(()=>{if(tflowReady)drawTFlows(false)})}catch(e){}}}
 }
-function scheduleTFlows(){tflowReady=false;clearTimeout(tflowT);const ov=slides[cur]&&slides[cur].querySelector(':scope>svg.tflow');if(ov)ov.innerHTML='';const tok=++tflowTok;tflowT=setTimeout(()=>{if(tok!==tflowTok)return;drawTFlows(true);tflowReady=true},750)}
+function scheduleTFlows(){tflowReady=false;clearTimeout(tflowT);const ov=slides[cur]&&slides[cur].querySelector(':scope>svg.tflow');if(ov)ov.innerHTML='';const tok=++tflowTok;tflowT=setTimeout(()=>{if(tok!==tflowTok)return;drawTFlows(true);tflowReady=true;watchT(tok)},750)}
+function sig(){const sl=slides[cur],ln=sl&&sl.querySelector('.ln.cur');if(!ln)return '';const ids=[ln,...sl.querySelectorAll('.ln.src,.card.use')];return ids.map(e=>Math.round(e.getBoundingClientRect().top)).join(',')}
+function watchT(tok){let last=sig(),n=0;const iv=setInterval(()=>{if(tok!==tflowTok||++n>12){clearInterval(iv);return}const s2=sig();if(s2!==last){last=s2;drawTFlows(false)}},180)}
 document.querySelectorAll('.deriv,.rail,.side').forEach(e=>e.addEventListener('scroll',()=>{if(tflowReady&&e.closest('.slide')===slides[cur])requestAnimationFrame(()=>drawTFlows(false))},{passive:true}));
 addEventListener('resize',()=>{if(tflowReady)setTimeout(()=>drawTFlows(false),60)});
 addEventListener('keydown',e=>{if(!e.metaKey&&!e.ctrlKey&&(e.key==='f'||e.key==='F'))document.body.classList.toggle('noflow')});

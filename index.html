@@ -240,7 +240,6 @@ aside.notes{display:none}
 .side{overflow-y:auto;scrollbar-width:thin}
 .side .rh{font-size:14px;color:var(--mut);margin:2px 0 -2px}
 .side .card{margin-bottom:0}
-.card .src::before{content:'paper ';}
 .lpps{display:flex;flex-direction:column;gap:6px}
 .lpp{border:1px solid var(--rule);border-radius:8px;background:var(--card);padding:3px 6px}
 .lph{font-size:14px;display:flex;justify-content:space-between;gap:6px;align-items:baseline}.lph span{color:var(--mut);font-size:13px}
@@ -352,7 +351,7 @@ aside.notes{display:none}
         
         </svg>
       <p class="note" data-s="3" style="padding:0">Gray: the SGD step lands outside C. <span class="k">Red: projection back to the closest point.</span></p>
-      <p class="note" data-s="4" style="padding:0">Dashed: the smallest circle around that point that touches C.</p><div class="rh">Equations used</div><div class="card" data-k="1"><span class="src">§1</span><span class="no">(1)</span> SGD step<div class="ct">\(\theta_{t+1}=\theta_t-\alpha g_t\)</div></div><div class="card" data-k="2"><span class="src">§1</span><span class="no">(2)</span> Weight decay<div class="ct">\(\theta_{t+1}=(1-\lambda)\theta_t-\alpha g_t\)</div></div>
+      <p class="note" data-s="4" style="padding:0">Dashed: the smallest circle around that point that touches C.</p><div class="rh">Equations used</div><div class="card" data-k="1"><span class="src">paper §1</span><span class="no">(1)</span> SGD step<div class="ct">\(\theta_{t+1}=\theta_t-\alpha g_t\)</div></div><div class="card" data-k="2"><span class="src">paper §1</span><span class="no">(2)</span> Weight decay<div class="ct">\(\theta_{t+1}=(1-\lambda)\theta_t-\alpha g_t\)</div></div>
     </div>
   </div>
 </section>
@@ -384,7 +383,7 @@ aside.notes{display:none}
         <circle cx="150" cy="226" r="7" fill="var(--ink)"/>
         <text x="112" y="248" class="lbl">θ<tspan baseline-shift="sub" font-size="11">t</tspan></text>
         <text data-s="4" x="150" y="324" class="lbl k">(1−α)·θ<tspan baseline-shift="sub" font-size="11">t</tspan> + α·v<tspan baseline-shift="sub" font-size="11">t</tspan></text>
-      </svg><div class="rh">Equations used</div><div class="card" data-k="2"><span class="src">§1</span><span class="no">(2)</span> Weight decay<div class="ct">\(\theta_{t+1}=(1-\lambda)\theta_t-\alpha g_t\)</div></div><div class="card" data-k="3"><span class="src">§1</span><span class="no">(3)</span> Projected SGD<div class="ct">\(\theta_{t+1}=\Pi_C(\theta_t-\alpha g_t)\)</div></div><div class="card" data-k="4"><span class="src">§1</span><span class="no">(4)</span> LMO<div class="ct">\(v_t=\arg\min_{v\in C}\langle g_t,v\rangle\)</div></div><div class="card" data-k="5"><span class="src">§1</span><span class="no">(5)</span> Frank–Wolfe step<div class="ct">\(\theta_{t+1}=\theta_t+\alpha(v_t-\theta_t)\)</div></div>
+      </svg><div class="rh">Equations used</div><div class="card" data-k="2"><span class="src">paper §1</span><span class="no">(2)</span> Weight decay<div class="ct">\(\theta_{t+1}=(1-\lambda)\theta_t-\alpha g_t\)</div></div><div class="card" data-k="3"><span class="src">paper §1</span><span class="no">(3)</span> Projected SGD<div class="ct">\(\theta_{t+1}=\Pi_C(\theta_t-\alpha g_t)\)</div></div><div class="card" data-k="4"><span class="src">paper §1</span><span class="no">(4)</span> LMO<div class="ct">\(v_t=\arg\min_{v\in C}\langle g_t,v\rangle\)</div></div><div class="card" data-k="5"><span class="src">paper §1</span><span class="no">(5)</span> Frank–Wolfe step<div class="ct">\(\theta_{t+1}=\theta_t+\alpha(v_t-\theta_t)\)</div></div>
     </div>
   </div>
   <aside class="notes">If asked why the LMO picks a vertex: a linear function on a polytope is minimized at a vertex; if a whole face is optimal, any vertex of it works.</aside>
@@ -472,7 +471,7 @@ aside.notes{display:none}
         <div class="cmp"><span class="mut">SGD:</span> \(\theta_{t+1}=\theta_t-\alpha\, m_t\)</div>
         <div class="cmp k"><span>SFW:</span> \(v_t=\mathrm{LMO}(m_t)\), then step toward \(v_t\)</div>
         <div class="cap">Only lines 6–7 change.</div>
-      </div><div class="rh">Equations used</div><div class="card" data-k="1"><span class="src">§1</span><span class="no">(1)</span> SGD step<div class="ct">\(\theta_{t+1}=\theta_t-\alpha g_t\)</div></div><div class="card" data-k="4"><span class="src">§1</span><span class="no">(4)</span> LMO<div class="ct">\(v_t=\arg\min_{v\in C}\langle g_t,v\rangle\)</div></div><div class="card" data-k="5"><span class="src">§1</span><span class="no">(5)</span> Frank–Wolfe step<div class="ct">\(\theta_{t+1}=\theta_t+\alpha(v_t-\theta_t)\)</div></div>
+      </div><div class="rh">Equations used</div><div class="card" data-k="1"><span class="src">paper §1</span><span class="no">(1)</span> SGD step<div class="ct">\(\theta_{t+1}=\theta_t-\alpha g_t\)</div></div><div class="card" data-k="4"><span class="src">paper §1</span><span class="no">(4)</span> LMO<div class="ct">\(v_t=\arg\min_{v\in C}\langle g_t,v\rangle\)</div></div><div class="card" data-k="5"><span class="src">paper §1</span><span class="no">(5)</span> Frank–Wolfe step<div class="ct">\(\theta_{t+1}=\theta_t+\alpha(v_t-\theta_t)\)</div></div>
     </div>
   </div>
 </section>
@@ -509,7 +508,7 @@ aside.notes{display:none}
           <text x="36" y="30">E[G]</text><text x="246" y="166">T</text>
           <text data-s="7" x="150" y="96" class="k">∝ 1/√T</text>
         </svg>
-      </div><div class="rh">Equations used</div><div class="card" data-k="4"><span class="src">§1</span><span class="no">(4)</span> LMO<div class="ct">\(v_t=\arg\min_{v\in C}\langle g_t,v\rangle\)</div></div><div class="card" data-k="7"><span class="src">§2</span><span class="no">(7)</span> Frank–Wolfe gap<div class="ct">\(G(\theta)=\max_{v\in C}\langle v-\theta,-\nabla L(\theta)\rangle\)</div></div>
+      </div><div class="rh">Equations used</div><div class="card" data-k="4"><span class="src">paper §1</span><span class="no">(4)</span> LMO<div class="ct">\(v_t=\arg\min_{v\in C}\langle g_t,v\rangle\)</div></div><div class="card" data-k="7"><span class="src">paper §2</span><span class="no">(7)</span> Frank–Wolfe gap<div class="ct">\(G(\theta)=\max_{v\in C}\langle v-\theta,-\nabla L(\theta)\rangle\)</div></div>
     </div>
   </div>
   <aside class="notes">Smooth = the gradient is Lipschitz. Gap ≥ 0: take v = θ.</aside>
@@ -858,7 +857,7 @@ aside.notes{display:none}
   <button id="bt" class="opt" aria-label="Toggle speaker notes">Notes</button>
 </div>
 <script>
-window.EQS={"1": ["SGD step", "§1", "\\theta_{t+1}=\\theta_t-\\alpha g_t"], "2": ["Weight decay", "§1", "\\theta_{t+1}=(1-\\lambda)\\theta_t-\\alpha g_t"], "3": ["Projected SGD", "§1", "\\theta_{t+1}=\\Pi_C(\\theta_t-\\alpha g_t)"], "P": ["Projection", "def. of Π", "\\Pi_C(x)=\\arg\\min_{v\\in C}\\|v-x\\|_2"], "4": ["LMO", "§1", "v_t=\\arg\\min_{v\\in C}\\langle g_t,v\\rangle"], "5": ["Frank–Wolfe step", "§1", "\\theta_{t+1}=\\theta_t+\\alpha(v_t-\\theta_t)"], "5b": ["Shrink form of (5)", "from (5)", "(1-\\alpha)\\theta_t+\\alpha v_t"], "6": ["Constrained problem", "§2", "\\min_{\\theta\\in C}L(\\theta)"], "L1": ["Linear model", "Taylor", "L(v)\\approx L(\\theta)+\\langle\\nabla L(\\theta),v-\\theta\\rangle"], "7": ["Frank–Wolfe gap", "§2", "G(\\theta)=\\max_{v\\in C}\\langle v-\\theta,-\\nabla L(\\theta)\\rangle"], "T": ["Rate", "Thm 2.1", "O\\big(1/\\sqrt T\\big)"], "13": ["Step ÷ diameter", "§3.1", "\\min(\\alpha/D(C),1)"], "14": ["Step = gradient length", "§3.1", "\\min\\big(\\tfrac{\\alpha\\|g_t\\|}{\\|v_t-\\theta_t\\|},1\\big)"], "15": ["Expected init norm", "§3.2", "\\mathbb E\\|x\\|_2"], "16": ["Region diameter", "§3.2", "D(C)=2w\\,\\mathbb E\\|x\\|_2"]};
+window.EQS={"1": ["SGD step", "paper §1", "\\theta_{t+1}=\\theta_t-\\alpha g_t"], "2": ["Weight decay", "paper §1", "\\theta_{t+1}=(1-\\lambda)\\theta_t-\\alpha g_t"], "3": ["Projected SGD", "paper §1", "\\theta_{t+1}=\\Pi_C(\\theta_t-\\alpha g_t)"], "P": ["Projection", "def. of Π", "\\Pi_C(x)=\\arg\\min_{v\\in C}\\|v-x\\|_2"], "4": ["LMO", "paper §1", "v_t=\\arg\\min_{v\\in C}\\langle g_t,v\\rangle"], "5": ["Frank–Wolfe step", "paper §1", "\\theta_{t+1}=\\theta_t+\\alpha(v_t-\\theta_t)"], "5b": ["Shrink form of (5)", "from (5)", "(1-\\alpha)\\theta_t+\\alpha v_t"], "6": ["Constrained problem", "paper §2", "\\min_{\\theta\\in C}L(\\theta)"], "L1": ["Linear model", "Taylor", "L(v)\\approx L(\\theta)+\\langle\\nabla L(\\theta),v-\\theta\\rangle"], "7": ["Frank–Wolfe gap", "paper §2", "G(\\theta)=\\max_{v\\in C}\\langle v-\\theta,-\\nabla L(\\theta)\\rangle"], "T": ["Rate", "Thm 2.1", "O\\big(1/\\sqrt T\\big)"], "13": ["Step ÷ diameter", "paper §3.1", "\\min(\\alpha/D(C),1)"], "14": ["Step = gradient length", "paper §3.1", "\\min\\big(\\tfrac{\\alpha\\|g_t\\|}{\\|v_t-\\theta_t\\|},1\\big)"], "15": ["Expected init norm", "paper §3.2", "\\mathbb E\\|x\\|_2"], "16": ["Region diameter", "paper §3.2", "D(C)=2w\\,\\mathbb E\\|x\\|_2"]};
 window.EQ_NEW=['13','14','16'];
 window.EQLABEL={'5b':'(5′)','P':'(3′)','T':'Thm 2.1','L1':'(7a)'};
 window.TRAIL=[['1','SGD'],['2','weight decay'],['6','constrain'],['3','project?'],['4','LMO'],['5','FW step'],['5b','= shrink']];

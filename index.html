@@ -187,6 +187,19 @@ aside.notes{display:none}
 @media(max-width:600px){#hud .opt{display:none}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 
+.deriv{position:relative}
+.deriv.arw .ln{padding-left:46px}
+.deriv.arw .say,.deriv.arw .note{margin-left:32px}
+svg.flow{position:absolute;left:0;top:0;width:44px;pointer-events:none;overflow:visible;z-index:1}
+svg.flow path{fill:none;stroke:var(--rule);stroke-width:2}
+svg.flow path.hot{stroke:var(--acc);stroke-width:2.6;stroke-dasharray:1;stroke-dashoffset:1;animation:flowdraw .9s .15s cubic-bezier(.3,.7,.2,1) forwards}
+svg.flow circle{fill:var(--rule)}svg.flow circle.hot{fill:var(--acc);animation:pop .3s .9s both}
+@keyframes flowdraw{to{stroke-dashoffset:0}}
+.hlt{transition:fill .5s}
+.ln.cur .hlt,.card.use .hlt{fill:var(--acc)}
+.ln.cur .hlt2,.card.use .hlt2{fill:var(--pr)}
+@media(prefers-reduced-motion:reduce){svg.flow path.hot{animation:none;stroke-dashoffset:0}}
+
 .cov h1{font-size:56px;margin:4px 0 6px}.kick{font-size:17px;color:var(--pr);font-weight:600;margin:6px 0 0}
 .subt{font-size:24px;color:var(--mut);margin:0 0 8px}.meta{font-size:17px;color:var(--mut);margin:0}
 .cfig{border:1px solid var(--rule);border-radius:12px;background:var(--card);padding:4px}
@@ -351,7 +364,7 @@ aside.notes{display:none}
         
         </svg>
       <p class="note" data-s="3" style="padding:0">Gray: the SGD step lands outside C. <span class="k">Red: projection back to the closest point.</span></p>
-      <p class="note" data-s="4" style="padding:0">Dashed: the smallest circle around that point that touches C.</p><div class="rh">Equations used</div><div class="card" data-k="1"><span class="src">paper §1</span><span class="no">(1)</span> SGD step<div class="ct">\(\theta_{t+1}=\theta_t-\alpha g_t\)</div></div><div class="card" data-k="2"><span class="src">paper §1</span><span class="no">(2)</span> Weight decay<div class="ct">\(\theta_{t+1}=(1-\lambda)\theta_t-\alpha g_t\)</div></div>
+      <p class="note" data-s="4" style="padding:0">Dashed: the smallest circle around that point that touches C.</p><div class="rh">Equations used</div><div class="card" data-k="1"><span class="src">paper §1</span><span class="no">(1)</span> SGD step<div class="ct">\(\theta_{t+1}=\theta_t-\alpha g_t\)</div></div><div class="card" data-k="2"><span class="src">paper §1</span><span class="no">(2)</span> Weight decay<div class="ct">\(\theta_{t+1}=\class{hlt}{(1-\lambda)\theta_t}-\alpha g_t\)</div></div>
     </div>
   </div>
 </section>
@@ -361,9 +374,9 @@ aside.notes{display:none}
   <div class="body">
     <div class="deriv">
       <div class="ln" data-s="1" data-eq="4" data-via="Step 1 · linear minimization oracle (LMO)" data-why="The LMO replaces the projection. It is usually a cheap closed-form rule (next slide)." data-how="Replace \(L\) by its linear approximation and minimize that over \(C\). Result: the point of \(C\) furthest in the direction \(-g_t\). On a polytope, a vertex." data-sym="\langle a,b\rangle::inner product;; v_t::LMO output, a point of C">\[ v_t=\arg\min_{v\in C}\ \langle g_t,\, v\rangle \]</div>
-      <div class="ln" data-s="2" data-eq="5" data-uses="4" data-via="Step 2 · move part of the way toward \(v_t\)" data-why="This is the whole update: no projection, just an average of two points." data-sym="\alpha::step size in \([0,1]\)">\[ \theta_{t+1}=\theta_t+\alpha\,(v_t-\theta_t),\quad \alpha\in[0,1] \]</div>
+      <div class="ln" data-s="2" data-eq="5" data-uses="4" data-via="Step 2 · move part of the way toward \(v_t\)" data-why="This is the whole update: no projection, just an average of two points." data-sym="\alpha::step size in \([0,1]\)">\[ \theta_{t+1}=\theta_t+\class{hlt2}{\alpha\,(v_t-\theta_t)},\quad \alpha\in[0,1] \]</div>
       <div class="ln" data-s="3" data-uses="5" data-via="Why we never leave \(C\)" data-why="Feasibility comes for free from convexity, so no correction step is ever needed." data-how="\(\theta_{t+1}\) is a convex combination of \(\theta_t\in C\) and \(v_t\in C\). \(C\) is convex, so the whole segment lies in \(C\). Start inside, stay inside.">\[ \theta_t\in C,\ v_t\in C\ \Rightarrow\ \theta_{t+1}\in C \]</div>
-      <div class="ln box" data-s="4" data-eq="5b" data-uses="5,2" data-via="Rewrite (5): a shrink, like weight decay" data-why="It explains why constraints act like regularization: every step decays the weights, as weight decay does." data-how="\((1-\alpha)\,\theta_t\) shrinks the current weights every step, just like \((1-\lambda)\,\theta_t\) in (2).">\[ \theta_{t+1}=(1-\alpha)\,\theta_t+\alpha\, v_t \]</div>
+      <div class="ln box" data-s="4" data-eq="5b" data-uses="5,2" data-via="Rewrite (5): a shrink, like weight decay" data-why="It explains why constraints act like regularization: every step decays the weights, as weight decay does." data-how="\((1-\alpha)\,\theta_t\) shrinks the current weights every step, just like \((1-\lambda)\,\theta_t\) in (2).">\[ \theta_{t+1}=\class{hlt}{(1-\alpha)\,\theta_t}+\class{hlt2}{\alpha\, v_t} \]</div>
     </div>
     <div class="side">
       <svg class="fig2" viewBox="0 0 420 330" width="420" height="330">
@@ -383,7 +396,7 @@ aside.notes{display:none}
         <circle cx="150" cy="226" r="7" fill="var(--ink)"/>
         <text x="112" y="248" class="lbl">θ<tspan baseline-shift="sub" font-size="11">t</tspan></text>
         <text data-s="4" x="150" y="324" class="lbl k">(1−α)·θ<tspan baseline-shift="sub" font-size="11">t</tspan> + α·v<tspan baseline-shift="sub" font-size="11">t</tspan></text>
-      </svg><div class="rh">Equations used</div><div class="card" data-k="2"><span class="src">paper §1</span><span class="no">(2)</span> Weight decay<div class="ct">\(\theta_{t+1}=(1-\lambda)\theta_t-\alpha g_t\)</div></div><div class="card" data-k="3"><span class="src">paper §1</span><span class="no">(3)</span> Projected SGD<div class="ct">\(\theta_{t+1}=\Pi_C(\theta_t-\alpha g_t)\)</div></div><div class="card" data-k="4"><span class="src">paper §1</span><span class="no">(4)</span> LMO<div class="ct">\(v_t=\arg\min_{v\in C}\langle g_t,v\rangle\)</div></div><div class="card" data-k="5"><span class="src">paper §1</span><span class="no">(5)</span> Frank–Wolfe step<div class="ct">\(\theta_{t+1}=\theta_t+\alpha(v_t-\theta_t)\)</div></div>
+      </svg><div class="rh">Equations used</div><div class="card" data-k="2"><span class="src">paper §1</span><span class="no">(2)</span> Weight decay<div class="ct">\(\theta_{t+1}=\class{hlt}{(1-\lambda)\theta_t}-\alpha g_t\)</div></div><div class="card" data-k="3"><span class="src">paper §1</span><span class="no">(3)</span> Projected SGD<div class="ct">\(\theta_{t+1}=\Pi_C(\theta_t-\alpha g_t)\)</div></div><div class="card" data-k="4"><span class="src">paper §1</span><span class="no">(4)</span> LMO<div class="ct">\(v_t=\arg\min_{v\in C}\langle g_t,v\rangle\)</div></div><div class="card" data-k="5"><span class="src">paper §1</span><span class="no">(5)</span> Frank–Wolfe step<div class="ct">\(\theta_{t+1}=\theta_t+\alpha(v_t-\theta_t)\)</div></div>
     </div>
   </div>
   <aside class="notes">If asked why the LMO picks a vertex: a linear function on a polytope is minimized at a vertex; if a whole face is optimal, any vertex of it works.</aside>
@@ -857,7 +870,7 @@ aside.notes{display:none}
   <button id="bt" class="opt" aria-label="Toggle speaker notes">Notes</button>
 </div>
 <script>
-window.EQS={"1": ["SGD step", "paper §1", "\\theta_{t+1}=\\theta_t-\\alpha g_t"], "2": ["Weight decay", "paper §1", "\\theta_{t+1}=(1-\\lambda)\\theta_t-\\alpha g_t"], "3": ["Projected SGD", "paper §1", "\\theta_{t+1}=\\Pi_C(\\theta_t-\\alpha g_t)"], "P": ["Projection", "def. of Π", "\\Pi_C(x)=\\arg\\min_{v\\in C}\\|v-x\\|_2"], "4": ["LMO", "paper §1", "v_t=\\arg\\min_{v\\in C}\\langle g_t,v\\rangle"], "5": ["Frank–Wolfe step", "paper §1", "\\theta_{t+1}=\\theta_t+\\alpha(v_t-\\theta_t)"], "5b": ["Shrink form of (5)", "from (5)", "(1-\\alpha)\\theta_t+\\alpha v_t"], "6": ["Constrained problem", "paper §2", "\\min_{\\theta\\in C}L(\\theta)"], "L1": ["Linear model", "Taylor", "L(v)\\approx L(\\theta)+\\langle\\nabla L(\\theta),v-\\theta\\rangle"], "7": ["Frank–Wolfe gap", "paper §2", "G(\\theta)=\\max_{v\\in C}\\langle v-\\theta,-\\nabla L(\\theta)\\rangle"], "T": ["Rate", "Thm 2.1", "O\\big(1/\\sqrt T\\big)"], "13": ["Step ÷ diameter", "paper §3.1", "\\min(\\alpha/D(C),1)"], "14": ["Step = gradient length", "paper §3.1", "\\min\\big(\\tfrac{\\alpha\\|g_t\\|}{\\|v_t-\\theta_t\\|},1\\big)"], "15": ["Expected init norm", "paper §3.2", "\\mathbb E\\|x\\|_2"], "16": ["Region diameter", "paper §3.2", "D(C)=2w\\,\\mathbb E\\|x\\|_2"]};
+window.EQS={"1": ["SGD step", "paper §1", "\\theta_{t+1}=\\theta_t-\\alpha g_t"], "2": ["Weight decay", "paper §1", "\\theta_{t+1}=\\class{hlt}{(1-\\lambda)\\theta_t}-\\alpha g_t"], "3": ["Projected SGD", "paper §1", "\\theta_{t+1}=\\Pi_C(\\theta_t-\\alpha g_t)"], "P": ["Projection", "def. of Π", "\\Pi_C(x)=\\arg\\min_{v\\in C}\\|v-x\\|_2"], "4": ["LMO", "paper §1", "v_t=\\arg\\min_{v\\in C}\\langle g_t,v\\rangle"], "5": ["Frank–Wolfe step", "paper §1", "\\theta_{t+1}=\\theta_t+\\alpha(v_t-\\theta_t)"], "5b": ["Shrink form of (5)", "from (5)", "(1-\\alpha)\\theta_t+\\alpha v_t"], "6": ["Constrained problem", "paper §2", "\\min_{\\theta\\in C}L(\\theta)"], "L1": ["Linear model", "Taylor", "L(v)\\approx L(\\theta)+\\langle\\nabla L(\\theta),v-\\theta\\rangle"], "7": ["Frank–Wolfe gap", "paper §2", "G(\\theta)=\\max_{v\\in C}\\langle v-\\theta,-\\nabla L(\\theta)\\rangle"], "T": ["Rate", "Thm 2.1", "O\\big(1/\\sqrt T\\big)"], "13": ["Step ÷ diameter", "paper §3.1", "\\min(\\alpha/D(C),1)"], "14": ["Step = gradient length", "paper §3.1", "\\min\\big(\\tfrac{\\alpha\\|g_t\\|}{\\|v_t-\\theta_t\\|},1\\big)"], "15": ["Expected init norm", "paper §3.2", "\\mathbb E\\|x\\|_2"], "16": ["Region diameter", "paper §3.2", "D(C)=2w\\,\\mathbb E\\|x\\|_2"]};
 window.EQ_NEW=['13','14','16'];
 window.EQLABEL={'5b':'(5′)','P':'(3′)','T':'Thm 2.1','L1':'(7a)'};
 window.TRAIL=[['1','SGD'],['2','weight decay'],['6','constrain'],['3','project?'],['4','LMO'],['5','FW step'],['5b','= shrink']];
@@ -1303,6 +1316,7 @@ function render(){
   else{const d=sl.querySelector('.deriv');if(d&&step===0)d.scrollTop=0}},380);
   document.getElementById('ctr').textContent=`${CH.length>1?CH[chapOf(cur)].t+' · ':''}${cur+1}/${slides.length} · step ${step}/${sl.max}`;
   markToc();
+  setTimeout(()=>{try{flow()}catch(e){}},30);
   [...prog.children].forEach((b,i)=>b.style.opacity=i<cur?.9:i===cur?.6:.2);
   const n=sl.querySelector('aside.notes');document.getElementById('notes').textContent=n?n.textContent:'';
   if(!AUD){try{history.replaceState(null,'','#s'+cur)}catch(e){}}
@@ -1386,11 +1400,28 @@ addEventListener('keydown',e=>{if(e.metaKey||e.ctrlKey||e.altKey)return;
   else if(e.key==='Escape')closeToc();
   else if(/^[1-9]$/.test(e.key)&&CH[+e.key-1]){e.preventDefault();go(CH[+e.key-1].i,0)}});
 document.addEventListener('click',e=>{if(toc.classList.contains('show')&&!e.target.closest('#toc,#bg')){closeToc();e.stopPropagation();e.preventDefault()}},true);
+/* derivation arrows: link each line to the earlier lines on the same slide that it uses (data-uses = their data-eq) */
+function flow(){const sl=slides[cur];sl.querySelectorAll('svg.flow').forEach(x=>x.remove());
+  const sc=stage.getBoundingClientRect().width/1280||1;
+  for(const d of sl.querySelectorAll('.deriv')){const lns=[...d.querySelectorAll('.ln')];const byEq={};lns.forEach(l=>{if(l.dataset.eq)byEq[l.dataset.eq]=l});
+    const links=[];lns.forEach(l=>(l.dataset.uses||'').split(',').filter(k=>byEq[k]&&byEq[k]!==l).forEach(k=>links.push([byEq[k],l])));
+    if(!links.length)continue;d.classList.add('arw');
+    const r0=d.getBoundingClientRect();const NS='http://www.w3.org/2000/svg';const svg=document.createElementNS(NS,'svg');svg.setAttribute('class','flow');
+    svg.style.height=d.scrollHeight+'px';svg.setAttribute('viewBox',`0 0 44 ${d.scrollHeight}`);
+    const mid=e=>{const m=e.querySelector('mjx-container')||e;const r=m.getBoundingClientRect();return (r.top+r.height/2-r0.top)/sc+d.scrollTop};
+    links.forEach(([a,b])=>{const sa=+(a.dataset.s||0),sb=+(b.dataset.s||0);if(sb>step)return;
+      const y1=mid(a),y2=mid(b);const gap=Math.max(1,lns.indexOf(b)-lns.indexOf(a));const cx=Math.max(4,30-8*(gap-1));
+      const p=document.createElementNS(NS,'path');p.setAttribute('d',`M40 ${y1} C ${cx} ${y1}, ${cx} ${y2}, 38 ${y2}`);p.setAttribute('pathLength','1');
+      const hot=sb===step;if(hot)p.setAttribute('class','hot');svg.append(p);
+      const c=document.createElementNS(NS,'circle');c.setAttribute('cx','40');c.setAttribute('cy',y2);c.setAttribute('r',hot?4.5:3);if(hot)c.setAttribute('class','hot');svg.append(c);
+      const c0=document.createElementNS(NS,'circle');c0.setAttribute('cx','40');c0.setAttribute('cy',y1);c0.setAttribute('r',2.5);svg.append(c0)});
+    d.prepend(svg)}}
+addEventListener('resize',()=>setTimeout(flow,50));
 const h=/^#s(\d+)$/.exec(location.hash);if(h)cur=Math.min(+h[1],slides.length-1);
 if(AUD){addEventListener('message',e=>{if(e.data&&e.data.t==='deck')hasPresenter=true});if(bc)bc.addEventListener('message',e=>{if(e.data&&e.data.t==='deck')hasPresenter=true});send({t:'hello'})}
 render();
 }
 </script>
-<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},svg:{fontCache:'global',displayAlign:'left',displayIndent:'0.4em'}};</script>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},svg:{fontCache:'global',displayAlign:'left',displayIndent:'0.4em'},startup:{pageReady:()=>MathJax.startup.defaultPageReady().then(()=>{try{window.dispatchEvent(new Event('resize'))}catch(e){}})}};</script>
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg-full.js"></script>
 </body></html>

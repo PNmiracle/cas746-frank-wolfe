@@ -257,6 +257,12 @@ svg.flow circle{fill:var(--rule)}svg.flow circle.hot{fill:var(--acc);animation:p
 .lpp{border:1px solid var(--rule);border-radius:8px;background:var(--card);padding:3px 6px}
 .lph{font-size:14px;display:flex;justify-content:space-between;gap:6px;align-items:baseline}.lph span{color:var(--mut);font-size:13px}
 .lpp>svg{width:100%;height:auto;max-height:none}
+.expl{position:relative;min-height:212px;margin-top:10px}
+.ex{position:absolute;inset:0 0 auto 0;opacity:0;transition:opacity .35s;pointer-events:none;border:1px solid var(--rule);border-radius:10px;background:var(--card);padding:8px 14px}
+.ex.on{opacity:1;pointer-events:auto}
+.ex .ext{font-weight:600;font-size:17px;margin-bottom:2px}
+.ex p{margin:3px 0;font-size:15.5px;line-height:1.4}.ex p.m{color:var(--mut)}
+.ex:last-child{border:0;background:none;padding:0}
 .lpn{font-size:12.5px;color:var(--mut);text-align:right;margin-top:-2px}
 .lp .m{display:block}
 .tk>span:last-child b{font-weight:600}
@@ -409,14 +415,13 @@ svg.flow circle{fill:var(--rule)}svg.flow circle.hot{fill:var(--acc);animation:p
       <table class="tbl">
         <tr><th style="width:24%">Feasible region</th><th style="width:42%">LMO (Frank–Wolfe)</th><th>L2 projection (projected SGD)</th></tr>
         <tr data-s="1"><td>L2 ball</td><td>\(-\tau\, g/\|g\|_2\)</td><td>rescale: \(\tau x/\|x\|_2\)</td></tr>
-        <tr data-s="1"><td>Hypercube (L∞)</td><td>\(-\tau\,\mathrm{sign}(g)\)</td><td>clip each entry to \([-\tau,\tau]\)</td></tr>
-        <tr data-s="2" class="em"><td>L1 ball</td><td>one non-zero entry, at \(\arg\max_i |g_i|\)</td><td>dedicated O(n) algorithm</td></tr>
-        <tr data-s="3" class="em"><td>Lp ball</td><td>\(v_i=-\tau\,\mathrm{sign}(g_i)\,|g_i|^{q-1}/\|g\|_q^{q-1}\)</td><td>an optimization problem</td></tr>
-        <tr data-s="3" class="em"><td>K-sparse polytope</td><td>\(\pm\tau\) on the K largest \(|g_i|\), 0 elsewhere</td><td>no closed form given</td></tr>
-        <tr data-s="3"><td>Permutahedron</td><td>Hungarian method</td><td>specialized algorithms</td></tr>
+        <tr data-s="2"><td>Hypercube (L∞)</td><td>\(-\tau\,\mathrm{sign}(g)\)</td><td>clip each entry to \([-\tau,\tau]\)</td></tr>
+        <tr data-s="3" class="em"><td>L1 ball</td><td>one non-zero entry, at \(\arg\max_i |g_i|\)</td><td>dedicated O(n) algorithm</td></tr>
+        <tr data-s="4" class="em"><td>Lp ball</td><td>\(v_i=-\tau\,\mathrm{sign}(g_i)\,|g_i|^{q-1}/\|g\|_q^{q-1}\)</td><td>an optimization problem</td></tr>
+        <tr data-s="5" class="em"><td>K-sparse polytope</td><td>\(\pm\tau\) on the K largest \(|g_i|\), 0 elsewhere</td><td>no closed form given</td></tr>
+        <tr data-s="6"><td>Permutahedron</td><td>Hungarian method</td><td>specialized algorithms</td></tr>
       </table>
-      <p class="note" data-s="3">For the \(L_p\) ball, \(1/p+1/q=1\).</p>
-      <div class="say" data-s="4"><b>Takeaway:</b> the LMO is usually a cheap, coordinate-wise rule, about as costly as an SGD step.</div>
+      <div class="expl"><div class="ex" data-only="1"><div class="ext">L2 ball \(\{x:\|x\|_2\le\tau\}\)</div><p><b class="k">What it means · </b>\(g/\|g\|_2\) is the gradient’s <b>direction</b> scaled to length 1; the minus sign turns it downhill; \(\tau\) stretches it to the edge of the ball. So the LMO returns <b>the point of the ball furthest downhill</b>.</p><p><b class="p">Why · </b>By Cauchy–Schwarz, \(\langle g,v\rangle\ge-\|g\|_2\|v\|_2\ge-\tau\|g\|_2\), with equality exactly at \(v=-\tau g/\|g\|_2\).</p><p class="m">Projection \(\tau x/\|x\|_2\): a point outside is just shrunk back onto the sphere. Both are one line.</p></div><div class="ex" data-only="2"><div class="ext">Hypercube \(\{x:|x_i|\le\tau\ \forall i\}\)</div><p><b class="k">What it means · </b>\(\mathrm{sign}(g)\) replaces every entry of \(g\) by \(+1\) or \(-1\). So each weight goes to \(-\tau\) if its gradient is positive, \(+\tau\) if negative: a <b>corner</b> of the cube.</p><p><b class="p">Why · </b>\(\langle g,v\rangle=\sum_i g_i v_i\) and each \(v_i\) is chosen separately in \([-\tau,\tau]\); each term is smallest at \(v_i=-\tau\,\mathrm{sign}(g_i)\).</p><p class="m">Example: \(g=(0.8,-0.3)\Rightarrow v=(-\tau,+\tau)\). Projection: clip each entry to \([-\tau,\tau]\). Both trivial.</p></div><div class="ex" data-only="3"><div class="ext">L1 ball \(\{x:\sum_i|x_i|\le\tau\}\)</div><p><b class="k">What it means · </b>Find the single entry with the largest \(|g_i|\) and put the whole budget \(\tau\) there, with the opposite sign: \(v=-\tau\,\mathrm{sign}(g_{i^*})\,e_{i^*}\). All other entries are 0.</p><p><b class="p">Why · </b>The budget \(\sum|v_i|\le\tau\) is best spent where it lowers \(\langle g,v\rangle\) the most: on the steepest coordinate.</p><p class="m">Example: \(g=(0.8,-0.3)\Rightarrow v=(-\tau,0)\). Projection is harder: soft-thresholding with a threshold found by sorting (Duchi et al., 2008).</p></div><div class="ex" data-only="4"><div class="ext">\(L_p\) ball \(\{x:\|x\|_p\le\tau\}\)</div><p><b class="k">What it means · </b>Every entry moves against its gradient, with size proportional to \(|g_i|^{q-1}\): large gradients get large weights. The denominator \(\|g\|_q^{q-1}\) rescales \(v\) onto the boundary. Here \(q\) is the dual exponent, \(1/p+1/q=1\).</p><p><b class="p">Why · </b>The equality case of Hölder’s inequality \(\langle g,v\rangle\ge-\|g\|_q\|v\|_p\).</p><p class="m">It interpolates: \(p=2\Rightarrow q=2\), the L2 rule; \(p\to\infty\Rightarrow q\to1\), the cube rule \(-\tau\,\mathrm{sign}(g)\). The projection has no closed form.</p></div><div class="ex" data-only="5"><div class="ext">K-sparse polytope \(B_1(\tau K)\cap B_\infty(\tau)\)</div><p><b class="k">What it means · </b>Entries at most \(\tau\) in size, with total at most \(\tau K\). The LMO takes the \(K\) largest \(|g_i|\), sets those entries to \(-\tau\,\mathrm{sign}(g_i)\), and the rest to 0.</p><p><b class="p">Why · </b>Like the L1 rule, but up to \(K\) coordinates can each take \(\tau\): \(K=1\) is the L1 ball, \(K=n\) the hypercube.</p><p class="m">Cost: one partial sort of \(|g|\). The paper gives no closed-form projection.</p></div><div class="ex" data-only="6"><div class="ext">Permutahedron \(\mathrm{conv}\{\text{permutations of }(1,\dots,n)\}\)</div><p><b class="k">What it means · </b>Its corners are all orderings of \(1,\dots,n\). The LMO picks the ordering that makes \(\langle g,v\rangle\) smallest: the largest numbers go where \(g\) is most negative.</p><p><b class="p">Why · </b>This is an assignment problem; the paper solves it with the Hungarian method (polynomial time).</p><p class="m">Projection needs specialized algorithms (Yasutake et al., 2011; Lim & Wright, 2016).</p></div><div class="ex" data-only="7"><div class="say" style="margin:0"><b>Takeaway:</b> the LMO is usually a cheap, coordinate-wise rule, about as costly as an SGD step. Projections often need an algorithm of their own.</div></div></div>
     </div>
     <div class="side">
       <div class="lpps"><div class="lpp" data-s="1"><div class="lph"><b>L2 ball</b> <span>LMO \(-\tau g/\|g\|_2\)</span></div>
@@ -430,27 +435,27 @@ svg.flow circle{fill:var(--rule)}svg.flow circle.hot{fill:var(--acc);animation:p
 <circle cx="285" cy="22" r="4" fill="var(--mut)"/><text x="268" y="16" font-size="11">x</text>
 <path class="draw" data-on="1" pathLength="1000" d="M285 22 L 261.8 47" stroke="var(--pr)" stroke-width="2" stroke-dasharray="4 3" fill="none"/>
 <circle cx="261.8" cy="47" r="4.5" fill="var(--pr)"/>
-</svg><div class="lpn">rescale: easy</div></div><div class="lpp" data-s="1"><div class="lph"><b>Hypercube (L∞)</b> <span>LMO \(-\tau\,\mathrm{sign}(g)\)</span></div>
+</svg><div class="lpn">rescale: easy</div></div><div class="lpp" data-s="2"><div class="lph"><b>Hypercube (L∞)</b> <span>LMO \(-\tau\,\mathrm{sign}(g)\)</span></div>
 <svg class="fig2" viewBox="0 0 300 130" width="300" height="130">
 <text x="40" y="14" font-size="12">LMO (Frank–Wolfe)</text><text x="186" y="14" font-size="12">projection</text>
 <rect x="30" y="33" width="90" height="90" fill="var(--prt)" stroke="var(--pr)" stroke-width="2"/><rect x="180" y="33" width="90" height="90" fill="var(--prt)" stroke="var(--pr)" stroke-width="2"/>
 <line x1="75" y1="78" x2="300" y2="78" stroke="none"/>
-<path class="draw" data-on="1" pathLength="1000" d="M75 78 L 101 63" stroke="#d9822b" stroke-width="2.5" fill="none"/>
+<path class="draw" data-on="2" pathLength="1000" d="M75 78 L 101 63" stroke="#d9822b" stroke-width="2.5" fill="none"/>
 <text x="58" y="72" font-size="11" style="fill:#d9822b">−g</text>
-<g class="dot sh" data-on="1"><circle cx="120" cy="33" r="6"/></g>
+<g class="dot sh" data-on="2"><circle cx="120" cy="33" r="6"/></g>
 <circle cx="285" cy="22" r="4" fill="var(--mut)"/><text x="268" y="16" font-size="11">x</text>
-<path class="draw" data-on="1" pathLength="1000" d="M285 22 L 270 33" stroke="var(--pr)" stroke-width="2" stroke-dasharray="4 3" fill="none"/>
+<path class="draw" data-on="2" pathLength="1000" d="M285 22 L 270 33" stroke="var(--pr)" stroke-width="2" stroke-dasharray="4 3" fill="none"/>
 <circle cx="270" cy="33" r="4.5" fill="var(--pr)"/>
-</svg><div class="lpn">clip each entry: easy</div></div><div class="lpp" data-s="2"><div class="lph"><b>L1 ball</b> <span>LMO \(\pm\tau\ \text{at}\ \arg\max_i|g_i|\)</span></div>
+</svg><div class="lpn">clip each entry: easy</div></div><div class="lpp" data-s="3"><div class="lph"><b>L1 ball</b> <span>LMO \(\pm\tau\ \text{at}\ \arg\max_i|g_i|\)</span></div>
 <svg class="fig2" viewBox="0 0 300 130" width="300" height="130">
 <text x="40" y="14" font-size="12">LMO (Frank–Wolfe)</text><text x="186" y="14" font-size="12">projection</text>
 <polygon points="75,30 123,78 75,126 27,78" fill="var(--prt)" stroke="var(--pr)" stroke-width="2"/><polygon points="225,30 273,78 225,126 177,78" fill="var(--prt)" stroke="var(--pr)" stroke-width="2"/>
 <line x1="75" y1="78" x2="300" y2="78" stroke="none"/>
-<path class="draw" data-on="2" pathLength="1000" d="M75 78 L 101 63" stroke="#d9822b" stroke-width="2.5" fill="none"/>
+<path class="draw" data-on="3" pathLength="1000" d="M75 78 L 101 63" stroke="#d9822b" stroke-width="2.5" fill="none"/>
 <text x="58" y="72" font-size="11" style="fill:#d9822b">−g</text>
-<g class="dot sh" data-on="2"><circle cx="123" cy="78" r="6"/></g>
+<g class="dot sh" data-on="3"><circle cx="123" cy="78" r="6"/></g>
 <circle cx="285" cy="22" r="4" fill="var(--mut)"/><text x="268" y="16" font-size="11">x</text>
-<path class="draw" data-on="2" pathLength="1000" d="M285 22 L 254 59" stroke="var(--pr)" stroke-width="2" stroke-dasharray="4 3" fill="none"/>
+<path class="draw" data-on="3" pathLength="1000" d="M285 22 L 254 59" stroke="var(--pr)" stroke-width="2" stroke-dasharray="4 3" fill="none"/>
 <circle cx="254" cy="59" r="4.5" fill="var(--pr)"/>
 </svg><div class="lpn">needs an O(n) algorithm</div></div></div>
     </div>
@@ -948,11 +953,14 @@ window.SCRIPT=[
 },
 {
 "s": [
-"So why is this better? This table compares what Frank–Wolfe needs, the LMO, with what projected SGD needs, the projection, for each kind of set.",
-"For the L2 ball and the hypercube, both are easy. The LMO is »minus tau g over the norm of g,« or »minus tau times the sign of g.« And the projection is a rescale or a clip. In the pictures on the right, the left half of each panel is the LMO: the orange arrow is minus the gradient, and the red dot is the point the LMO picks. The right half is the projection: a point x outside the set, and the blue dashed line to its closest point. For the circle and the square, both are easy. So far, it's a tie.",
-"Now look at the L1 ball. The LMO just finds the biggest gradient entry and puts everything there: one non-zero entry, one corner of the diamond, as in the third picture. But projecting onto the diamond is not a simple rescale or clip: the closest point lands in the middle of an edge, and finding it needs a dedicated algorithm.",
-"And for a general Lp ball, the K-sparse polytope or the permutahedron, the LMO is still a simple rule, while the projection either has no closed form or needs a specialized algorithm.",
-"So the takeaway: for many interesting sets, the LMO is about as cheap as an SGD step."
+"So why is this better? This table compares what Frank–Wolfe needs, the LMO, with what projected SGD needs, the projection. I'll go row by row, and the box under the table explains each formula.",
+"First, the L2 ball. The LMO is »minus tau times g over the norm of g.« g over its norm is just the gradient's direction, with length one. The minus sign turns it downhill, and tau stretches it out to the edge of the ball. So the LMO gives the point of the ball that is furthest downhill. In the picture on the right, the left half is the LMO: the orange arrow is minus the gradient, the red dot is the point it picks. The right half is the projection: a point x outside, and the blue line to its closest point. For the ball you just rescale x. Both are one line.",
+"Second, the hypercube. The LMO is »minus tau times the sign of g.« Sign of g replaces each entry by plus or minus one. So each weight goes to minus tau if its gradient is positive, and plus tau if it's negative: a corner of the cube. The projection is just clipping each entry. Again, both trivial.",
+"Third, the L1 ball, the diamond. The LMO finds the single entry with the largest gradient and puts the whole budget tau there: one non-zero entry, one corner. But projecting onto the diamond is not a rescale or a clip: the closest point lands in the middle of an edge, and you need a dedicated algorithm that sorts the entries.",
+"Fourth, a general Lp ball. »v i equals minus tau sign of g i, times the absolute value of g i to the q minus one, over the q-norm of g to the q minus one,« where q is the dual exponent of p. In words: every entry moves against its gradient, and bigger gradients get bigger weights. With p equal to two, this is exactly the L2 rule; as p goes to infinity, it becomes the cube rule. The projection here has no closed form.",
+"Fifth, the K-sparse polytope. The LMO takes the K largest gradient entries, sets them to minus tau times their sign, and everything else to zero. So it sits between the L1 ball, with K equal to one, and the hypercube, with K equal to n. The paper gives no closed-form projection.",
+"And last, the permutahedron, whose corners are all orderings of one to n. The LMO puts the largest numbers where the gradient is most negative, which the paper solves with the Hungarian method. The projection needs specialized algorithms.",
+"So the takeaway: for many interesting sets, the LMO is a cheap, coordinate-wise rule, about as cheap as an SGD step, while the projection often needs an algorithm of its own."
 ],
 "n": "Now that we have a cheap step, let's put it into a full training algorithm.",
 "b": [

@@ -343,6 +343,12 @@ mark.hi.on{background-size:100% 100%}
 .critique .ti{font-size:21px;line-height:1.38;margin:20px 0 4px}
 .critique .ti b{display:block;font-size:22px;margin-bottom:4px}
 @media(max-width:700px){.critique .tb{grid-template-columns:1fr}}
+</style><style>
+#slide-edit-dialog{width:min(740px,94vw);max-height:86vh;overflow:auto;padding:20px;border:1px solid var(--rule);border-radius:12px;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui}
+#slide-edit-dialog::backdrop{background:#1119}#slide-edit-dialog header,#slide-edit-dialog footer{display:flex;align-items:center;gap:10px;flex-wrap:wrap}#slide-edit-dialog header{justify-content:space-between}#slide-edit-dialog h2{font-size:24px}#slide-edit-dialog h3{font-size:17px;margin:16px 0 6px}
+#slide-edit-dialog input,#slide-edit-dialog textarea{display:block;width:100%;padding:8px;margin:4px 0 8px;color:inherit;background:var(--bg);border:1px solid var(--rule);border-radius:5px;font:inherit}
+#slide-edit-dialog summary{cursor:pointer;padding:7px 0;overflow-wrap:anywhere}#slide-edit-dialog details{border-bottom:1px solid var(--rule)}#slide-edit-dialog button{cursor:pointer;padding:6px 10px;font:inherit}
+#slide-edit-dialog footer{position:sticky;bottom:-20px;padding:10px 0;background:var(--bg)}#slide-edit-dialog [data-role=save]{background:var(--pr);color:var(--bg);border-radius:4px}
 </style></head><body>
 <div id="view"><div id="stage">
 
@@ -557,7 +563,7 @@ mark.hi.on{background-size:100% 100%}
 </section>
 
 <section class="slide" data-plan="150">
-  <div class="hd"><span class="sec">4 · Experiments</span><h2>Which Frank–Wolfe variant works best?</h2></div>
+  <div class="hd"><span class="sec">4 · Experiments</span><h2>Experiment 1 · Which Frank–Wolfe variant works best?</h2></div>
   <div class="body">
     <div class="deriv" style="overflow:hidden">
       <div class="imgw" style="width:560px">
@@ -1031,6 +1037,7 @@ mark.hi.on{background-size:100% 100%}
 <div id="hud">
   <button id="bp" aria-label="Previous step">←</button><button id="bn" aria-label="Next step">→</button>
   <span id="ctr"></span><div id="prog"></div>
+  <button id="slide-edit-open">编辑幻灯片</button>
   <button id="bg" aria-label="Jump to a section">Sections (G)</button>
   <button id="bpv" aria-label="Toggle presenter mode">Presenter (P)</button>
   <button id="baw" class="opt" aria-label="Open audience window">Audience window</button>
@@ -1434,16 +1441,134 @@ window.SCRIPT=[
 }
 ];
 </script>
+<dialog id="slide-edit-dialog" aria-labelledby="slide-edit-heading" lang="zh-CN"><header><h2 id="slide-edit-heading" data-role="heading"></h2><button data-role="close">关闭</button></header><p>修改保存在当前浏览器。导出的 index.html 可用于备份或更新 GitHub Pages。</p><label>页面标题<input data-role="title"></label><h3>页面内容</h3><div data-role="items"></div><button data-role="add">＋ 添加段落</button><footer><button data-role="save">保存本页</button><button data-role="new">在此页后新增幻灯片</button><button data-role="delete">删除整页</button><button data-role="export">导出已保存的网页</button></footer><p role="status" data-role="status"></p></dialog>
+<script id="saved-deck" type="application/json">{}</script>
+<script>(() => {
+  const stage = document.getElementById('stage');
+  const base = [...stage.querySelectorAll('section.slide')];
+  const seed = JSON.parse(document.getElementById('saved-deck').textContent);
+  const key = 'cas746-slide-editor:' + (seed.copy || location.pathname);
+  const originals = new Map(base.map((slide, i) => [String(i), slide.cloneNode(true)]));
+  const empty = () => ({ order: base.map((_, i) => String(i)), pages: {} });
+  let state = seed.state || empty();
+  let raw = null;
+  try { raw = localStorage.getItem(key); if (raw) state = JSON.parse(raw); } catch {}
+  const make = (tag, text) => { const el = document.createElement(tag); if (text !== undefined) el.textContent = text; return el; };
+  const clone = (x) => JSON.parse(JSON.stringify(x));
+  function blank() {
+    const el = make('section'); el.className = 'slide'; el.dataset.plan = '60';
+    el.innerHTML = '<div class="hd"><h2>新幻灯片</h2></div><div class="body full"><div class="deriv"></div></div>';
+    return el;
+  }
+  function textNodes(root) {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), result = [];
+    while (walker.nextNode()) if (walker.currentNode.textContent.trim()) result.push(walker.currentNode);
+    return result;
+  }
+  function blocks(slide) {
+    return [...slide.querySelectorAll('.body > .deriv > *, .body > .side > *, .body > .rail > *, .body > .row > *, .body > .tcol > *, .body > .tb > *')].filter(el => !el.matches('h1,h2') && !el.querySelector('h1,h2'));
+  }
+  function model(id, changes = {}) {
+    const slide = originals.has(id) ? originals.get(id).cloneNode(true) : blank();
+    const heading = slide.querySelector('h1,h2');
+    if (changes.title !== undefined) heading.textContent = changes.title;
+    const items = blocks(slide);
+    items.forEach((el, i) => {
+      if (changes.removed?.includes(i)) {el.remove();return;}
+      textNodes(el).forEach((node,j) => { const value = changes.text?.[i + '/' + j]; if (value !== undefined) node.textContent = value; });
+    });
+    for (const line of changes.added || []) {
+      const p = make('p',line); p.className = 'say'; p.style.whiteSpace='pre-wrap';
+      (slide.querySelector('.deriv') || slide.querySelector('.body')).append(p);
+    }
+    return slide;
+  }
+  const notes = window.SCRIPT, highlights = [window.HILITE,window.SHILITE];
+  window.slideEditorOrder = state.order;
+  window.slideEditorSeedNotes = seed.notes || {};
+  window.slideEditorCopy = seed.copy || '';
+  stage.replaceChildren(...state.order.map(id => model(id,state.pages[id])));
+  window.SCRIPT = state.order.map(id => notes[id] || {s:[''],n:'',b:['','']});
+  ;['HILITE','SHILITE'].forEach((name,k) => { window[name] = Object.fromEntries(state.order.map((id,i)=>[i, highlights[k]?.[id] || []])); });
+  const dlg = document.getElementById('slide-edit-dialog');
+  const get = name => dlg.querySelector('[data-role="'+name+'"]');
+  let id, draft, original, fresh;
+  function status(message){ get('status').textContent=message; }
+  function persist(next, index) {
+    try {
+      if (localStorage.getItem(key) !== raw) {status('另一窗口已保存修改，请刷新后再编辑。');return;}
+      localStorage.setItem(key,JSON.stringify(next));
+    } catch { status('浏览器未能保存。请检查网站存储空间或权限。');return; }
+    location.hash='s'+index;location.reload();
+  }
+  function field(value, apply, label) {
+    const input=make('textarea');input.rows=Math.min(6,Math.max(1,Math.ceil(value.length/72)));
+    input.value=value;input.setAttribute('aria-label',label);input.oninput=()=>apply(input.value);return input;
+  }
+  function showItems() {
+    const list=get('items');list.replaceChildren();
+    function row(label,fields,remove) {
+      const box=make('details'),summary=make('summary',label);box.append(summary,...fields);
+      const button=make('button','移除此内容块');button.onclick=()=>{remove();showItems()};box.append(button);list.append(box);
+    }
+    blocks(original).forEach((el,i)=>{
+      if(draft.removed.includes(i))return;
+      const nodes=textNodes(el);
+      const values=nodes.map((n,j)=>draft.text[i+'/'+j]??n.textContent);
+      const label=values.join(' ').trim().replace(/\s+/g,' ').slice(0,78) || (el.querySelector('img')?'图片':'图形');
+      row(label,values.map((value,j)=>field(value,v=>draft.text[i+'/'+j]=v,label)),()=>draft.removed.push(i));
+    });
+    draft.added.forEach((v,i)=>row(v.slice(0,70)||'新段落',[field(v,val=>draft.added[i]=val,'新段落')],()=>draft.added.splice(i,1)));
+  }
+  function openPage(idToEdit,isNew) {
+    id=idToEdit;fresh=isNew;original=originals.has(id)?originals.get(id):blank();
+    draft={text:{},removed:[],added:[],...clone(state.pages[id]||{})};
+    get('title').value=draft.title??original.querySelector('h1,h2').textContent;
+    get('heading').textContent=fresh?'新增幻灯片':'编辑第 '+(state.order.indexOf(id)+1)+' 页';
+    get('delete').disabled=fresh || state.order.length===1;
+    get('new').hidden=fresh;get('export').hidden=fresh;status('');showItems();if(!dlg.open)dlg.showModal();
+  }
+  function current(){return Math.max(0,[...stage.querySelectorAll('section.slide')].findIndex(el=>el.classList.contains('act')));}
+  document.getElementById('slide-edit-open').onclick=()=>openPage(state.order[current()],false);
+  get('close').onclick=()=>dlg.close();
+  get('new').onclick=()=>{if(dirty()&&!confirm('放弃本页尚未保存的修改？'))return;openPage('new-'+crypto.randomUUID(),true)};
+  get('add').onclick=()=>{draft.added.push('');showItems();const box=get('items').lastElementChild;box.open=true;box.querySelector('textarea').focus()};
+  function dirty(){const p=state.pages[id]||{};return get('title').value!==(p.title??original.querySelector('h1,h2').textContent)||JSON.stringify(draft)!==JSON.stringify({text:{},removed:[],added:[],...clone(p)});}
+  get('save').onclick=()=>{
+    if(!get('title').value.trim()){status('请输入标题。');get('title').focus();return;}
+    const next=clone(state);const title=get('title').value.trim();if(title===original.querySelector('h1,h2').textContent.trim())delete draft.title;else draft.title=title;next.pages[id]=draft;
+    if(fresh)next.order.splice(current()+1,0,id);persist(next,next.order.indexOf(id));
+  };
+  get('delete').onclick=()=>{
+    if(!confirm('删除整页「'+get('title').value+'」？'))return;
+    const next=clone(state),i=next.order.indexOf(id);next.order.splice(i,1);delete next.pages[id];persist(next,Math.min(i,next.order.length-1));
+  };
+  get('export').onclick=async()=>{
+    if(dirty()){status('请先保存本页，再导出。');return;}
+    try {
+      const response=await fetch(location.href.split('#')[0],{cache:'no-store'});if(!response.ok)throw Error();
+      const source=await response.text(), token=/<script id="saved-deck" type="application\/json">[\s\S]*?<\/script>/;
+      if(!token.test(source))throw Error();
+      const payload=JSON.stringify({state,copy:crypto.randomUUID(),notes:window.readDeckNotes()}).replace(/</g,'\\u003c');
+      const updated=source.replace(token,()=>'<script id="saved-deck" type="application/json">'+payload+'<'+'/script>');
+      const url=URL.createObjectURL(new Blob([updated],{type:'text/html'})), a=make('a');a.href=url;a.download='index.html';a.click();setTimeout(()=>URL.revokeObjectURL(url),30000);
+    } catch {status('无法读取当前网页以导出，请从在线版本打开编辑器。');}
+  };
+  window.addEventListener('keydown',e=>{if(dlg.open)e.stopImmediatePropagation()},true);
+  window.addEventListener('storage',e=>{if(e.key===key && location.hash==='#audience')location.reload()});
+})();</script>
 <script>
 {
 const R=String.raw;
 const SC=window.SCRIPT||[];
 const SC0=JSON.parse(JSON.stringify(SC));
-const EDK='deck-script-edits:'+location.pathname.split('/').pop()+':'+(document.title||'');
-let EDS={};try{EDS=JSON.parse(localStorage.getItem(EDK)||'{}')||{}}catch(e){EDS={}}
+const EDK='deck-script-edits:'+location.pathname.split('/').pop()+':'+(document.title||'')+(window.slideEditorCopy||'');
+let noteStore={...window.slideEditorSeedNotes};try{const saved=localStorage.getItem(EDK);if(saved)noteStore=JSON.parse(saved)}catch(e){}
+window.readDeckNotes=()=>noteStore;
+let EDS=Object.fromEntries(window.slideEditorOrder.flatMap((id,i)=>noteStore[id]?[[i,noteStore[id]]]:[]));
 function applyEds(){for(const k in EDS){const i=+k,e=EDS[k];if(!SC[i])continue;if(e.s)for(const j in e.s)if(SC[i].s&&+j<SC[i].s.length)SC[i].s[+j]=e.s[j];if(typeof e.n==='string')SC[i].n=e.n}}
 applyEds();
-function saveEds(){try{localStorage.setItem(EDK,JSON.stringify(EDS));return true}catch(e){return false}}
+function saveEds(){try{window.slideEditorOrder.forEach((id,i)=>{if(EDS[i])noteStore[id]=EDS[i];else delete noteStore[id]});localStorage.setItem(EDK,JSON.stringify(noteStore));return true}catch(e){return false}}
 const EQ=window.EQS||{};
 const esc=x=>x.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const LBL=window.EQLABEL||{};const lab=k=>LBL[k]||'('+k.replace('-','–')+')';

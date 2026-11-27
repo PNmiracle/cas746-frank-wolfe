@@ -372,7 +372,7 @@ mark.hi.on{background-size:100% 100%}
         </svg>
       </div>
     </div>
-    <div class="say" data-s="3" style="margin-top:14px">Two findings: <b>state-of-the-art accuracy</b>, and <b>the shape of C changes what the network learns</b>.</div>
+    <div class="say" data-s="3" style="margin-top:14px">Can we <b>shape the learned weights</b> and still classify unseen images accurately?</div>
   </div></div>
   <aside class="notes">Name, paper, authors. DNN = deep neural network, FW = Frank–Wolfe.</aside>
 </section>
@@ -556,14 +556,14 @@ mark.hi.on{background-size:100% 100%}
 </section>
 
 <section class="slide" id="exp-overview" data-chap="Experiments" data-plan="60">
-  <div class="hd"><span class="sec">4 · Experiments</span><h2>Four experiments, from small to large</h2></div>
+  <div class="hd"><span class="sec">4 · Experiments</span><h2>Four experiments, four questions</h2></div>
   <div class="body full"><div class="deriv">
     <table class="tbl">
       <tr><th style="width:5%">#</th><th style="width:36%">Question</th><th style="width:26%">Data</th><th>Models</th></tr>
-      <tr data-s="1"><td>1</td><td>Which stochastic FW variant works best?</td><td>Fashion-MNIST, IMDB, MNIST</td><td>small fully connected networks</td></tr>
+      <tr data-s="1"><td>1</td><td>Which update uses gradient evaluations efficiently?</td><td>Fashion-MNIST, IMDB, MNIST</td><td>small fully connected networks</td></tr>
       <tr data-s="2"><td>2</td><td>Does the region change <b>what</b> is learned?</td><td>MNIST</td><td>linear classifier, 784 → 10</td></tr>
       <tr data-s="3"><td>3</td><td>Does it change <b>how many</b> weights are used?</td><td>MNIST</td><td>MLP (26,506 params), CNN (93,322)</td></tr>
-      <tr data-s="4" class="em"><td>4</td><td>Does it scale to deep networks?</td><td>CIFAR-10, CIFAR-100, ImageNet</td><td>DenseNet121, WideResNet28x10, GoogLeNet, ResNeXt50</td></tr>
+      <tr data-s="4" class="em"><td>4</td><td>Can constrained training keep test accuracy competitive?</td><td>CIFAR-10, CIFAR-100, ImageNet</td><td>DenseNet121, WideResNet28x10, GoogLeNet, ResNeXt50</td></tr>
     </table>
     <div class="hb" style="margin:16px 4px 4px;height:24px">
       <div class="growx" data-s="1" style="flex:0 0 12%;background:var(--mut)">1</div>
@@ -571,7 +571,7 @@ mark.hi.on{background-size:100% 100%}
       <div class="growx" data-s="3" style="flex:0 0 18%;background:var(--pr)">3</div>
       <div class="growx" data-s="4" style="flex:0 0 58%;background:var(--acc)">4 · scale</div>
     </div>
-    <div class="say" data-s="5">Baseline throughout: <b>SGD with momentum</b>, with and without weight decay, on unconstrained weights.</div>
+    <div class="say" data-s="5">Experiments 2–3 examine the learned weights. <b>Experiment 4 tests accuracy on unseen images.</b></div>
   </div></div>
 </section>
 
@@ -754,9 +754,10 @@ mark.hi.on{background-size:100% 100%}
 </section>
 
 <section class="slide" id="exp4-setup" data-plan="150" style="--sw:360px">
-  <div class="hd"><span class="sec">4 · Experiments</span><h2>Experiment 4 · Can constrained training match SGD?</h2></div>
+  <div class="hd"><span class="sec">4 · Experiments</span><h2>Experiment 4 · What happens to test accuracy?</h2></div>
   <div class="body">
     <div class="deriv">
+      <p class="note" style="font-size:18px;margin:0 0 8px"><b>Question</b> · On deep image classifiers, how does constrained SFW compare with SGD, both with and without weight decay?</p>
       <div class="ln" data-s="1" data-eq="5b" data-srcs="D:-;;A:-;;E:-" data-moves="D:shrink;;A:current weights;;E:LMO output" data-via="The SFW step, shrink form (5′)" data-read="theta t plus one equals one minus alpha, times theta t, plus alpha v t"
         data-steps="This is the momentum version: the LMO is called on \(m_t\).;; Every step shrinks the weights by \(1-\alpha\) and adds \(\alpha v_t\).;; Now insert the two LMOs used in Experiment 4."
         >\[ \theta_{t+1}=\class{tD}{(1-\alpha)}\class{tA}{\theta_t}+\class{tE}{\alpha\,v_t} \]</div>
@@ -838,7 +839,7 @@ mark.hi.on{background-size:100% 100%}
   <div class="body">
     <div class="deriv">
       <div class="tk" data-s="1"><span class="rn">1</span><span>SFW trains deep networks with <b>constrained weights</b>: no projections, one cheap LMO per layer.</span></div>
-      <div class="tk" data-s="2"><span class="rn">2</span><span>With L2 constraints it <b>beats plain SGD</b> and <b>roughly matches weight decay</b> on CIFAR-10, CIFAR-100 and ImageNet.</span></div>
+      <div class="tk" data-s="2"><span class="rn">2</span><span>Across five deep-network settings, L2-SFW <b>beat plain SGD in all five</b> and SGD with weight decay in two.</span></div>
       <div class="tk" data-s="3"><span class="rn">3</span><span>The region <b>shapes the network</b>: K-sparse gives sparse weights, the hypercube dense ones.</span></div>
       <div class="tk" data-s="4"><span class="rn">4</span><span>Simple <b>SFW with momentum</b> beats the variance-reduced variants per gradient.</span></div>
       <div class="tk" data-s="5"><span class="rn">5</span><span>In the experiments, SFW matched the SGD step length, scaled each layer’s region to its initial weights, and used momentum 0.9.</span></div>
@@ -1059,15 +1060,15 @@ window.EQS={"1": ["SGD step", "paper §1", "\\theta_{t+1}=\\class{tA}{\\theta_t}
 window.EQ_NEW=['13','14','16'];
 window.EQLABEL={'5b':'(5′)','P':'(3′)','T':'Thm 2.1','L1':'(7a)'};
 window.TRAIL=[['1','SGD'],['2','weight decay'],['6','constrain'],['3','project?'],['4','LMO'],['5','FW step'],['5b','= shrink']];
-window.HILITE={"0":["state-of-the-art accuracy","the shape of C changes what the network learns"],"2":["unconstrained","generalize worse","comes back in Frank–Wolfe"],"3":["require","Frank–Wolfe avoids projections altogether."],"5":["the point of the ball furthest downhill","corner","the whole budget","Projections often need an algorithm of their own."],"6":["drop-in replacement","MSFW"],"7":["inductive bias"],"8":["SGD with momentum"],"9":["one region per layer","made to look like SGD"],"10":["three ingredients","less noise, double cost"],"11":["MSFW wins","Rest of the paper: SFW and MSFW."],"12":["only the LMO differs"],"13":["inductive bias"],"14":["far fewer active weights","the most"],"15":["L2 preserves the momentum direction"],"16":["L2 scored higher than L∞"],"17":["5 of 5","2 of 5"],"18":["Choose the update shape","Comparable training time","Tune the width","ImageNet accuracy"],"19":["constrained weights","beats plain SGD","shapes the network","SFW with momentum"],"25":["per layer","K tunes how sparse the update is."],"26":["the length equals an SGD step","Region size:"],"27":["so we need another measure","A guide, not a guarantee."]};
-window.SHILITE={"0":["force the weights to stay inside a convex set","state-of-the-art accuracy","the shape of the set actually changes what the network learns"],"1":["That's the biggest part."],"2":["weight decay","shrink the weights a little bit toward zero","one minus lambda"],"3":["require the weights to stay inside some set","The projection is itself an optimization problem","It never projects at all."],"4":["linear minimization oracle","the answer is always a corner","convex combination","we never leave","exactly the one minus lambda from weight decay"],"5":["furthest downhill","Both are one line","you need a dedicated algorithm","about as cheap as an SGD step"],"6":["almost exactly SGD with momentum","rho is the weight on the new gradient","the only lines that change","drop-in replacement"],"7":["SGD-like","Dense.","Sparse.","inductive bias"],"8":["from small scale to large scale","SGD with momentum, with and without weight decay"],"9":["how many times bigger than the initialization the weights may grow","exactly like an SGD step","every method is tuned separately"],"10":["up to three ingredients","the noise partly cancels","its own noise cancels in the difference","ORGFW is MSFW plus a correction","Less noise per step, but twice the cost"],"11":["the two different x-axes","the fair measure of work","SFW with momentum, is the best","variance reduction isn't worth it here"],"12":["each picture is a scoring template","ink in the middle means it's probably not a zero","It's sparse","Dense instead of sparse","behaves like SGD with weight decay","the learned representation changes completely"],"13":["the weights end up looking like the LMO outputs","scattered dots","saturated shapes","which is basically SGD"],"14":["far fewer active weights","uses the most","one route to sparse networks"],"15":["preserves its direction","same target value"],"16":["1.38 percentage points","reverses the ranking","higher in all five columns"],"17":["comes out ahead twice","on unseen images"],"18":["choose the update shape","training times comparable to SGD","tune the width","how consistent those gaps are"],"19":["no projections","roughly matches SGD with weight decay","shapes the network","SFW with momentum","matched the SGD step length"],"23":["width factor"],"24":["around 92 percent","single runs of 10 epochs"],"25":["applied per layer","one non-zero entry","its LMO is dense","K tunes how sparse the update is"],"26":["a good alpha would depend on tau","divide alpha by the diameter","The arrow's own length cancels out","the same thing as SGD's learning rate"],"27":["the gradient is not zero","the best v in the whole set","exactly the LMO output","G becomes zero","one over root T","a guide, not a guarantee"]};
+window.HILITE={"0":["shape the learned weights"],"2":["unconstrained","generalize worse","comes back in Frank–Wolfe"],"3":["require","Frank–Wolfe avoids projections altogether."],"5":["the point of the ball furthest downhill","corner","the whole budget","Projections often need an algorithm of their own."],"6":["drop-in replacement","MSFW"],"7":["inductive bias"],"8":["Experiment 4 tests accuracy on unseen images"],"9":["one region per layer","made to look like SGD"],"10":["three ingredients","less noise, double cost"],"11":["MSFW wins","Rest of the paper: SFW and MSFW."],"12":["only the LMO differs"],"13":["inductive bias"],"14":["far fewer active weights","the most"],"15":["L2 preserves the momentum direction"],"16":["L2 scored higher than L∞"],"17":["5 of 5","2 of 5"],"18":["Choose the update shape","Comparable training time","Tune the width","ImageNet accuracy"],"19":["constrained weights","beat plain SGD in all five","shapes the network","SFW with momentum"],"25":["per layer","K tunes how sparse the update is."],"26":["the length equals an SGD step","Region size:"],"27":["so we need another measure","A guide, not a guarantee."]};
+window.SHILITE={"0":["stay inside a convex set","classify new images"],"1":["That's the biggest part."],"2":["weight decay","shrink the weights a little bit toward zero","one minus lambda"],"3":["require the weights to stay inside some set","The projection is itself an optimization problem","It never projects at all."],"4":["linear minimization oracle","the answer is always a corner","convex combination","we never leave","exactly the one minus lambda from weight decay"],"5":["furthest downhill","Both are one line","you need a dedicated algorithm","about as cheap as an SGD step"],"6":["almost exactly SGD with momentum","rho is the weight on the new gradient","the only lines that change","drop-in replacement"],"7":["SGD-like","Dense.","Sparse.","inductive bias"],"8":["accuracy at scale","unseen images"],"9":["how many times bigger than the initialization the weights may grow","exactly like an SGD step","every method is tuned separately"],"10":["up to three ingredients","the noise partly cancels","its own noise cancels in the difference","ORGFW is MSFW plus a correction","Less noise per step, but twice the cost"],"11":["the two different x-axes","the fair measure of work","SFW with momentum, is the best","variance reduction isn't worth it here"],"12":["each picture is a scoring template","ink in the middle means it's probably not a zero","It's sparse","Dense instead of sparse","behaves like SGD with weight decay","the learned representation changes completely"],"13":["the weights end up looking like the LMO outputs","scattered dots","saturated shapes","which is basically SGD"],"14":["far fewer active weights","uses the most","one route to sparse networks"],"15":["preserves its direction","same target value"],"16":["1.38 percentage points","reverses the ranking","higher in all five columns"],"17":["comes out ahead twice","on unseen images"],"18":["choose the update shape","training times comparable to SGD","tune the width","how consistent those gaps are"],"19":["no projections","higher than plain SGD in all five","shapes the network","SFW with momentum","matched the SGD step length"],"23":["width factor"],"24":["around 92 percent","single runs of 10 epochs"],"25":["applied per layer","one non-zero entry","its LMO is dense","K tunes how sparse the update is"],"26":["a good alpha would depend on tau","divide alpha by the diameter","The arrow's own length cancels out","the same thing as SGD's learning rate"],"27":["the gradient is not zero","the best v in the whole set","exactly the LMO output","G becomes zero","one over root T","a guide, not a guarantee"]};
 window.SCRIPT=[
 {
 "s": [
 "Hi everyone, I'm Chase. Today I'm presenting “Deep Neural Network Training with Frank–Wolfe”, by Sebastian Pokutta, Christoph Spiegel and Max Zimmer, from the Zuse Institute Berlin, 2020. To keep things short, I'll say DNN for deep neural network, and FW for Frank–Wolfe.",
 "Let me start with the big picture. Normally we train a network with SGD, and the weights are completely free: they can be any numbers at all.",
 "The authors ask a simple question. What if we force the weights to stay inside a convex set, like a ball, and train with a projection-free method called stochastic Frank–Wolfe?",
-"And they show two things. First, this reaches state-of-the-art accuracy. And second, which I find more interesting, the shape of the set actually changes what the network learns."
+"That gives us two questions for the talk. Does the choice of region change the weights the network learns? And when we train a deep network this way, how well does it classify new images?"
 ],
 "n": "Here's how I'll get there.",
 "b": [
@@ -1080,7 +1081,7 @@ window.SCRIPT=[
 "Here's the plan for today, in five parts.",
 "First, the motivation: why would we want to constrain the weights at all?",
 "Second, the algorithm itself, stochastic Frank–Wolfe, and how it relates to SGD with momentum.",
-"Third, the feasible regions, so the actual sets they use, and two practical tricks you need to make training work.",
+"Third, we will see how the shape of the region changes the point the algorithm moves toward.",
 "Fourth, their four experiments, which go from small networks all the way up to ImageNet. That's the biggest part.",
 "And finally, my own critique, and the main takeaways."
 ],
@@ -1179,12 +1180,12 @@ window.SCRIPT=[
 },
 {
 "s": [
-"Okay, so now the experiments. There are four, and they go from small scale to large scale.",
+"The four experiments answer a sequence of questions. First the authors choose a training method. Then they examine the weights it learns. Finally they test accuracy at scale.",
 "One: which stochastic Frank–Wolfe variant works best? They test that on Fashion-MNIST, IMDB and MNIST, with small fully connected networks.",
 "Two: does the region change what the network learns? That's a linear classifier on MNIST, so we can literally look at the weights as images.",
 "Three: does the region change how many weights are actually used? MNIST again, with a small MLP and a small CNN.",
 "And four: does it scale to real deep networks? CIFAR-10, CIFAR-100 and ImageNet, with DenseNet, WideResNet, GoogLeNet and ResNeXt.",
-"The baseline the whole time is SGD with momentum, with and without weight decay, on unconstrained weights. (Time check, don't say: about 15 minutes. If you're behind, skip the sparsity slide and the explanation slide after experiment 2.)"
+"Keep the last two questions separate. Counting active weights tells us about the learned model. Testing it on unseen images tells us about prediction."
 ],
 "n": "Before any results, here's the setup that all four experiments share.",
 "b": [
@@ -1278,7 +1279,7 @@ window.SCRIPT=[
 "The red line at the top is the hypercube, which uses the most, and that matches its dense LMO. Weight decay and unconstrained SGD are somewhere in between.",
 "So the geometric story from before really shows up in the numbers. And it suggests that constraint sets could be one route to sparse networks."
 ],
-"n": "The MNIST models showed that geometry changes which weights stay active. What happens to classification accuracy when we use these constraints on deeper networks?",
+"n": "We have seen that the region changes the pattern of weights on MNIST. If I train a much deeper classifier this way, what happens to its predictions?",
 "b": [
 "why the pictures differ",
 "experiment 4 setup"
@@ -1286,11 +1287,11 @@ window.SCRIPT=[
 },
 {
 "s": [
-"Can a network trained inside a constraint region still classify images as accurately as one trained with SGD? We need two comparisons: a choice of region, and a choice of baseline.",
+"Experiment four asks whether constrained training is a practical choice for deep image classification. We have already seen what a constraint can do to the weights. Now the outcome we care about is whether the model gets a new image right.",
 "Start with the same update as before. We shrink the old weights and add a fraction of the point returned by the linear minimization oracle.",
 "For the L2 ball, that point is opposite to momentum. Normalizing the vector preserves its direction and the relative sizes of its coordinates. The shrink term resembles weight decay, which makes SGD with weight decay a useful baseline.",
 "For the box, take the sign of each momentum coordinate. A small positive coordinate and a large positive coordinate select the same target value. The distance each weight moves still depends on where it started.",
-"These give two inexpensive updates with different geometry. The formulas tell us how they move. The test set tells us how well the resulting networks classify new images.",
+"We need two baselines. Plain SGD tells us how constrained training compares with leaving the weights free. SGD with weight decay tells us how it compares with an established way to control weight growth.",
 "CIFAR-10 and CIFAR-100 use the same image size and training-set size. CIFAR-100 asks for ten times as many labels with one tenth as many examples per label. ImageNet increases both the number of labels and the training-set size.",
 "The next table has five columns because the authors tested five dataset and network pairs. DenseNet appears twice. Within each column, we keep the task and architecture fixed and change how the weights are trained."
 ],
@@ -1318,7 +1319,7 @@ window.SCRIPT=[
 },
 {
 "s": [
-"Across all five settings, L2 beats SGD without weight decay. The stronger baseline changes the conclusion: L2 comes out ahead twice. Look at WideResNet to see why the test score matters.",
+"Here is the answer to our opening question. Constrained training can be competitive on deep classifiers. How strong that result looks depends on the baseline: L2 leads plain SGD five times, and SGD with weight decay twice.",
 "With plain SGD, the model correctly classifies 99.98 percent of its training images. On the test set it scores 94.44 percent.",
 "With weight decay, training accuracy is essentially the same, but test accuracy rises to 95.13 percent.",
 "L2-SFW also fits nearly every training image and gets 94.58 percent on the test set.",
@@ -1348,12 +1349,12 @@ window.SCRIPT=[
 "s": [
 "So, to wrap up.",
 "Stochastic Frank–Wolfe can train deep networks with constrained weights: no projections, just one cheap LMO per layer.",
-"With L2 constraints, it beats plain SGD and roughly matches SGD with weight decay, on CIFAR-10, CIFAR-100 and ImageNet.",
+"On prediction, L2-SFW scored higher than plain SGD in all five deep-network settings. Once SGD used weight decay, L2 led in two. That is the evidence for competitive test accuracy.",
 "The region you choose shapes the network: K-sparse polytopes give sparse weights, and the hypercube gives dense ones.",
 "The simplest version, SFW with momentum, beats the variance-reduced variants when you count gradients.",
 "To run SFW in these experiments, the authors matched the SGD step length, sized each layer’s region using its initial weights, and used momentum of zero point nine."
 ],
-"n": "And here are the references.",
+"n": "Taken together, the experiments show why the choice of region is worth studying: it influences the learned weights, and the L2 version remained competitive on deep classifiers. Here are the references.",
 "b": [
 "critique",
 "references"

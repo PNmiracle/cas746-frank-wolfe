@@ -541,7 +541,7 @@ mark.hi.on{background-size:100% 100%}
   <div class="body full"><div class="deriv">
     <table class="tbl">
       <tr><th style="width:5%">#</th><th style="width:36%">Question</th><th style="width:26%">Data</th><th>Models</th></tr>
-      <tr data-s="1"><td>1</td><td>Which update uses gradient evaluations efficiently?</td><td>Fashion-MNIST, IMDB, MNIST</td><td>small fully connected networks</td></tr>
+      <tr data-s="1"><td>1</td><td>Which Frank–Wolfe variant works best at the same gradient budget?</td><td>Fashion-MNIST, IMDB, MNIST</td><td>small fully connected networks</td></tr>
       <tr data-s="2"><td>2</td><td>Does the region change <b>what</b> is learned?</td><td>MNIST</td><td>linear classifier, 784 → 10</td></tr>
       <tr data-s="3"><td>3</td><td>Does it change <b>how many</b> weights are used?</td><td>MNIST</td><td>MLP (26,506 params), CNN (93,322)</td></tr>
       <tr data-s="4" class="em"><td>4</td><td>Can constrained training keep test accuracy competitive?</td><td>CIFAR-10, CIFAR-100, ImageNet</td><td>DenseNet121, WideResNet28x10, GoogLeNet, ResNeXt50</td></tr>
@@ -557,7 +557,7 @@ mark.hi.on{background-size:100% 100%}
 </section>
 
 <section class="slide" data-plan="150">
-  <div class="hd"><span class="sec">4 · Experiments</span><h2>Experiment 1: which variant?</h2></div>
+  <div class="hd"><span class="sec">4 · Experiments</span><h2>Which Frank–Wolfe variant works best?</h2></div>
   <div class="body">
     <div class="deriv" style="overflow:hidden">
       <div class="imgw" style="width:560px">
@@ -566,7 +566,7 @@ mark.hi.on{background-size:100% 100%}
         <div class="hl" data-only="4" style="left:13%;top:2%;width:39%;height:88%"></div>
         <div class="hl" data-only="5" style="left:56.5%;top:2%;width:39%;height:88%"></div>
       </div>
-      <p class="note" style="margin-top:2px">Figure 1 (Pokutta et al., 2020). Top: training loss. Bottom: test accuracy.</p>
+      <p class="note" style="margin-top:2px">Figure 1 · Top: training loss (lower is better). Bottom: test accuracy (higher is better). Compare at the same epoch on the left and the same number of gradient evaluations on the right.</p>
     </div>
     <div class="side">
       <div class="note" data-s="1"><strong>Setup:</strong> MLP, 2 hidden layers of 64, Fashion-MNIST, L1 constraints, 10 epochs, mean of 10 runs, each method tuned.</div>
@@ -1162,7 +1162,7 @@ window.SCRIPT=[
 },
 {
 "s": [
-"Experiment one compares plain stochastic Frank–Wolfe, its momentum version, and two variance-reduced versions. The question is how much progress each makes for the same gradient budget.",
+"Our first question is simple: which Frank–Wolfe variant works best? We compare plain SFW, SFW with momentum, and two variance-reduced variants. By “best,” I mean lower training loss and higher test accuracy for the same number of gradient evaluations.",
 "The setup: an MLP with two hidden layers of 64 units, on Fashion-MNIST, with L1 constraints. They train for 10 epochs, average over 10 runs, and tune the hyperparameters separately for each method, so the comparison is fair.",
 "SVRF and ORGFW reduce the noise by computing extra gradients. On the right is the cost per update. SFW and MSFW need one gradient per sample; the variance-reduced ones need about two, and SVRF also needs a full pass over the data from time to time.",
 "Now, reading the figure. The top row is training loss, so lower is better, and the bottom row is test accuracy, so higher is better. And the important thing here is the two different x-axes.",

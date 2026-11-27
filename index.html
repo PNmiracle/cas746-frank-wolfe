@@ -337,6 +337,12 @@ mark.hi.on{background-size:100% 100%}
 .lpn{font-size:12.5px;color:var(--mut);text-align:right;margin-top:-2px}
 .lp .m{display:block}
 .tk>span:last-child b{font-weight:600}
+.critique .tb{gap:24px;margin-top:12px}
+.critique .tcol{padding:20px 24px}
+.critique .th{font-size:24px}
+.critique .ti{font-size:21px;line-height:1.38;margin:20px 0 4px}
+.critique .ti b{display:block;font-size:22px;margin-bottom:4px}
+@media(max-width:700px){.critique .tb{grid-template-columns:1fr}}
 </style></head><body>
 <div id="view"><div id="stage">
 
@@ -833,22 +839,12 @@ mark.hi.on{background-size:100% 100%}
   </div></div>
 </section>
 
-<section class="slide" data-plan="120">
-  <div class="hd"><span class="sec">5 · Critique</span><h2>Strengths and limitations (my reading)</h2></div>
-  <div class="body full"><div class="deriv">
-    <div class="tb">
-      <div class="tcol"><div class="th">Strengths</div>
-        <p class="ti" data-s="1"><b>Simple.</b> Drop-in replacement for SGD: only the LMO is new. Public code; runtime about the same as SGD.</p>
-        <p class="ti" data-s="2"><b>A design tool.</b> Choose sparse or dense updates, and shape what is learned. Tested at scale, including ImageNet.</p>
-      </div>
-      <div class="tcol new"><div class="th">Limitations</div>
-        <div class="ti" data-s="3"><b>Theory ≠ practice.</b>
-          <table class="mini"><tr><th></th><th>Theorem 2.1</th><th>Experiments</th></tr><tr><td>batch size</td><td>\(T\) (grows)</td><td>fixed</td></tr><tr><td>momentum</td><td>none (\(\rho=1\))</td><td>0.9 (\(\rho=0.1\))</td></tr></table></div>
-        <p class="ti" data-s="4"><b>New hyperparameter.</b> The width \(w\) is tuned per model (10 to 100): tuning moves, it doesn't disappear.</p>
-        <p class="ti" data-s="5"><b>ImageNet.</b> Weight decay still wins (74.89 vs. 73.46; 76.09 vs. 75.77), no error bars. One constraint type for every layer.</p>
-      </div>
-    </div>
-  </div></div>
+<section class="slide critique" data-plan="60">
+  <div class="hd"><span class="sec">5 · Critique</span><h2>Strengths and limitations</h2></div>
+  <div class="body full"><div class="deriv"><div class="tb">
+    <div class="tcol"><div class="th">Strengths</div><p class="ti" data-s="1"><b>Choose the update shape</b>The point selected at each step can be sparse with a K-sparse region and dense with a box.</p><p class="ti" data-s="2"><b>Comparable training time</b>With the L2 ball and the box, training took about as long as SGD in these experiments.</p></div>
+    <div class="tcol new"><div class="th">Limitations</div><p class="ti" data-s="3"><b>Tune the width</b>The authors chose the constraint width separately for each model, using values from 10 to 100.</p><p class="ti" data-s="4"><b>ImageNet accuracy</b>On both networks, SGD with weight decay scored higher than L2-SFW. The gaps were 1.43 and 0.32 percentage points.</p></div>
+  </div></div></div>
 </section>
 
 <section class="slide" data-plan="60" style="--sw:320px">
@@ -1077,7 +1073,7 @@ window.EQS={"1": ["SGD step", "paper §1", "\\theta_{t+1}=\\class{tA}{\\theta_t}
 window.EQ_NEW=['13','14','16'];
 window.EQLABEL={'5b':'(5′)','P':'(3′)','T':'Thm 2.1','L1':'(7a)'};
 window.TRAIL=[['1','SGD'],['2','weight decay'],['6','constrain'],['3','project?'],['4','LMO'],['5','FW step'],['5b','= shrink']];
-window.HILITE={"0": ["state-of-the-art accuracy", "the shape of C changes what the network learns"], "2": ["unconstrained", "generalize worse", "comes back in Frank–Wolfe"], "3": ["require", "Frank–Wolfe avoids projections altogether."], "5": ["the point of the ball furthest downhill", "corner", "the whole budget", "Projections often need an algorithm of their own."], "6": ["drop-in replacement", "MSFW"], "7": ["inductive bias"], "8": ["SGD with momentum"], "9": ["one region per layer", "made to look like SGD"], "10": ["three ingredients", "less noise, double cost"], "11": ["MSFW wins", "Rest of the paper: SFW and MSFW."], "12": ["only the LMO differs"], "13": ["inductive bias"], "14": ["far fewer active weights", "the most"], "15": ["L2 ≈ weight decay"], "16": ["above weight decay only on DenseNet/CIFAR-10"], "17": ["beats plain SGD", "roughly matches SGD with weight decay"], "18": ["Drop-in replacement for SGD", "Choose sparse or dense updates", "tuning moves, it doesn't disappear", "Weight decay still wins"], "19": ["constrained weights", "beats plain SGD", "shapes the network", "SFW with momentum"], "25": ["per layer", "K tunes how sparse the update is."], "26": ["the length equals an SGD step", "Region size:"], "27": ["so we need another measure", "A guide, not a guarantee."]};
+window.HILITE={"0": ["state-of-the-art accuracy", "the shape of C changes what the network learns"], "2": ["unconstrained", "generalize worse", "comes back in Frank–Wolfe"], "3": ["require", "Frank–Wolfe avoids projections altogether."], "5": ["the point of the ball furthest downhill", "corner", "the whole budget", "Projections often need an algorithm of their own."], "6": ["drop-in replacement", "MSFW"], "7": ["inductive bias"], "8": ["SGD with momentum"], "9": ["one region per layer", "made to look like SGD"], "10": ["three ingredients", "less noise, double cost"], "11": ["MSFW wins", "Rest of the paper: SFW and MSFW."], "12": ["only the LMO differs"], "13": ["inductive bias"], "14": ["far fewer active weights", "the most"], "15": ["L2 ≈ weight decay"], "16": ["above weight decay only on DenseNet/CIFAR-10"], "17": ["beats plain SGD", "roughly matches SGD with weight decay"], "18": ["Choose the update shape","Comparable training time","Tune the width","ImageNet accuracy"], "19": ["constrained weights", "beats plain SGD", "shapes the network", "SFW with momentum"], "25": ["per layer", "K tunes how sparse the update is."], "26": ["the length equals an SGD step", "Region size:"], "27": ["so we need another measure", "A guide, not a guarantee."]};
 window.SHILITE={"0": ["force the weights to stay inside a convex set", "state-of-the-art accuracy", "the shape of the set actually changes what the network learns"], "1": ["That's the biggest part."], "2": ["weight decay", "shrink the weights a little bit toward zero", "one minus lambda"], "3": ["require the weights to stay inside some set", "The projection is itself an optimization problem", "It never projects at all."], "4": ["linear minimization oracle", "the answer is always a corner", "convex combination", "we never leave", "exactly the one minus lambda from weight decay"], "5": ["furthest downhill", "Both are one line", "you need a dedicated algorithm", "about as cheap as an SGD step"], "6": ["almost exactly SGD with momentum", "rho is the weight on the new gradient", "the only lines that change", "drop-in replacement"], "7": ["SGD-like", "Dense.", "Sparse.", "inductive bias"], "8": ["from small scale to large scale", "SGD with momentum, with and without weight decay"], "9": ["how many times bigger than the initialization the weights may grow", "exactly like an SGD step", "every method is tuned separately", "not from a different learning rate or a different amount of work"], "10": ["up to three ingredients", "the noise partly cancels", "its own noise cancels in the difference", "ORGFW is MSFW plus a correction", "Less noise per step, but twice the cost"], "11": ["the two different x-axes", "the fair measure of work", "SFW with momentum, is the best", "variance reduction isn't worth it here"], "12": ["each picture is a scoring template", "ink in the middle means it's probably not a zero", "It's sparse", "Dense instead of sparse", "behaves like SGD with weight decay", "the learned representation changes completely"], "13": ["the weights end up looking like the LMO outputs", "scattered dots", "saturated shapes", "which is basically SGD", "at little cost in accuracy"], "14": ["far fewer active weights", "uses the most", "one route to sparse networks"], "15": ["It's the same shrink, with lambda equal to alpha", "basically SGD with momentum and weight decay", "every weight moves by exactly the same amount", "throws away the magnitude information"], "16": ["it's the best of all four", "weight decay is still the best", "always above SGD without weight decay", "only true for three of the five models", "these are real differences"], "17": ["you beat plain SGD", "roughly match SGD with weight decay", "slightly worse there"], "18": ["drop-in replacement for SGD", "design tool", "the theory doesn't match the practice", "it just moves it somewhere else", "weight decay still wins"], "19": ["no projections", "roughly matches SGD with weight decay", "shapes the network", "SFW with momentum", "the practical recipe"], "23": ["width factor"], "24": ["around 92 percent", "single runs of 10 epochs"], "25": ["applied per layer", "one non-zero entry", "its LMO is dense", "K tunes how sparse the update is"], "26": ["a good alpha would depend on tau", "divide alpha by the diameter", "The arrow's own length cancels out", "the same thing as SGD's learning rate"], "27": ["the gradient is not zero", "the best v in the whole set", "exactly the LMO output", "G becomes zero", "one over root T", "a guide, not a guarantee"]};
 window.SCRIPT=[
 {
@@ -1351,12 +1347,11 @@ window.SCRIPT=[
 },
 {
 "s": [
-"Now my own assessment, starting with the strengths.",
-"First, it's simple. It's a drop-in replacement for SGD, where only the LMO is new. The code is public, and the runtime is about the same as SGD.",
-"Second, the constraint set becomes a design tool. You can choose sparse or dense updates, and that changes what the network learns. And they did test it at scale, including ImageNet.",
-"Now the limitations. First, the theory doesn't match the practice. As the small table shows, the convergence theorem assumes a batch size that grows with T and no momentum, while the experiments use fixed batches and momentum 0.9.",
-"Second, the width w is a new hyperparameter, and it's tuned per model, between 10 and 100. So the constraint doesn't remove tuning; it just moves it somewhere else.",
-"And third, on ImageNet weight decay still wins, even against L2-SFW, and there are no error bars there. They also use one constraint type for every layer, so mixing different regions across layers is still an open question."
+"What do we gain by choosing a constraint, and what does that choice cost?",
+"First, we can choose the update shape. With a K-sparse region, the point selected at each step has at most K active coordinates. With a box, that point can be dense.",
+"Second, consider training time. For the L2 ball and the box, the linear minimization step is cheap. The authors report training times comparable to SGD.",
+"The first limitation is that we still have to tune the width. It controls how much room the weights have to move, and the authors picked it separately for each model.",
+"Finally, look at ImageNet. SGD with weight decay led by about 1.4 points on DenseNet and 0.3 on ResNeXt. The paper gives no run-to-run variation there, so we cannot tell how consistent those gaps are."
 ],
 "n": "Let me wrap up with the main takeaways.",
 "b": [

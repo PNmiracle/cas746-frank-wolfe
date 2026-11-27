@@ -119,6 +119,10 @@ body.presenter #pv{display:flex;flex-direction:column;position:fixed;top:0;right
 #scr .st.now .kk{color:var(--acc)}
 #scr .st.done{opacity:.72}
 .read{display:block;margin:6px 0;padding:4px 10px;border-left:3px solid var(--pr);background:var(--prt);color:var(--pr);font-style:italic;border-radius:0 6px 6px 0}
+#scr .spoken{line-height:1.58;overflow-wrap:anywhere}
+#scr .spoken > p{margin:0}
+#scr .spoken > * + *{margin-top:.55em}
+#scr .spoken .read{white-space:pre-wrap}
 .read::before{content:"Read: ";font-style:normal;font-weight:600}
 #scr .tr{margin:12px 0 0;padding:9px 12px;border:1.5px dashed var(--acc);border-radius:8px;font-size:16.5px}
 #scr .tr::before{content:"Transition → next slide";display:block;font-size:12.5px;font-weight:600;color:var(--acc)}
@@ -1054,12 +1058,12 @@ window.SHILITE={"0":["stay inside a convex set","classify new images"],"1":["Tha
 window.SCRIPT=[
 {
 "s": [
-"Hi everyone, I'm Chase. Today I'm presenting “Deep Neural Network Training with Frank–Wolfe”, by Sebastian Pokutta, Christoph Spiegel and Max Zimmer, from the Zuse Institute Berlin, 2020. To keep things short, I'll say DNN for deep neural network, and FW for Frank–Wolfe.",
-"Let me start with the big picture. Normally we train a network with SGD, and the weights are completely free: they can be any numbers at all.",
-"The authors ask a simple question. What if we force the weights to stay inside a convex set, like a ball, and train with a projection-free method called stochastic Frank–Wolfe?",
-"That gives us two questions for the talk. Does the choice of region change the weights the network learns? And when we train a deep network this way, how well does it classify new images?"
+"Hi, everyone. I’m Chase. Today I’ll talk about “Deep Neural Network Training with Frank–Wolfe.” The paper is by Sebastian Pokutta, Christoph Spiegel, and Max Zimmer.",
+"Let’s start with SGD. It can update the weights without a hard limit.",
+"The authors ask a different question. What if we keep the weights inside a set, like a ball or a box?",
+"I’ll focus on two things. How does the shape of the set affect the weights? And can the model still classify new images accurately?"
 ],
-"n": "Here's how I'll get there.",
+"n": "Here’s how I’ll walk through it.",
 "b": [
 "",
 "Roadmap"
@@ -1067,14 +1071,14 @@ window.SCRIPT=[
 },
 {
 "s": [
-"Here's the plan for today, in five parts.",
-"First, the motivation: why would we want to constrain the weights at all?",
-"Second, the algorithm itself, stochastic Frank–Wolfe, and how it relates to SGD with momentum.",
-"Third, we will see how the shape of the region changes the point the algorithm moves toward.",
-"Fourth, their four experiments, which go from small networks all the way up to ImageNet. That's the biggest part.",
-"And finally, my own critique, and the main takeaways."
+"Here’s the plan.",
+"First, why put limits on the weights?",
+"Then I’ll show how stochastic Frank–Wolfe updates them.",
+"Next, I’ll show what changes when we pick a different shape.",
+"Then we’ll look at four experiments, from small models to ImageNet.",
+"I’ll end with what worked and where the method fell short."
 ],
-"n": "Let's start with the motivation, and with the method everybody already uses: SGD.",
+"n": "Let’s start with SGD.",
 "b": [
 "",
 "Motivation"
@@ -1082,13 +1086,13 @@ window.SCRIPT=[
 },
 {
 "s": [
-"So, some background first. Even though it's very simple, SGD is still the default way to train neural networks. And the weights are left completely unconstrained.",
-"Equation one is the standard update. »theta t plus one equals theta t minus alpha times g t.« We take the current weights and move against the gradient, scaled by the learning rate alpha. In the picture, that's the blue steps going downhill. A quick note on notation: g t is the mini-batch gradient. The paper writes it as nabla tilde L; I'll just call it g t.",
-"People have tried to improve on this. Adaptive methods like Adam and Adagrad tune the learning rate for each parameter. They train faster at the start, but Wilson and others showed in 2017 that they often generalize worse.",
-"What really matters for the best test accuracy, on things like CIFAR-10 and ImageNet, is weight decay. That's equation two. »theta t plus one equals one minus lambda, times theta t, minus alpha g t.« The only change is this factor, one minus lambda. Before every gradient step, we shrink the weights a little bit toward zero. For plain SGD, that's the same as adding an L2 penalty to the loss.",
-"So keep this factor, one minus lambda, in mind. It's going to come back in a few slides."
+"Let’s start with ordinary SGD. The weights can move freely.",
+"Equation one shows the update. »Theta at t plus one equals theta at t minus alpha times g t.« The blue arrows show steps against the gradient. Here, g t is the gradient from one mini-batch.",
+"Adam and Adagrad adjust the learning rate for each weight. The paper cites work showing that fast training can still lead to lower test accuracy.",
+"Now look at equation two. »Theta at t plus one equals one minus lambda times theta at t, minus alpha times g t.« The factor one minus lambda pulls the weights toward zero. For plain SGD, this corresponds to adding an L2 penalty.",
+"Keep an eye on that shrink factor. We’ll see something similar in Frank–Wolfe."
 ],
-"n": "Weight decay penalizes big weights. So the natural next question is: why not forbid them outright?",
+"n": "What if we set a hard limit on the weights?",
 "b": [
 "",
 "constrain instead of penalize"
@@ -1096,14 +1100,14 @@ window.SCRIPT=[
 },
 {
 "s": [
-"So this is the main idea of the paper.",
-"If penalizing big weights helps, why not simply require the weights to stay inside some set?",
-"That gives equation six. »Minimize, over theta in C, the loss L of theta, which is one over m times the sum of the losses ell i of theta.« So it's the usual average training loss, but now theta has to live in C. And C is convex and compact: think of a ball or a box, closed, bounded, no holes and no dents. Note that the loss itself is still non-convex, because it's a neural network. Only the set is convex.",
-"The textbook way to handle a constraint is projected SGD, equation three. »theta t plus one equals the projection onto C of theta t minus alpha g t.« In the picture: we take a normal SGD step, we land outside C, and then we project back to the closest point in C.",
-"And here's the catch. The projection is itself an optimization problem: »the argmin over v in C of the L2 distance between v and x.« Geometrically, it's the smallest circle around x that touches C. For an L2 ball that's easy, you just rescale, and for a box you clip. But for something like a general Lp ball there's no closed form. So you'd solve a small optimization problem at every step, for every layer.",
-"And that's exactly what Frank–Wolfe avoids. It never projects at all."
+"Here’s the idea behind the paper.",
+"Weight decay pulls weights toward zero. What if we put a hard limit on where the weights can go?",
+"Equation six keeps the same average training loss. We now require the weights to lie inside C. Think of C as a closed ball or box. The set is convex, and the neural network loss can still be nonconvex.",
+"Projected SGD starts with a regular SGD step. If it lands outside C, we move back to the nearest point inside.",
+"Finding that point is an optimization problem. For a ball, we can rescale. For a box, we can clip. Other shapes can take more work, and we may have to do that for every layer at every step.",
+"Frank–Wolfe gives us a way to stay inside C throughout the update."
 ],
-"n": "So how can Frank–Wolfe stay inside C without ever projecting? That's the next slide, and it's the core of the paper.",
+"n": "Here’s how Frank–Wolfe steps inside the set.",
 "b": [
 "weight decay (2)",
 "the Frank–Wolfe step"
@@ -1111,13 +1115,13 @@ window.SCRIPT=[
 },
 {
 "s": [
-"Okay, this is the core of the paper. Frank–Wolfe, also called the conditional gradient method, goes back to Frank and Wolfe in 1956. Instead of a projection, it uses something called a linear minimization oracle, or LMO. And one step has just two parts.",
-"Part one, equation four. »v t equals the argmin over v in C of the inner product of g t and v.« In words: we replace the loss by its linear approximation, and we minimize that linear function over C. That gives the point of C that goes furthest in the direction of minus the gradient. In the picture, the orange arrow is minus g t, and the LMO picks the corner at the top right. If C has corners, the answer is always a corner.",
-"Now that the LMO has picked a target, v t, equation five tells us how far to move toward it. »Theta sub t plus one equals theta sub t plus alpha times the difference between v t and theta sub t.« In the picture, the dashed line shows the full path from our current point to the target. Alpha is the fraction of that path we actually travel. For example, if alpha is one half, we stop halfway. The green arrow shows the step we take. And because the whole line segment lies inside the feasible region, the new point stays inside as well. That’s why we can skip the projection.",
-"In mathematical terms, the new point is a convex combination of theta t and v t. Alpha gives the weight on the target, and one minus alpha gives the weight on the current point. That gives us another way to write equation five.",
-"And one more observation. If we rewrite equation five, we get »theta t plus one equals one minus alpha, times theta t, plus alpha times v t.« That first term shrinks the current weights by one minus alpha at every step. That's exactly the one minus lambda from weight decay. So this is our first hint that constraints can act like regularization."
+"Here’s one Frank–Wolfe update. It has two parts. First we pick a target. Then we take a step toward it.",
+"Equation four picks the target. »V t minimizes the inner product of g t and v, over all v in C.« Think of this as picking the point that looks best from the current gradient. In this picture, it’s the top-right corner.",
+"Now that we have a target, equation five tells us how far to move. »Theta at t plus one equals theta at t plus alpha times the difference between v t and theta at t.« The dashed line shows the full path. The green arrow shows the step we take. If alpha is one half, we stop halfway. The whole segment is inside C, so the new point stays inside too.",
+"We can think of the new point as a weighted average. The target gets weight alpha. The current point gets weight one minus alpha.",
+"Equation five can also be written like this. »Theta at t plus one equals one minus alpha times theta at t, plus alpha times v t.« The first term shrinks the old weights. That’s the part that looks like weight decay."
 ],
-"n": "We now have a feasible update. How do we use it with mini-batches and momentum to train a network?",
+"n": "Now let’s add mini-batches and momentum.",
 "b": [
 "projection is costly (3)",
 "Algorithm 1"
@@ -1125,14 +1129,14 @@ window.SCRIPT=[
 },
 {
 "s": [
-"Here's the full algorithm, Algorithm 1 in the paper. And if you look closely, it's almost exactly SGD with momentum.",
-"Lines three and four: we sample a mini-batch of b t data points, and compute the mini-batch gradient g t.",
-"Line five is momentum. »m t equals one minus rho t, times m t minus one, plus rho t times g t.« So m t is a running average of the gradients. Careful with the notation here: rho is the weight on the new gradient. So rho equal to 0.1, ten percent new and ninety percent old, is what we usually call momentum 0.9. And rho equal to one means no momentum: that's plain SFW.",
-"Then the only lines that change compared to SGD are six and seven. Line six: instead of stepping along minus m t, we call the LMO on m t. Line seven: we move toward the LMO output, the same step as before.",
-"One more detail on line four: g t is unbiased. »The expected value of g t equals the gradient of L at theta t.«",
-"So in practice, this is a drop-in replacement for an SGD optimizer, as long as you have an LMO for your set. The authors released it for both PyTorch and TensorFlow. And the version with momentum is what the experiments call MSFW."
+"Here’s the full algorithm. It starts a lot like SGD with momentum.",
+"In lines three and four, we pick a mini-batch and compute its gradient, g t.",
+"Line five is where momentum comes in. »M t equals one minus rho t times the previous m, plus rho t times g t.« If rho is point one, we use ninety percent of the old average and ten percent of the new gradient. If rho is one, we use only the new gradient.",
+"Lines six and seven are the Frank–Wolfe update. First, we use the momentum estimate to pick a target. Then we move toward it.",
+"The mini-batch gradient is unbiased. That means it equals the full gradient on average.",
+"The version with momentum is called MSFW. The authors released implementations for PyTorch and TensorFlow."
 ],
-"n": "So the algorithm is the same for every set; only the LMO changes. So which sets do they actually use?",
+"n": "Let’s change the shape of the set.",
 "b": [
 "Frank–Wolfe step",
 "feasible regions"
@@ -1140,13 +1144,13 @@ window.SCRIPT=[
 },
 {
 "s": [
-"This slide is the conceptual heart of the paper. Every step moves toward the LMO output, so the shape of the region decides the pattern of the update. At the top is one gradient with ten entries. Let's feed the same gradient into three different LMOs.",
-"First, the L2 ball. »v equals minus tau g over the norm of g.« That's just the negative gradient, rescaled, so every entry keeps its relative size. As long as we're away from the boundary, SFW behaves a lot like SGD with an L2 penalty. So: SGD-like.",
-"Second, the hypercube. »v equals minus tau times the sign of g.« Now every entry gets the same size, plus or minus tau, no matter how small its gradient was. So every weight gets a real update at every step. Dense.",
-"Third, the L1 ball and the K-sparse polytope. Only the K entries with the largest gradient get a non-zero value; here K is two. All the other weights just get multiplied by one minus alpha, so they decay toward zero. Sparse.",
-"So choosing the region is more than choosing how big the weights can be. It's choosing an inductive bias: it shapes the features the network learns. And that's exactly what experiments two and three test."
+"Let’s feed the same gradient into three different LMOs. Watch how the target changes with the shape of the set.",
+"For the L2 ball, the target points against the gradient. We rescale it to the edge of the ball. The relative sizes of the entries stay the same.",
+"For the box, the target only uses the sign of each gradient entry. Each nonzero entry gives a target of plus or minus tau. That makes the target dense.",
+"For the L1 ball, the target puts all its weight on one entry. The K-sparse region lets us use up to K entries. The other entries of the current weights shrink toward zero.",
+"The shape of the set gives us a way to influence which weights the network learns."
 ],
-"n": "That's the whole method. Now let's see whether it actually works.",
+"n": "Now let’s test these ideas.",
 "b": [
 "Algorithm 1",
 "four experiments"
@@ -1154,14 +1158,14 @@ window.SCRIPT=[
 },
 {
 "s": [
-"The four experiments answer a sequence of questions. First the authors choose a training method. Then they examine the weights it learns. Finally they test accuracy at scale.",
-"One: which stochastic Frank–Wolfe variant works best? They test that on Fashion-MNIST, IMDB and MNIST, with small fully connected networks.",
-"Two: does the region change what the network learns? That's a linear classifier on MNIST, so we can literally look at the weights as images.",
-"Three: does the region change how many weights are actually used? MNIST again, with a small MLP and a small CNN.",
-"And four: does it scale to real deep networks? CIFAR-10, CIFAR-100 and ImageNet, with DenseNet, WideResNet, GoogLeNet and ResNeXt.",
-"Keep the last two questions separate. Counting active weights tells us about the learned model. Testing it on unseen images tells us about prediction."
+"Each experiment answers a different question.",
+"First, which Frank–Wolfe variant makes the best use of its gradient evaluations?",
+"Second, does changing the shape of the set change the weights we learn? The authors show those weights as images.",
+"Third, how many weights stay active? They count them in two small MNIST models.",
+"Fourth, can the method still classify new images well on larger tasks, including ImageNet?",
+"Experiments two and three look at the weights. Experiment four looks at the predictions."
 ],
-"n": "Let’s look at the first experiment. Which method makes the most progress for the same number of gradient evaluations?",
+"n": "Let’s start with the gradient budget.",
 "b": [
 "the LMO shapes the update",
 "experiment 1"
@@ -1169,15 +1173,15 @@ window.SCRIPT=[
 },
 {
 "s": [
-"Our first question is simple: which Frank–Wolfe variant works best? We compare plain SFW, SFW with momentum, and two variance-reduced variants. By “best,” I mean lower training loss and higher test accuracy for the same number of gradient evaluations.",
-"The setup: an MLP with two hidden layers of 64 units, on Fashion-MNIST, with L1 constraints. They train for 10 epochs, average over 10 runs, and tune the hyperparameters separately for each method, so the comparison is fair.",
-"SVRF and ORGFW reduce the noise by computing extra gradients. On the right is the cost per update. SFW and MSFW need one gradient per sample; the variance-reduced ones need about two, and SVRF also needs a full pass over the data from time to time.",
-"Now, reading the figure. The top row is training loss, so lower is better, and the bottom row is test accuracy, so higher is better. And the important thing here is the two different x-axes.",
-"On the left, the x-axis is epochs, so passes through the data. Here SVRF and ORGFW, in orange and green, can actually beat plain SFW in blue. But each of their epochs costs more, because they re-evaluate data points at old parameters.",
-"On the right, the x-axis is gradients computed, which is the fair measure of work. And here the red curve, SFW with momentum, is the best in both loss and accuracy. And it's also by far the simplest to implement.",
-"They see the same picture on IMDB with L-infinity constraints, and SPIDER-FW wasn't competitive, so it's left out. So the conclusion is the same as for SGD: variance reduction isn't worth it here. For the rest of the paper, they only use SFW, with and without momentum."
+"Which Frank–Wolfe variant works best for the same number of gradient evaluations? We’ll compare plain SFW, SFW with momentum, and two methods that try to reduce gradient noise.",
+"The authors use a small network with two hidden layers. They train it for ten epochs on Fashion-MNIST with an L1 constraint. The plots average ten runs.",
+"Plain SFW and MSFW use one gradient per sample. SVRF and ORGFW use about two. SVRF also computes a full gradient from time to time.",
+"The top plots show training loss. Lower is better. The bottom plots show test accuracy. Higher is better. Now look at what each horizontal axis counts.",
+"On the left, we count epochs. The orange and green methods can beat plain SFW here. But they compute extra gradients in each epoch.",
+"On the right, we count the gradients directly. At the same budget, the red curve does best. That’s SFW with momentum.",
+"The authors see a similar pattern on IMDB. In these tests, the extra gradients did not pay off. The later experiments focus on SFW and its momentum version."
 ],
-"n": "With the algorithm settled, experiment two asks: does the shape of the region change what the network learns?",
+"n": "Next, let’s look at the weights.",
 "b": [
 "four experiments",
 "experiment 2"
@@ -1185,15 +1189,15 @@ window.SCRIPT=[
 },
 {
 "s": [
-"Experiment two is my favourite, because here you can actually see what the constraint does. The question is simple: if we change only the shape of the region, does the network learn something different?",
-"To make the weights visible, they use the simplest possible network: a linear classifier on MNIST, 784 pixels straight to 10 outputs, no hidden layer. So there is one weight vector per digit, and since 784 is 28 times 28, we can fold it back into an image. How do you read it? The score for digit k is »the inner product of w k and x.« So each picture is a scoring template: green pixels add to the score when they have ink, red pixels subtract, and black pixels don't matter. Look at the zero: the ring is green, and the hole in the middle is red, because ink in the middle means it's probably not a zero. The top row is the digit zero, the bottom row is five.",
-"First column: plain SGD, no constraint. This is our reference. You can recognise the digit, but the template is noisy, with red and green mixed everywhere.",
-"Second column: the L1 ball. Remember the LMO slide: its LMO switches on only one weight per step. So the template is built a few pixels at a time, and you get scattered dots. It's sparse: most pixels stay black.",
-"Now the last column: the hypercube. Here the LMO does the opposite: it pushes every weight to plus or minus tau at every step. So nearly every pixel is at full strength, and you get these bright, saturated, smooth shapes. Dense instead of sparse.",
-"And the third column, the L2 ball. It looks almost the same as SGD. That's exactly what we expect: its LMO points along the gradient, so it behaves like SGD with weight decay.",
-"So: same data, same model, same training budget. Only the constraint set changes, and the learned representation changes completely: sparse, dense, or SGD-like. That's what the paper means when it calls the constraint an inductive bias. (Only if asked why the L1 ball is green and the hypercube is red: The paper doesn't explain the colours, but here's my reading. Only the differences between the ten templates matter, so a template can be shifted to all red without changing any prediction. The L1 ball picks just the single strongest piece of evidence, which is usually 'ink here means it is this digit', so it's green. The hypercube keeps only the sign of the gradient, and the other nine digits outnumber this one nine to one, so most pixels end up as full-strength 'evidence against', so they're red.)"
+"Now let’s see what the constraint does to the weights. Does changing the shape change what the model learns?",
+"The model learns one weight per pixel for each digit. We can lay those weights out as a picture. Green means ink at that spot raises the score. Red means ink lowers it. The top row shows zero. The bottom row shows five.",
+"Start with ordinary SGD on the left. You can see the digit, with red and green mixed around it.",
+"With the L1 ball, each target picks one pixel location. A few locations stand out in the final template. That’s why you see scattered dots.",
+"Look at the last column. The box can push many weights toward their limits at once. That gives us large, bright regions.",
+"Now look at the third column. The L2 result looks a lot like SGD. Its target points against the gradient.",
+"The data and model are the same. The different constraints give us different weight patterns. That’s what the authors mean by inductive bias."
 ],
-"n": "So why exactly does each region give its picture? One line of algebra explains all four.",
+"n": "The update helps explain these pictures.",
 "b": [
 "experiment 1",
 "why the pictures differ"
@@ -1201,14 +1205,14 @@ window.SCRIPT=[
 },
 {
 "s": [
-"We just saw four very different pictures. Now let's see why.",
-"One line of algebra explains it. Start from the shrink form of the Frank–Wolfe step that we saw earlier: »theta t plus one equals one minus alpha, times theta t, plus alpha v t.« Every step shrinks the weights and adds a small piece of the LMO output.",
-"Now apply it twice. »theta t plus two equals one minus alpha squared, theta t, plus alpha one minus alpha v t, plus alpha v t plus one.« The old LMO output is still there, just shrunk once more, and the new one is added.",
-"Repeat that T times. »theta T equals one minus alpha to the T, theta zero, plus a weighted sum of all the LMO outputs.« The initialization fades away geometrically, and what's left is basically a weighted average of the LMO outputs, with recent ones counting most. So the weights end up looking like the LMO outputs.",
-"And that explains the pictures. With the L1 ball, every LMO output is a single pixel, so the weights are a mix of a few pixels: scattered dots. With the hypercube, every output sets every pixel to plus or minus tau, so the weights get pushed to plus or minus tau everywhere: saturated shapes. And with the L2 ball, the output is just the gradient direction, so the weights are a decayed sum of gradients, which is basically SGD.",
-"The constraint acts as an inductive bias. Choosing a region influences which pixels end up carrying weight in the learned template."
+"We’ve seen the pictures. Now let’s connect them to the update.",
+"At each step, we keep part of the old weights and mix in part of the new target. »Theta at t plus one equals one minus alpha times theta at t, plus alpha times v t.«",
+"Run that twice. The first target is still there, but it gets shrunk again. Then we add a piece of the second target.",
+"Keep going. If the step size stays fixed, the starting weights gradually fade. Recent targets count more than older ones.",
+"This helps explain the pictures. L1 can emphasize a few repeatedly chosen pixels. The box can emphasize many at once. L2 follows the direction of the negative gradient estimate.",
+"So the shape of the region influences which pixels get more weight in the final template."
 ],
-"n": "We can see the difference in a picture. Experiment three puts a number on it by counting the active weights.",
+"n": "Next, we’ll count the active weights.",
 "b": [
 "experiment 2",
 "experiment 3"
@@ -1216,14 +1220,14 @@ window.SCRIPT=[
 },
 {
 "s": [
-"Experiment three makes this more quantitative: how many weights is the network actually using?",
-"They call a weight inactive if, after training, its absolute value is smaller than its random initial value. Why that threshold? Remember the mix-of-LMO-outputs formula: every step multiplies all weights by one minus alpha. So a weight that the LMO never picks just decays below its initial value. If a weight is bigger than at the start, the data must have pushed it there. Then they count the active ones. They do this on MNIST with an MLP of about 26 thousand parameters and a CNN of about 93 thousand, averaged over five runs.",
-"How to read the plot: each curve is one training run followed over time. As training goes on, the test error drops, so the curve moves from right to left. The y-axis is the number of active weights, on a log scale, so lower means the network uses fewer weights. The left end of each curve is where training finished.",
-"The blue line at the bottom is the K-sparse polytope, where each LMO output switches on only K weights, ten percent of the weights for the MLP, three percent for the CNN. It ends with far fewer active weights, roughly half or less, at a similar error, in both networks.",
-"The red line at the top is the hypercube, which uses the most, and that matches its dense LMO. Weight decay and unconstrained SGD are somewhere in between.",
-"So the geometric story from before really shows up in the numbers. And it suggests that constraint sets could be one route to sparse networks."
+"Experiment three asks how many weights stay active.",
+"The authors call a weight inactive if its magnitude falls below its starting magnitude. This makes sense for weights the target never picks. They shrink at every step. The authors count active weights in a small MLP and a CNN on MNIST.",
+"The horizontal axis shows test error. The vertical axis shows how many weights are active, on a log scale. Training moves the curve from right to left. Lower on the plot means fewer active weights.",
+"The blue curve shows the K-sparse region. It keeps far fewer weights active at a similar test error, in both networks.",
+"The red curve shows the box. It keeps the most weights active. Both SGD baselines fall in between.",
+"This gives us a number to go with the visual difference we saw in experiment two."
 ],
-"n": "That gives us a picture of what happens inside these small networks. Let’s move to deep image classifiers.",
+"n": "Now let’s try deeper image classifiers.",
 "b": [
 "why the pictures differ",
 "experiment 4 setup"
@@ -1231,15 +1235,15 @@ window.SCRIPT=[
 },
 {
 "s": [
-"So far, we’ve looked inside the network. We’ve seen that changing the constraint changes which weights stay active. Now let’s look at what the network actually predicts. If we train a deep classifier this way, can it still get a new image right? That’s the purpose of Experiment Four. We compare against plain SGD first, and then against a stronger baseline: SGD with weight decay.",
-"Start with the same update as before. We shrink the old weights and add a fraction of the point returned by the linear minimization oracle.",
-"For the L2 ball, that point is opposite to momentum. Normalizing the vector preserves its direction and the relative sizes of its coordinates. The shrink term resembles weight decay, which makes SGD with weight decay a useful baseline.",
-"For the box, take the sign of each momentum coordinate. A small positive coordinate and a large positive coordinate select the same target value. The distance each weight moves still depends on where it started.",
-"Why keep both SGD rows? A gain over plain SGD could also be achieved by adding weight decay. The second comparison tells us whether the constrained method is competitive with that option too.",
-"CIFAR-10 and CIFAR-100 use the same image size and training-set size. CIFAR-100 asks for ten times as many labels with one tenth as many examples per label. ImageNet increases both the number of labels and the training-set size.",
-"The next table has five columns because the authors tested five dataset and network pairs. DenseNet appears twice. Within each column, we keep the task and architecture fixed and change how the weights are trained."
+"So far, we’ve looked at what happens to the weights. Now let’s look at the predictions. Can a deep network trained with constraints still recognize new images?",
+"The update works the same way as before. Keep part of the current weights and move toward the target.",
+"With the L2 ball, the target points against the momentum estimate. Rescaling keeps that direction. The old weights also shrink, like they do with weight decay.",
+"With the box, the target uses the sign of each entry. Two positive entries get the same target value even if one is much larger.",
+"We compare with two baselines. Plain SGD gives us a starting point. SGD with weight decay shows how we compare with a method that already controls weight growth.",
+"CIFAR-10 and CIFAR-100 use the same number of training images. CIFAR-100 has more classes, so it has fewer images per class. ImageNet has more classes and many more images.",
+"The next table has five columns. Each column fixes a dataset and a network. We change only how we train the weights."
 ],
-"n": "Let’s read the GoogLeNet column together, then check whether the same pattern holds across all five.",
+"n": "Let’s read the GoogLeNet column first.",
 "b": [
 "experiment 3",
 "experiment 4"
@@ -1247,15 +1251,15 @@ window.SCRIPT=[
 },
 {
 "s": [
-"Focus on CIFAR-100 with GoogLeNet. Every entry in this column answers the same question: how often is the model’s first guess correct?",
-"The three dataset headings span five columns. Compare methods vertically. A score on CIFAR-10 and a score on ImageNet come from different classification tasks.",
-"Start with the two SGD rows. Without weight decay, GoogLeNet scores 76.82 percent. With weight decay it reaches 77.50. That gives us a stronger baseline before we even try Frank–Wolfe.",
-"Now read the L2 row: 78.88 percent. Subtract 77.50 and we get a gain of 1.38 percentage points. The other positive bar is DenseNet on CIFAR-10, up 0.45 points.",
-"On the same CIFAR-10 dataset, switching to WideResNet reverses the ranking: L2 trails weight decay by 0.55 points. On ImageNet it trails by 1.43 on DenseNet and 0.32 on ResNeXt.",
-"Now compare the two SFW rows directly. L2 scores higher in all five columns. The box beats plain SGD in three settings and beats SGD with weight decay only on DenseNet with CIFAR-10.",
-"The CIFAR plus-minus values describe variation across runs. ImageNet has no such values, so we know the reported ranking but cannot tell how stable the smaller gap is."
+"Let’s start with GoogLeNet on CIFAR-100. Top-one accuracy means how often the model gets the right answer on its first guess.",
+"Read down a column. That way we compare methods on the same dataset and network.",
+"Plain SGD gets 76.82 percent. With weight decay, it goes up to 77.50.",
+"L2 Frank–Wolfe gets 78.88 percent. That’s 1.38 percentage points above weight decay. On CIFAR-10 with DenseNet, the gain is 0.45 points.",
+"With WideResNet on CIFAR-10, weight decay leads by 0.55 points. It also leads on both ImageNet models.",
+"Now compare the two constrained methods. L2 beats the box in all five columns. The box beats plain SGD in three and beats weight decay in one.",
+"The plus-or-minus numbers show variation across CIFAR runs. ImageNet has no spread reported, so it’s hard to judge how stable the small gaps are."
 ],
-"n": "Why does the baseline matter so much? WideResNet gives a concrete example if we look at training and test accuracy together.",
+"n": "WideResNet lets us compare training and test accuracy.",
 "b": [
 "experiment 4 setup",
 "the main result"
@@ -1263,13 +1267,13 @@ window.SCRIPT=[
 },
 {
 "s": [
-"Here is the answer to our opening question. Constrained training can be competitive on deep classifiers. How strong that result looks depends on the baseline: L2 leads plain SGD five times, and SGD with weight decay twice.",
-"With plain SGD, the model correctly classifies 99.98 percent of its training images. On the test set it scores 94.44 percent.",
-"With weight decay, training accuracy is essentially the same, but test accuracy rises to 95.13 percent.",
-"L2-SFW also fits nearly every training image and gets 94.58 percent on the test set.",
-"So all three methods fit the training data. The ordering appears on unseen images. Here the constraint improves on plain SGD, while weight decay gives the highest test accuracy."
+"Across the five settings, L2 Frank–Wolfe beats plain SGD every time. It beats SGD with weight decay twice.",
+"Look at WideResNet. Plain SGD gets almost 100 percent on the training images. It gets 94.44 percent on the test set.",
+"With weight decay, training accuracy stays about the same. Test accuracy goes up to 95.13 percent.",
+"L2 Frank–Wolfe also fits almost all the training images. Its test accuracy is 94.58 percent.",
+"All three fit the training data. We see the difference on new images. Here, weight decay gives the best test score."
 ],
-"n": "That brings us to the practical trade-off: what control does the constraint give us, and what choices do we still have to tune?",
+"n": "So when is the constraint useful?",
 "b": [
 "Table 1",
 "critique"
@@ -1277,13 +1281,13 @@ window.SCRIPT=[
 },
 {
 "s": [
-"What do we gain by choosing a constraint, and what does that choice cost?",
-"First, we can choose the update shape. With a K-sparse region, the point selected at each step has at most K active coordinates. With a box, that point can be dense.",
-"Second, consider training time. For the L2 ball and the box, the linear minimization step is cheap. The authors report training times comparable to SGD.",
-"The first limitation is that we still have to tune the width. It controls how much room the weights have to move, and the authors picked it separately for each model.",
-"Finally, look at ImageNet. SGD with weight decay led by about 1.4 points on DenseNet and 0.3 on ResNeXt. The paper gives no run-to-run variation there, so we cannot tell how consistent those gaps are."
+"So what does this method give us, and where does it fall short?",
+"We can choose the shape of the target. A K-sparse region picks at most K entries. A box can pick many entries at once.",
+"For the L2 ball and the box, picking the target is cheap. The authors report similar training times to SGD.",
+"We still have to pick the width of the region. The authors tune it separately for each model.",
+"On ImageNet, SGD with weight decay leads on both networks. We don’t know how much those gaps vary between runs."
 ],
-"n": "Let me wrap up with the main takeaways.",
+"n": "Let me wrap up.",
 "b": [
 "main result",
 "takeaways"
@@ -1291,14 +1295,14 @@ window.SCRIPT=[
 },
 {
 "s": [
-"So, to wrap up.",
-"Stochastic Frank–Wolfe can train deep networks with constrained weights: no projections, just one cheap LMO per layer.",
-"On prediction, L2-SFW scored higher than plain SGD in all five deep-network settings. Once SGD used weight decay, L2 led in two. That is the evidence for competitive test accuracy.",
-"The region you choose shapes the network: K-sparse polytopes give sparse weights, and the hypercube gives dense ones.",
-"The simplest version, SFW with momentum, beats the variance-reduced variants when you count gradients.",
-"To run SFW in these experiments, the authors matched the SGD step length, sized each layer’s region using its initial weights, and used momentum of zero point nine."
+"Let me end with the main points.",
+"Frank–Wolfe keeps weights inside the chosen set. It does this by picking a target and moving toward it.",
+"With the L2 constraint, it beats plain SGD in all five tests. It beats SGD with weight decay in two.",
+"The shape of the set also matters for the weights we learn. The sparse region and the box give very different patterns.",
+"In the first experiment, adding momentum worked best at the same gradient budget.",
+"In the deep-network experiments, the authors scale the region using the initial weights and use momentum of point nine."
 ],
-"n": "Taken together, the experiments show why the choice of region is worth studying: it influences the learned weights, and the L2 version remained competitive on deep classifiers. Here are the references.",
+"n": "Here are the references.",
 "b": [
 "critique",
 "references"
@@ -1306,7 +1310,7 @@ window.SCRIPT=[
 },
 {
 "s": [
-"These are the main references. The code is on GitHub, at ZIB-IOL slash StochasticFrankWolfe, for both PyTorch and TensorFlow, and Pokutta also wrote a blog post that explains the paper."
+"Here are the references. The authors also released the code on GitHub and published a blog post about the paper."
 ],
 "n": "",
 "b": [
@@ -1316,7 +1320,7 @@ window.SCRIPT=[
 },
 {
 "s": [
-"So that's the end of my presentation. Thank you, and I'm happy to take any questions."
+"That’s all I have. Thanks for listening. I’m happy to take questions."
 ],
 "n": "",
 "b": [
@@ -1326,7 +1330,7 @@ window.SCRIPT=[
 },
 {
 "s": [
-"(Backup section. Don't present these. Jump here only if someone asks about the region size, the other digits, the shapes, the step size, or convergence. Press End to jump to the last slide, or use ← and →.)"
+"Backup slides for questions."
 ],
 "n": "",
 "b": [
@@ -1336,11 +1340,11 @@ window.SCRIPT=[
 },
 {
 "s": [
-"The second practical choice is how big the region should be. To keep it simple, they use the same type of constraint for every layer, and only change the size. And the size is tied to the initialization.",
-"If a weight vector x in R n has entries drawn from a normal distribution with mean zero and standard deviation sigma, like Glorot or He initialization, equation fifteen gives its expected L2 norm. »The expected norm of x equals n sigma times Gamma of n over two plus one half, over root two times Gamma of n over two plus one.«",
-"Equation sixteen then sets the diameter of the region: »D of C equals two w times the expected norm of x.«",
-"So w is a width factor: how much bigger than the initialization the region is allowed to be. It's a new hyperparameter, and in the deep-network experiments it ranges from 10 to 100.",
-"One small detail: sometimes the LMO has more than one solution, for example when the gradient is zero. Then they pick a random vertex on the boundary. With this rule, SFW can even train a hypercube-constrained layer that starts at exactly zero."
+"How large should the region be? The authors set its size separately for each layer.",
+"Equation fifteen estimates the typical size of the starting weights. It uses the number of weights and the scale of the random initialization.",
+"Equation sixteen uses that estimate to set the diameter. »D of C equals two times w times the expected norm of x.«",
+"W is the width factor. The authors tune it between ten and one hundred in the deep-network experiments.",
+"If several points tie, the authors use a tie-breaking rule. For example, at zero gradient they can pick a random vertex."
 ],
 "n": "",
 "b": [
@@ -1350,10 +1354,10 @@ window.SCRIPT=[
 },
 {
 "s": [
-"This is the full version from the appendix, with all ten digits. They also add Adam, Adagrad and Adadelta, plus the K-sparse polytope and the L5 ball. The K-sparse polytope gives these blob-like, mostly green templates, and the L5 ball and the hypercube look quite similar.",
-"What I find interesting is the table. Even though the pictures look completely different, the test accuracy is around 92 percent for almost all of them.",
-"The exception is the L1 ball, at about 87 percent, and the hypercube is a bit lower, at about 90.",
-"One thing to keep in mind: these are single runs of 10 epochs, so I wouldn't read too much into differences of a few tenths of a percent."
+"Here are all ten digits from the appendix. These plots include more optimizers and constraint shapes.",
+"The pictures look quite different. Most test scores are still around ninety-two percent.",
+"The L1 ball gets about eighty-seven percent. The box gets about ninety.",
+"Each result is from a single ten-epoch run. Small gaps are hard to interpret."
 ],
 "n": "",
 "b": [
@@ -1363,12 +1367,12 @@ window.SCRIPT=[
 },
 {
 "s": [
-"These are the sets C they use. One thing first: the constraint is applied per layer, so each layer's weights and biases get their own region. I'm sketching them in two dimensions.",
-"The first one to remember is the L2 ball: »all x with L2 norm at most tau.« In 2D, it's a circle.",
-"Second, the L1 ball, which is a diamond. Its corners sit on the axes, so its LMO returns just one non-zero entry. The updates are sparse.",
-"Third, the hypercube, or L-infinity ball, which is a square. Its corners have plus or minus tau in every entry, so its LMO is dense.",
-"And fourth, the K-sparse polytope, which sits in between. »It's the L1 ball of radius tau K, intersected with the L-infinity ball of radius tau.« With K equal to one you get the L1 ball, and with K equal to n you get the hypercube. So K tunes how sparse the update is.",
-"They also list the K-norm ball, the simplex and the permutahedron, but those are mainly for completeness."
+"Here are four of the regions. Each layer gets its own region. These drawings show the shapes in two dimensions.",
+"The L2 ball looks like a filled circle. It bounds the total L2 norm.",
+"The L1 ball looks like a diamond. Its target can put all the weight on a single entry.",
+"The box looks like a square. Its target can use every entry.",
+"The K-sparse region sits between the diamond and the box. K controls how many entries the target can use.",
+"The paper also lists other regions, including the simplex and the permutahedron."
 ],
 "n": "",
 "b": [
@@ -1378,12 +1382,12 @@ window.SCRIPT=[
 },
 {
 "s": [
-"Before the experiments, two practical details you need to make this work. The first one is the step size.",
-"Look at the length of one step. »The length of the step equals alpha times the length of v t minus theta t.« And v t sits on the boundary of C, so that length grows with the size of C. Make the region ten times bigger, and with the same alpha the step is about ten times longer. You can see it in the picture: same alpha, very different steps. So a good alpha would depend on tau, which is annoying to tune.",
-"They suggest two fixes. Option A, equation thirteen: »theta t plus one equals theta t plus the min of alpha over D of C and one, times v t minus theta t.« So we divide alpha by the diameter of C. This is similar to how Loshchilov and Hutter decouple the learning rate from the weight decay. And the min with one just makes sure we never go past v t.",
-"Option B, equation fourteen: »the min of alpha times the norm of g t, over the norm of v t minus theta t, and one.« Here we rescale the step so it has the same length as the gradient.",
-"And here's why that works. »The step length is alpha times the norm of g t, over the norm of v t minus theta t, times the norm of v t minus theta t, which is just alpha times the norm of g t.« The arrow's own length cancels out. So the vertex only gives the direction, and the length is the same as an SGD step. That means alpha means the same thing as SGD's learning rate, and you can compare the two directly. They also say it stabilizes very deep networks, and it's what they use for CIFAR and ImageNet.",
-"And the second practical detail, at the bottom: the size of each layer's region is tied to its random initialization, scaled by a width factor w that they tune between 10 and 100. Momentum is 0.9, and the batch sizes are the same as for SGD. I have more on the region size in the backup slides."
+"Here’s how the authors choose the step size.",
+"The step length depends on alpha and on how far away the target is. A larger region can put the target farther away.",
+"Equation thirteen divides the step size by the diameter. The cap keeps us from passing the target.",
+"Equation fourteen rescales the update using the length of the gradient step.",
+"The distance to the target cancels in the formula when the cap is inactive. That gives a step length of alpha times the gradient norm.",
+"The authors use this rule for CIFAR and ImageNet. They scale the region to the starting weights and use momentum of point nine."
 ],
 "n": "",
 "b": [
@@ -1393,15 +1397,15 @@ window.SCRIPT=[
 },
 {
 "s": [
-"Quickly, on convergence. The question is: how do we know the algorithm is done?",
-"Without constraints, we stop when the gradient is zero. But with a constraint, the best point can sit on the boundary of C, where the gradient is not zero. So we need a different stopping test. Let me build it in four steps, with the picture on the right.",
-"Step one: the linear model of the loss around theta. »L of v is approximately L of theta plus the inner product of grad L of theta with v minus theta.« The three coloured pieces are: the value now, the slope, and how far we move. In the picture, the blue arrow is minus the gradient, and the dashed lines are the level lines of this linear model: moving along the arrow goes downhill.",
-"Step two: if we jumped from theta to some point v, how much would this model say the loss goes down? Subtract the model value from L of theta. Watch the red L of theta: it cancels. And the minus sign moves onto the gradient, in blue. We get »the inner product of v minus theta with minus grad L.« In the picture, that's the pink bar: how far v lies along the downhill arrow.",
-"Step three: take the best v in the whole set. That's the Frank–Wolfe gap, equation seven. »G of theta equals the max over v in C of the inner product of v minus theta with minus grad L of theta.« In the picture, the best point is the top-right corner, v star, and the long pink bar is G: the biggest decrease the linear model still promises inside C.",
-"Step four: how do we compute it? The best v is exactly the LMO output, v star, the ringed corner. So »G of theta equals the inner product of grad L with theta minus v star.« One LMO call and one inner product, and SFW calls the LMO at every step anyway.",
-"Why this is the right stopping test. G is never negative, because v equal to theta gives zero. And watch the picture: when theta reaches that corner, every other point of C is uphill, so G becomes zero, even though the gradient still points out of the set. That's what a stationary point means with a constraint. Without constraints, it reduces to the gradient being zero.",
-"The theorem they cite, from Reddi and others in 2016, says »the expected gap at theta a is big O of L of theta zero minus L of theta star, over root T.« The gap goes to zero at rate one over root T, as in the purple curve.",
-"The catch is that it assumes no momentum and a batch size equal to T, while the experiments use momentum and fixed batches. So the theory is a guide, not a guarantee for what they actually run."
+"How can we tell if there’s still a downhill direction we can take inside the set?",
+"At a boundary point, the gradient can be nonzero even when there’s no feasible way to go downhill. The Frank–Wolfe gap checks for one.",
+"First, use the gradient to make a linear model of the loss around the current point.",
+"Second, use that model to estimate the decrease from moving to a candidate point.",
+"Third, pick the candidate with the largest predicted decrease. That decrease is the Frank–Wolfe gap.",
+"The best candidate is the point the LMO already gives us. We can compute the gap with one inner product.",
+"We can always stay where we are, so the gap is at least zero. If it’s zero, there’s no feasible first-order downhill direction.",
+"Under the theorem’s assumptions, the expected gap decreases on the order of one over the square root of T.",
+"The theorem assumes a batch size that grows with T and uses no momentum. The experiments use fixed batches and momentum."
 ],
 "n": "",
 "b": [
@@ -1411,12 +1415,12 @@ window.SCRIPT=[
 },
 {
 "s": [
-"So why is this better? This table compares what Frank–Wolfe needs, the LMO, with what projected SGD needs, the projection. I'll go row by row, and the box under the table explains each formula.",
-"First, the L2 ball. The LMO is »minus tau times g over the norm of g.« g over its norm is just the gradient's direction, with length one. The minus sign turns it downhill, and tau stretches it out to the edge of the ball. So the LMO gives the point of the ball that is furthest downhill. In the picture on the right, the axes are x one and x two, with ticks at plus and minus tau. I use one example throughout: g equals 0.8, minus 0.3, so minus g points left and a little up. The left half is the LMO: the orange arrow is minus g, and the red dot is the point it picks, minus tau g over the norm of g, on the circle in exactly that direction. The right half is the projection: a point x outside, and the blue line to its closest point. For the ball you just rescale x. Both are one line.",
-"Second, the hypercube. The LMO is »minus tau times the sign of g.« Sign of g replaces each entry by plus or minus one. So each weight goes to minus tau if its gradient is positive, and plus tau if it's negative: a corner of the cube. With our example, g one is positive and g two is negative, so v is minus tau, plus tau: the top-left corner in the picture. The projection is just clipping each entry. Again, both trivial.",
-"Third, the L1 ball, the diamond. The LMO finds the single entry with the largest gradient and puts the whole budget tau there: one non-zero entry, one corner. In our example the first entry is the biggest, 0.8, so v is minus tau, zero: the left corner of the diamond, right on the x one axis. But projecting onto the diamond is not a rescale or a clip: the closest point lands in the middle of an edge, and you need a dedicated algorithm that sorts the entries.",
-"The paper lists more sets, like general Lp balls, the K-sparse polytope and the permutahedron. Their LMOs are also cheap: a closed form, a partial sort, or the Hungarian method. I'll only need the first three today.",
-"So the takeaway: for many interesting sets, the LMO is a cheap, coordinate-wise rule, about as cheap as an SGD step, while the projection often needs an algorithm of its own."
+"This table compares the Frank–Wolfe target with the nearest point used by projected SGD.",
+"For the L2 ball, the target lies on the edge in the negative gradient direction. Projection rescales the point that landed outside. Both are simple.",
+"For the box, the target comes from the signs of the gradient. Projection clips each entry to its allowed range.",
+"For the L1 ball, the target uses the entry with the largest gradient magnitude. Projection onto the diamond can need more work.",
+"Other shapes have their own rules. For some, we can find the target with a partial sort or a matching algorithm.",
+"For the shapes used in the deep-network experiment, the target is cheap to compute."
 ],
 "n": "",
 "b": [
@@ -1426,12 +1430,12 @@ window.SCRIPT=[
 },
 {
 "s": [
-"Experiment one compares four versions of stochastic Frank–Wolfe. They all run Algorithm 1; the LMO and the step stay the same. The only difference is how they build the direction m t. And every m t is made of up to three ingredients, each with its own colour: a fresh gradient from this batch, in blue; something remembered from before, in orange; and a correction, in green. On the right, the cross is the true gradient, each dot is one estimate, and the bar is the cost.",
-"First, plain SFW: only the blue ingredient. »m t equals g t at theta t,« the average gradient of this batch at the current weights. It's correct on average, but every batch sees different data, so the estimates scatter: the widest cloud on the right. Cost: one gradient per sample.",
-"Second, MSFW: add the orange ingredient, memory. »m t equals one minus rho times m t minus one, plus rho times g t.« With rho equal to 0.1 we keep ninety percent of the running average and add ten percent of the new gradient, so the noise partly cancels. Same cost, one gradient per sample, but a much tighter cloud. The catch: the memory was computed at old weights, so it lags a little.",
-"Third, SVRF: orange plus green, but the orange part is different. »m t equals grad L at theta tilde, plus g t at theta t minus g t at theta tilde.« Theta tilde is a snapshot of the weights, saved at the start of each epoch, where we compute the exact gradient over all the data: that's the anchor. The green part is the correction: the same batch, evaluated at the current weights and at the snapshot. Because it's the same batch, its own noise cancels in the difference. That's a tight cloud. Cost: two gradients per sample, plus a full pass every epoch.",
-"Fourth, ORGFW: all three ingredients. Look at the formula: »it's exactly the MSFW line, plus one minus rho times g t at theta t minus g t at theta t minus one.« So ORGFW is MSFW plus a correction. The correction moves the memory forward by how much this batch's gradient changed in one step, which fixes the lag of momentum. Less noise than MSFW, but again two gradients per sample.",
-"So here's the whole picture in one table. SFW: fresh gradient only. MSFW: fresh plus memory. SVRF: an exact anchor plus a correction. ORGFW: MSFW plus a correction. The correction is the variance-reduction trick: the same batch evaluated twice, so its noise cancels. Less noise per step, but twice the cost. Experiment one asks whether that pays off."
+"These methods use the same Frank–Wolfe update. They differ in how they estimate the gradient.",
+"Plain SFW uses only the current mini-batch. It needs one gradient per sample, and the estimate can be noisy.",
+"MSFW adds momentum. It keeps a running average and still needs one gradient per sample.",
+"SVRF starts with a full gradient at an earlier point. It uses the same mini-batch at two points to correct that older estimate.",
+"ORGFW adds a correction to the momentum estimate. It computes gradients at the current and previous weights.",
+"The extra gradients can reduce noise. Experiment one asks whether the improvement is worth that extra work."
 ],
 "n": "",
 "b": [
@@ -1662,7 +1666,41 @@ function render(){
   remote=false;
 }
 function send(m){if(AUD){try{if(window.opener&&!window.opener.closed){window.opener.postMessage(m,'*');return}}catch(e){}try{bc&&bc.postMessage(m)}catch(e){}return}try{bc&&bc.postMessage(m)}catch(e){}try{if(aud&&!aud.closed)aud.postMessage(m,'*')}catch(e){}try{if(AUD&&window.opener)window.opener.postMessage(m,'*')}catch(e){}}
-function fmtS(t){return markS(esc(t).replace(/»(.*?)«/g,'<span class="read">$1</span>'),cur)}
+const sentenceBreaks = typeof Intl.Segmenter === 'function'
+  ? new Intl.Segmenter('en', {granularity:'sentence'})
+  : null;
+function spokenParagraphs(line) {
+  if (line.trim().split(/\s+/).length < 29) return [line.trim()];
+  const sentences = sentenceBreaks
+    ? [...sentenceBreaks.segment(line)].map(item => item.segment.trim())
+    : line.split(/(?<=[.!?])\s+(?=[A-Z])/);
+  const paragraphs = [];
+  let group = '', count = 0;
+  for (const sentence of sentences) {
+    if (!sentence) continue;
+    const combined = group ? group + ' ' + sentence : sentence;
+    if (group && (count === 2 || combined.split(/\s+/).length > 32)) {
+      paragraphs.push(group);
+      group = sentence;
+      count = 1;
+    } else {
+      group = combined;
+      count++;
+    }
+  }
+  if (group) paragraphs.push(group);
+  return paragraphs;
+}
+function fmtS(text) {
+  const html = text.split(/(»[^«]*«)/g).map(chunk => {
+    if (chunk.startsWith('»') && chunk.endsWith('«')) {
+      return '<div class="read">' + esc(chunk.slice(1,-1)) + '</div>';
+    }
+    return chunk.split(/\r?\n/).filter(line => line.trim()).flatMap(spokenParagraphs)
+      .map(paragraph => '<p>' + esc(paragraph) + '</p>').join('');
+  }).join('');
+  return '<div class="spoken">' + markS(html,cur) + '</div>';
+}
 let pvBuilt=-1;
 function pres(){
   if(!document.body.classList.contains('presenter'))return;
